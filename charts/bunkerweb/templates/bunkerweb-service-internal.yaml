@@ -1,4 +1,4 @@
-{{- if .Values.bunkerweb.enabled | default true }}
+{{- if .Values.bunkerweb.enabled }}
 apiVersion: v1
 kind: Service
 metadata:

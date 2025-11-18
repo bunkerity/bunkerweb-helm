@@ -1,4 +1,4 @@
-{{- if and (.Values.bunkerweb.enabled | default true) (eq (.Values.bunkerweb.kind | default "Deployment") "Deployment") }}
+{{- if and .Values.bunkerweb.enabled (eq (.Values.bunkerweb.kind | default "Deployment") "Deployment") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
