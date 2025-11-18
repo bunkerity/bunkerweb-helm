@@ -1,3 +1,4 @@
+{{- if .Values.bunkerweb.enable | default true }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -37,4 +38,5 @@ spec:
       protocol: TCP
       port: 9113
       targetPort: 9113
+{{- end }}
 {{- end }}
