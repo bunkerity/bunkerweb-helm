@@ -1,4 +1,4 @@
-{{- if and (.Values.bunkerweb.enable | default true) .Values.bunkerweb.hpa.enabled }}
+{{- if and (.Values.bunkerweb.enabled | default true) .Values.bunkerweb.hpa.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:

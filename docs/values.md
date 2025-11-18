@@ -48,6 +48,7 @@ Main reverse proxy and WAF component
 | `bunkerweb` | Main reverse proxy and WAF component | `object` | See nested values |
 | `bunkerweb.affinity` | Pod affinity rules | `object` | `{}` |
 | `bunkerweb.enableInstance` | Pod annotations for Kubernetes integration (required) This enables BunkerWeb to be managed by the co... | `bool` | `true` |
+| `bunkerweb.enabled` | Enable external service creation | `bool` | `true` |
 | `bunkerweb.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `bunkerweb.hostPorts` | Use host ports for direct traffic (only for DaemonSet) Allows binding to ports 80/443 on each node | `bool` | `true` |
 | `bunkerweb.hpa` | Resource requests and limits RECOMMENDED: Uncomment and adjust for production resources: requests: c... | `object` | See nested values |
@@ -98,9 +99,9 @@ Main reverse proxy and WAF component
 | `bunkerweb.hpa.behavior.scaleDown` | Configuration for scaleDown | `object` | See nested values |
 | `bunkerweb.hpa.behavior.scaleUp` | Configuration for scaleUp | `object` | See nested values |
 | `bunkerweb.hpa.cpu.enabled` | Set to true to create an Ingress resource for the UI | `bool` | `true` |
-| `bunkerweb.hpa.cpu.targetAverageUtilization` | Configuration for targetAverageUtilization | `int` | `60` |
+| `bunkerweb.hpa.cpu.targetAverageUtilization` | Configuration for targetAverageUtilization | `int` | `90` |
 | `bunkerweb.hpa.memory.enabled` | Set to true to create an Ingress resource for the UI | `bool` | `false` |
-| `bunkerweb.hpa.memory.targetAverageUtilization` | Configuration for targetAverageUtilization | `int` | `70` |
+| `bunkerweb.hpa.memory.targetAverageUtilization` | Configuration for targetAverageUtilization | `int` | `90` |
 | `bunkerweb.livenessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck.sh']` |
 | `bunkerweb.readinessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck.sh', 'ok']` |
 | `bunkerweb.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |

@@ -1,5 +1,5 @@
 {{- $replicas := int .Values.bunkerweb.replicas }}
-{{- if and (.Values.bunkerweb.enable | default true) .Values.bunkerweb.pdb.create (gt $replicas 1) }}
+{{- if and (.Values.bunkerweb.enabled | default true) .Values.bunkerweb.pdb.create (gt $replicas 1) }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:

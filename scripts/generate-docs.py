@@ -12,7 +12,7 @@ Features:
 - Enhanced formatting with proper indentation
 
 Usage:
-    python3 scripts/generate-docs-enhanced.py
+    python3 scripts/generate-docs.py
 """
 
 import yaml

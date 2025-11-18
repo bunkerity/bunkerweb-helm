@@ -172,7 +172,7 @@ service:
 
 bunkerweb:
   # Enable BunkerWeb component, should always be true except for sidecar use cases
-  enable: true
+  enabled: true
   # Deployment type: "DaemonSet" or "Deployment" or "StatefulSet"
   # DaemonSet: Runs one pod per node (recommended for ingress)
   # Deployment: Runs specified number of replicas

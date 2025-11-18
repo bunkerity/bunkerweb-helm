@@ -1,4 +1,4 @@
-{{- if and (.Values.bunkerweb.enable | default true) (eq (.Values.bunkerweb.kind | default "DaemonSet") "DaemonSet") }}
+{{- if and (.Values.bunkerweb.enabled | default true) (eq (.Values.bunkerweb.kind | default "DaemonSet") "DaemonSet") }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

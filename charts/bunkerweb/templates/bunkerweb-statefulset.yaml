@@ -1,4 +1,4 @@
-{{- if and (.Values.bunkerweb.enable | default true) (eq .Values.bunkerweb.kind "StatefulSet") }}
+{{- if and (.Values.bunkerweb.enabled | default true) (eq .Values.bunkerweb.kind "StatefulSet") }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
