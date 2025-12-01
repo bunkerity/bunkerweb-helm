@@ -63,6 +63,12 @@ spec:
              {{- if .Values.controller.extraEnvs }}
               {{- toYaml .Values.controller.extraEnvs | nindent 12 }}
             {{- end }}
+            {{- if .Values.ui.logs.enabled }}
+            - name: LOG_TYPES
+              value: "stderr syslog"
+            - name: LOG_SYSLOG_ADDRESS
+              value: "{{ include "bunkerweb.syslogAddress" . }}"
+            {{- end }}
     {{- if .Values.controller.nodeSelector }}
       {{- with .Values.controller.nodeSelector }}
       nodeSelector:

@@ -815,3 +815,15 @@ Generate BunkerWeb feature environment variables
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Syslog address for UI logs
+Returns the configured syslog address if set, otherwise the UI sidecar service address
+*/}}
+{{- define "bunkerweb.syslogAddress" -}}
+{{- if and .Values.ui.logs.syslogAddress (ne .Values.ui.logs.syslogAddress "") -}}
+  {{- .Values.ui.logs.syslogAddress -}}
+{{- else -}}
+  {{- printf "ui-%s.%s.svc.%s:514" (include "bunkerweb.fullname" .) (include "bunkerweb.namespace" .) .Values.settings.kubernetes.domainName -}}
+{{- end -}}
+{{- end -}}

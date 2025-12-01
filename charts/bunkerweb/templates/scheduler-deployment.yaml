@@ -90,6 +90,12 @@ spec:
             {{- if .Values.scheduler.extraEnvs }}
               {{- toYaml .Values.scheduler.extraEnvs | nindent 12 }}
             {{- end }}
+            {{- if .Values.ui.logs.enabled }}
+            - name: LOG_TYPES
+              value: "stderr syslog"
+            - name: LOG_SYSLOG_ADDRESS
+              value: "{{ include "bunkerweb.syslogAddress" . }}"
+            {{- end }}
     {{- if .Values.scheduler.nodeSelector }}
       {{- with .Values.scheduler.nodeSelector }}
       nodeSelector:

@@ -986,6 +986,11 @@ ui:
     # Enable log collection sidecar
     enabled: false
 
+    # Syslog address for log forwarding
+    # Automatically set to Sidecar service if empty
+    # Format: HOST:PORT "syslog-server:514" do not append Protocol, it's set to UDP by default and port 514.
+    syslogAddress: ""
+
     # Syslog-ng container for log collection
     repository: balabit/syslog-ng
     pullPolicy: Always

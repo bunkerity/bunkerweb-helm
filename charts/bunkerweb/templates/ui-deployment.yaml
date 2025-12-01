@@ -88,6 +88,12 @@ spec:
               {{- else }}
               value: "{{ .Values.settings.ui.flaskSecret }}"
               {{- end }}
+            {{- if .Values.ui.logs.enabled }}
+            - name: LOG_TYPES
+              value: "stderr syslog"
+            - name: LOG_SYSLOG_ADDRESS
+              value: "{{ include "bunkerweb.syslogAddress" . }}"
+            {{- end }}
             - name: OVERRIDE_ADMIN_CREDS
               value: "{{ .Values.settings.ui.overrideAdminCreds }}"
             {{- if .Values.ui.extraEnvs }}

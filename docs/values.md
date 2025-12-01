@@ -66,7 +66,7 @@ Main reverse proxy and WAF component
 | `bunkerweb.repository` | Container image configuration | `string` | `"bunkerity/bunkerweb"` |
 | `bunkerweb.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
 | `bunkerweb.service` | Internal service configuration (for inter-pod communication) | `object` | See nested values |
-| `bunkerweb.tag` | Configuration for tag | `string` | `"1.6.5"` |
+| `bunkerweb.tag` | Configuration for tag | `string` | `"1.6.6"` |
 | `bunkerweb.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `bunkerweb.volumeMounts` | volumes: - name: shared-data persistentVolumeClaim: claimName: shared-pvc Custom volume mounts confi... | `list` | `[]` |
 | `bunkerweb.volumes` | Custom volumes configuration Allows mounting additional volumes to the BunkerWeb container | `list` | `[]` |
@@ -127,7 +127,7 @@ Web interface for BunkerWeb management and monitoring
 | `ui.readinessProbe` | Readiness probe configuration | `object` | See nested values |
 | `ui.repository` | Container image configuration | `string` | `"bunkerity/bunkerweb-ui"` |
 | `ui.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `ui.tag` | Configuration for tag | `string` | `"1.6.5"` |
+| `ui.tag` | Configuration for tag | `string` | `"1.6.6"` |
 | `ui.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `ui.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
 | `ui.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
@@ -138,6 +138,7 @@ Web interface for BunkerWeb management and monitoring
 | `ui.logs.persistence` | Persistent storage for logs | `object` | See nested values |
 | `ui.logs.pullPolicy` | Configuration for pullPolicy | `string` | `"Always"` |
 | `ui.logs.repository` | Syslog-ng container for log collection | `string` | `"balabit/syslog-ng"` |
+| `ui.logs.syslogAddress` | Syslog address for log forwarding Automatically set to Sidecar service if empty Format: HOST:PORT "s... | `string` | `""` |
 | `ui.logs.tag` | Configuration for tag | `string` | `"4.8.0"` |
 | `ui.readinessProbe.exec` | Configuration for exec | `object` | See nested values |
 | `ui.readinessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
@@ -174,7 +175,7 @@ Manages BunkerWeb configuration and coordination
 | `scheduler.pullPolicy` | Configuration for pullPolicy | `string` | `"Always"` |
 | `scheduler.repository` | Container image configuration | `string` | `"bunkerity/bunkerweb-scheduler"` |
 | `scheduler.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `scheduler.tag` | Configuration for tag | `string` | `"1.6.5"` |
+| `scheduler.tag` | Configuration for tag | `string` | `"1.6.6"` |
 | `scheduler.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `scheduler.usePrometheusExporter` | Enable Prometheus metrics exporter and creates a service for it Requires BunkerWeb PRO license | `bool` | `false` |
 | `scheduler.features.antibot` | Configuration for antibot | `object` | See nested values |
@@ -380,7 +381,7 @@ Kubernetes controller for automatic Ingress management
 | `controller.readinessProbe` | Readiness probe configuration | `object` | See nested values |
 | `controller.repository` | Container image configuration | `string` | `"bunkerity/bunkerweb-autoconf"` |
 | `controller.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `controller.tag` | Configuration for tag | `string` | `"1.6.5"` |
+| `controller.tag` | Configuration for tag | `string` | `"1.6.6"` |
 | `controller.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `controller.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
 | `controller.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
