@@ -53,6 +53,9 @@ settings:
   #   - totp-secrets      : TOTP secrets for 2FA
   #   - mariadb-user      : MariaDB username
   #   - mariadb-password  : MariaDB password
+  #   - api-token         : API Bearer token
+  #   - api-username      : API username, also require api-password
+  #   - api-password      : API password, also require api-username
   existingSecret: ""
 
   # ----- KUBERNETES INTEGRATION -----
@@ -140,6 +143,75 @@ settings:
 
     # TOTP secrets for two-factor authentication
     totpSecrets: ""
+
+  api:
+    # Authentication settings
+    # https://docs.bunkerweb.io/latest/api/#authentication
+    # API Bearer Token
+    # Leave Empty if using settings.existingSecret
+    apiToken: ""
+    # OR/AND API Username and Password
+    # Leave Empty if using settings.existingSecret
+    apiUsername: ""
+    apiPassword: ""
+    # OR/AND ConfigMap name that includes ACL based JSON File
+    # https://docs.bunkerweb.io/latest/api/#permissions-acl
+    apiAclBootstrapFile: ""
+
+    # API Configuration
+    # https://docs.bunkerweb.io/latest/api/#configuration
+    # Root path for the API
+    rootPath: ""
+    # URL for API documentation, set to an empty value to disable
+    docsUrl: "/docs"
+    # URL for ReDoc API documentation, set to an empty value to disable
+    redocUrl: "/redoc"
+    # URL for OpenAPI specification, set to an empty value to disable
+    openApiUrl: "/openapi.json"
+    # Forwarded allow IPs for correct client IP detection
+    forwardedAllowIps: "*"
+    # Whitelist configuration for API access
+    whitelist:
+      # Enable API whitelist functionality
+      enabled: true
+      # space-separated list of IPs/CIDR allowed to access the API
+      whitelistIps: "10.0.0.0/8"
+
+    # Rate limiting configuration for API access
+    # https://docs.bunkerweb.io/latest/api/#rate-limiting
+    rateLimit:
+      # Enable request rate limiting
+      enabled: true
+      # Strategy: "fixed-window" or "moving-window" or "sliding-window"
+      # https://limits.readthedocs.io/en/stable/strategies.html
+      strategy: "fixed-window"
+      # Rate limit per period,
+      # Supported formats: "[10/seconde]", "[100/minute]", "[1000/day]"
+      # https://limits.readthedocs.io/en/stable/quickstart.html#rate-limit-string-notation
+      defaults: ["100/minute"]
+
+    # Ingress configuration for API access
+    ingress:
+      # Set to true to create an Ingress resource for the API
+      enabled: false
+
+      # IngressClass name to use
+      ingressClassName: ""
+
+      # Domain name for API access
+      # Example: "bunkerweb-api.example.com"
+      serverName: ""
+
+      # Path for API access (usually "/")
+      serverPath: "/"
+
+      # Additional annotations for the Ingress resource
+      # Example: {"cert-manager.io/cluster-issuer": "letsencrypt-prod"}
+      extraAnnotations: {}
+
+      # Secret name containing TLS certificate
+      # Leave empty to disable HTTPS
+      tlsSecretName: ""
 
 # =============================================================================
 # SERVICE CONFIGURATION
@@ -1020,6 +1092,67 @@ ui:
         - /usr/share/bunkerweb/helpers/healthcheck-ui.sh
     initialDelaySeconds: 30
     periodSeconds: 1
+    timeoutSeconds: 1
+    failureThreshold: 3
+
+# =============================================================================
+# EXTERNAL API COMPONENT
+# =============================================================================
+# External API for BunkerWeb that exposes REST interface for automation tools
+
+api:
+  # Enable the external API
+  enabled: true
+
+  # Container image configuration
+  repository: bunkerity/bunkerweb-api
+  tag: 1.6.6
+  pullPolicy: Always
+
+  # Image pull secrets (overrides global setting)
+  imagePullSecrets: []
+
+  # Node selector (overrides global setting)
+  nodeSelector: {}
+
+  # Tolerations (overrides global setting)
+  tolerations: []
+
+  # Resource requests and limits
+  # RECOMMENDED: Uncomment and adjust for production
+  # resources:
+  #   requests:
+  #     cpu: "100m"
+  #     memory: "256Mi"
+  #   limits:
+  #     cpu: "250m"
+  #     memory: "512Mi"
+
+  # Additional pod annotations
+  podAnnotations: {}
+
+  # Additional pod labels
+  podLabels: {}
+
+  # Security context for API container
+  securityContext:
+    runAsUser: 101
+    runAsGroup: 101
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+  # Additional environment variables
+  extraEnvs: []
+
+  # Liveness probe configuration
+  livenessProbe:
+    exec:
+      command:
+        - /usr/share/bunkerweb/helpers/healthcheck-api.sh
+    initialDelaySeconds: 30
+    periodSeconds: 5
     timeoutSeconds: 1
     failureThreshold: 3
 

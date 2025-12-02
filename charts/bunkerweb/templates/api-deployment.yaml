@@ -1,0 +1,158 @@
+{{- if .Values.api.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-{{ include "bunkerweb.fullname" . }}
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "bunkerweb.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bunkerweb.labels" . | nindent 8 }}
+        {{- with .Values.api.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        bunkerweb.io/component: "api"
+    spec:
+      containers:
+        - name: bunkerweb-api
+          image: {{ .Values.api.repository }}:{{ .Values.api.tag }}
+          imagePullPolicy: {{ .Values.api.pullPolicy }}
+          {{- with .Values.api.resources }}
+          resources:
+            {{- toYaml . | nindent 12}}
+          {{- end }}
+          {{- with .Values.api.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12}}
+          {{- end }}
+          {{- with .Values.api.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12}}
+          {{- end }}
+          env:
+            - name: DATABASE_URI
+              {{- if not (empty .Values.settings.existingSecret) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.settings.existingSecret }}
+                  key: database-uri
+              {{- else }}
+              value: "{{ include "bunkerweb.databaseUri" . }}"
+              {{- end }}
+            - name: API_TOKEN
+              {{- if not (empty .Values.settings.existingSecret) }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.settings.existingSecret }}"
+                  key: api-token
+              {{- else }}
+              value: "{{ .Values.settings.api.apiToken }}"
+              {{- end }}
+            - name: API_USERNAME
+              {{- if not (empty .Values.settings.existingSecret) }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.settings.existingSecret }}"
+                  key: api-username
+              {{- else }}
+              value: "{{ .Values.settings.api.apiUsername }}"
+              {{- end }}
+            - name: API_PASSWORD
+              {{- if not (empty .Values.settings.existingSecret) }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.settings.existingSecret }}"
+                  key: api-password
+              {{- else }}
+              value: "{{ .Values.settings.api.apiPassword }}"
+              {{- end }}
+            - name: API_ACL_BOOTSTRAP_FILE
+              {{- if not (empty .Values.settings.existingSecret) }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.settings.existingSecret }}"
+                  key: api-acl-json-file-path
+              {{- else }}
+              value: "{{ .Values.settings.api.apiAclBootstrapFile }}"
+              {{- end }}
+            - name: API_WHITELIST_ENABLED
+              value: "{{ .Values.settings.api.whitelist.enabled }}"
+            - name: API_WHITELIST_IPS
+              value: "{{ .Values.settings.api.whitelist.whitelistIps }}"
+            - name: FORWARDED_ALLOW_IPS
+              value: "{{ .Values.settings.api.forwardedAllowIps }}"
+            - name: API_ROOT_PATH
+              value: "{{ .Values.settings.api.rootPath }}"
+            - name: API_DOCS_URL
+              value: "{{ .Values.settings.api.docsUrl }}"
+            - name: API_REDOC_URL
+              value: "{{ .Values.settings.api.redocUrl }}"
+            - name: API_OPENAPI_URL
+              value: "{{ .Values.settings.api.openApiUrl }}"
+            - name: API_RATE_LIMIT_ENABLED
+              value: "{{ .Values.settings.api.rateLimit.enabled }}"
+            - name: API_RATE_LIMIT_STRATEGY
+              value: "{{ .Values.settings.api.rateLimit.strategy }}"
+            - name: API_RATE_LIMIT_DEFAULTS
+              value: "{{ .Values.settings.api.rateLimit.defaults }}"
+            {{- if .Values.ui.logs.enabled }}
+            - name: LOG_TYPES
+              value: "stderr syslog"
+            - name: LOG_SYSLOG_ADDRESS
+              value: "{{ include "bunkerweb.syslogAddress" . }}"
+            {{- end }}
+            {{- if .Values.api.extraEnvs }}
+              {{- toYaml .Values.api.extraEnvs | nindent 12 }}
+            {{- end }}
+          {{- if .Values.settings.api.apiAclBootstrapFile }}
+          volumeMounts:
+          - name: api-acl-bootstrap
+            mountPath: /var/lib/bunkerweb/api_acl_bootstrap.json
+          {{- end }}
+      {{- if .Values.settings.api.apiAclBootstrapFile }}        
+      volumes:
+      - name: api-acl-bootstrap
+        configMap:
+          name: "{{ .Values.settings.api.apiAclBootstrapFile }}"
+      {{- end }}
+    {{- if .Values.api.nodeSelector }}
+      {{- with .Values.api.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- else if .Values.nodeSelector }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- if or (.Values.api.tolerations) (.Values.tolerations) }}
+      tolerations:
+      {{- if .Values.api.tolerations }}
+        {{- toYaml .Values.api.tolerations | nindent 6 }}
+      {{- else }}
+        {{- toYaml .Values.tolerations | nindent 6 }}
+      {{- end }}
+    {{- end }}
+    {{- if or (.Values.api.imagePullSecrets) (.Values.imagePullSecrets) }}
+      imagePullSecrets:
+      {{- if .Values.api.imagePullSecrets }}
+        {{- toYaml .Values.api.imagePullSecrets | nindent 6 }}
+      {{- else }}
+        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
+      {{- end }}
+    {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

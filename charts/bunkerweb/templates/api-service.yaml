@@ -1,0 +1,18 @@
+{{- if .Values.api.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-{{ include "bunkerweb.fullname" . }}
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    bunkerweb.io/component: "api"
+  ports:
+    - name: api-external
+      protocol: TCP
+      port: 8888
+      targetPort: 8888
+{{- end }}

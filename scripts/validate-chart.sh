@@ -123,12 +123,23 @@ test_template_generation() {
         "redis.useConfigFile=false:Redis without config file"
         "bunkerweb.kind=Deployment:BunkerWeb as Deployment"
         "bunkerweb.kind=DaemonSet:BunkerWeb as DaemonSet"
+        "bunkerweb.kind=StatefulSet:BunkerWeb as StatefulSet"
+        "bunkerweb.hpa.enabled=true:With HPA"
+        "bunkerweb.podDisruptionBudget.enabled=true:With Pod Disruption Budget"
         "prometheus.enabled=true,grafana.enabled=true:With monitoring"
+        "grafana.enabled=true,grafana.ingress.enabled=true,grafana.ingress.serverName=grafana.test.com:With Grafana Ingress"
+        "grafana.enabled=true,grafana.persistence.enabled=true:With Grafana PVC"
         "networkPolicy.enabled=true:With network policies"
         "mariadb.enabled=false:Without MariaDB"
         "redis.enabled=false:Without Redis"
         "ui.enabled=false:Without UI"
+        "ui.logs.enabled=true:With UI logs (syslog sidecar)"
+        "ui.logs.enabled=true,ui.logs.syslogAddress=:With UI logs (default address)"
+        "ui.logs.enabled=true,ui.logs.syslogAddress=custom.syslog:514:With UI logs (custom address)"
         "controller.enabled=false:Without Controller"
+        "api.enabled=false:Without API"
+        "settings.api.ingress.enabled=true,settings.api.ingress.serverName=api.test.com:With API Ingress"
+        "settings.ui.ingress.enabled=true,settings.ui.ingress.serverName=ui.test.com:With UI Ingress"
     )
     
     for config in "${test_configs[@]}"; do
@@ -227,6 +238,74 @@ test_bunkerweb_specific() {
         log_success "    ✓ UI ingress configuration works"
     else
         log_error "    ✗ UI ingress configuration failed"
+        return 1
+    fi
+    
+    # Test API configurations
+    log_info "  Testing API component"
+    if helm template test "$CHART_PATH" \
+        --set api.enabled=true \
+        --dry-run > /dev/null 2>&1; then
+        log_success "    ✓ API component enabled works"
+    else
+        log_error "    ✗ API component configuration failed"
+        return 1
+    fi
+    
+    log_info "  Testing API ingress configuration"
+    if helm template test "$CHART_PATH" \
+        --set settings.api.ingress.enabled=true \
+        --set settings.api.ingress.serverName=api.test.example.com \
+        --dry-run > /dev/null 2>&1; then
+        log_success "    ✓ API ingress configuration works"
+    else
+        log_error "    ✗ API ingress configuration failed"
+        return 1
+    fi
+    
+    log_info "  Testing API disabled"
+    local output
+    if output=$(helm template test "$CHART_PATH" --set api.enabled=false --dry-run 2>&1); then
+        if ! echo "$output" | grep -q "Source: bunkerweb/templates/api-"; then
+            log_success "    ✓ API correctly disabled"
+        else
+            log_error "    ✗ API templates still generated when disabled"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to generate templates with API disabled"
+        return 1
+    fi
+    
+    # Test syslogAddress helper
+    log_info "  Testing syslogAddress helper with default value"
+    if output=$(helm template test "$CHART_PATH" \
+        --set ui.logs.enabled=true \
+        --set ui.logs.syslogAddress="" \
+        --dry-run 2>&1); then
+        if echo "$output" | grep -q "ui-test-bunkerweb.*svc.*:514"; then
+            log_success "    ✓ syslogAddress fallback to service works"
+        else
+            log_warning "    ⚠ syslogAddress fallback may not be working as expected"
+        fi
+    else
+        log_error "    ✗ Failed to generate templates with UI logs"
+        return 1
+    fi
+    
+    log_info "  Testing syslogAddress helper with custom value"
+    if output=$(helm template test "$CHART_PATH" \
+        --set ui.logs.enabled=true \
+        --set ui.logs.syslogAddress="custom-syslog.example.com:514" \
+        --dry-run 2>&1); then
+        if echo "$output" | grep -q "custom-syslog.example.com:514"; then
+            log_success "    ✓ Custom syslogAddress works"
+        else
+            log_error "    ✗ Custom syslogAddress not applied correctly"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to generate templates with custom syslog address"
         return 1
     fi
     

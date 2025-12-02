@@ -1,0 +1,35 @@
+{{- if .Values.settings.api.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-{{ include "bunkerweb.fullname" . }}
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+  annotations:
+    bunkerweb.io/USE_TEMPLATE: "api"
+    {{- with .Values.settings.api.ingress.extraAnnotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.settings.api.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.settings.api.ingress.ingressClassName }}
+  {{- end}}
+  {{- if .Values.settings.api.ingress.tlsSecretName }}
+  tls:
+    - hosts:
+      - {{ .Values.settings.api.ingress.serverName }}
+      secretName: {{ .Values.settings.api.ingress.tlsSecretName }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.settings.api.ingress.serverName }}
+      http:
+        paths:
+          - path: {{ .Values.settings.api.ingress.serverPath }}
+            pathType: Prefix
+            backend:
+              service:
+                name: api-{{ include "bunkerweb.fullname" . }}
+                port:
+                  number: 8888
+{{- end }}
