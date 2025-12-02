@@ -53,6 +53,7 @@ settings:
   #   - totp-secrets      : TOTP secrets for 2FA
   #   - mariadb-user      : MariaDB username
   #   - mariadb-password  : MariaDB password
+  #   - pro-license-key   : BunkerWeb Pro license key
   #   - api-token         : API Bearer token
   #   - api-username      : API username, also require api-password
   #   - api-password      : API password, also require api-username
@@ -147,13 +148,20 @@ settings:
   api:
     # Authentication settings
     # https://docs.bunkerweb.io/latest/api/#authentication
+    # Choose at least one method of authentication
     # API Bearer Token
-    # Leave Empty if using settings.existingSecret
-    apiToken: ""
-    # OR/AND API Username and Password
-    # Leave Empty if using settings.existingSecret
-    apiUsername: ""
-    apiPassword: ""
+    useBearerToken:
+      # If enable, it will use settings.existingSecret
+      fromExistingSecret: false
+      # If not using existingSecret, set the token here
+      token: ""
+    # Username and Password
+    useUserPass:
+      # If enable, it will use settings.existingSecret
+      fromExistingSecret: false
+      # If not using existingSecret, set the credentials here
+      apiUsername: ""
+      apiPassword: ""
     # OR/AND ConfigMap name that includes ACL based JSON File
     # https://docs.bunkerweb.io/latest/api/#permissions-acl
     apiAclBootstrapFile: ""

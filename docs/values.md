@@ -613,9 +613,6 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | `settings.redis` | Configuration for redis | `object` | See nested values |
 | `settings.ui` | Configuration for ui | `object` | See nested values |
 | `settings.api.apiAclBootstrapFile` | OR/AND ConfigMap name that includes ACL based JSON File https://docs.bunkerweb.io/latest/api/#permis... | `string` | `""` |
-| `settings.api.apiPassword` | Configuration for apiPassword | `string` | `""` |
-| `settings.api.apiToken` | Authentication settings https://docs.bunkerweb.io/latest/api/#authentication API Bearer Token Leave ... | `string` | `""` |
-| `settings.api.apiUsername` | OR/AND API Username and Password Leave Empty if using settings.existingSecret | `string` | `""` |
 | `settings.api.docsUrl` | URL for API documentation, set to an empty value to disable | `string` | `"/docs"` |
 | `settings.api.forwardedAllowIps` | Forwarded allow IPs for correct client IP detection | `string` | `"*"` |
 | `settings.api.ingress` | Ingress configuration for UI access | `object` | See nested values |
@@ -623,6 +620,8 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | `settings.api.rateLimit` | Rate limiting configuration for API access https://docs.bunkerweb.io/latest/api/#rate-limiting | `object` | See nested values |
 | `settings.api.redocUrl` | URL for ReDoc API documentation, set to an empty value to disable | `string` | `"/redoc"` |
 | `settings.api.rootPath` | API Configuration https://docs.bunkerweb.io/latest/api/#configuration Root path for the API | `string` | `""` |
+| `settings.api.useBearerToken` | Authentication settings https://docs.bunkerweb.io/latest/api/#authentication Choose at least one met... | `object` | See nested values |
+| `settings.api.useUserPass` | Username and Password | `object` | See nested values |
 | `settings.api.whitelist` | Whitelist configuration for API access | `object` | See nested values |
 | `settings.kubernetes.domainName` | Kubernetes cluster domain name for service discovery | `string` | `"cluster.local"` |
 | `settings.kubernetes.ignoreAnnotations` | Annotations to be ignored by bunkerweb-controller when multiple ingress controllers (comma-separated... | `string` | `""` |
@@ -651,6 +650,11 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | `settings.api.rateLimit.defaults` | Rate limit per period, Supported formats: "[10/seconde]", "[100/minute]", "[1000/day]" https://limit... | `list` | `['100/minute']` |
 | `settings.api.rateLimit.enabled` | Set to true to create an Ingress resource for the UI | `bool` | `true` |
 | `settings.api.rateLimit.strategy` | Strategy: "fixed-window" or "moving-window" or "sliding-window" https://limits.readthedocs.io/en/sta... | `string` | `"fixed-window"` |
+| `settings.api.useBearerToken.fromExistingSecret` | If enable, it will use settings.existingSecret | `bool` | `false` |
+| `settings.api.useBearerToken.token` | If not using existingSecret, set the token here | `string` | `""` |
+| `settings.api.useUserPass.apiPassword` | Configuration for apiPassword | `string` | `""` |
+| `settings.api.useUserPass.apiUsername` | If not using existingSecret, set the credentials here | `string` | `""` |
+| `settings.api.useUserPass.fromExistingSecret` | If enable, it will use settings.existingSecret | `bool` | `false` |
 | `settings.api.whitelist.enabled` | Set to true to create an Ingress resource for the UI | `bool` | `true` |
 | `settings.api.whitelist.whitelistIps` | space-separated list of IPs/CIDR allowed to access the API | `string` | `"10.0.0.0/8"` |
 | `settings.ui.ingress.enabled` | Set to true to create an Ingress resource for the UI | `bool` | `false` |

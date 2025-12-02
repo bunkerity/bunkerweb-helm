@@ -8,6 +8,7 @@ This directory contains example configurations for common BunkerWeb deployment s
 
 ### Basic Configurations
 
+- [`bunkerweb-settings-secret.yaml`](bunkerweb-settings-secret.yaml) - Secret with all sensitive variables example
 - [`all-in-one.yaml`](all-in-one.yaml) - Full stack configuration for testing
 - [`production.yaml`](production.yaml) - Production-ready setup with persistence and external services
 

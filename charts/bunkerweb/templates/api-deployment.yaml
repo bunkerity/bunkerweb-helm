@@ -48,40 +48,39 @@ spec:
               {{- else }}
               value: "{{ include "bunkerweb.databaseUri" . }}"
               {{- end }}
+            {{- if or (and .Values.settings.api.useBearerToken.fromExistingSecret (not (empty .Values.settings.existingSecret))) (and (not .Values.settings.api.useBearerToken.fromExistingSecret) (not (empty .Values.settings.api.useBearerToken.token))) }}
             - name: API_TOKEN
-              {{- if not (empty .Values.settings.existingSecret) }}
+              {{- if and .Values.settings.api.useBearerToken.fromExistingSecret (not (empty .Values.settings.existingSecret)) }}
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Values.settings.existingSecret }}"
                   key: api-token
               {{- else }}
-              value: "{{ .Values.settings.api.apiToken }}"
+              value: "{{ .Values.settings.api.useBearerToken.token }}"
               {{- end }}
+            {{- end }}
+            {{- if or (and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret))) (and (not .Values.settings.api.useUserPass.fromExistingSecret) (not (empty .Values.settings.api.useUserPass.apiUsername)) (not (empty .Values.settings.api.useUserPass.apiPassword))) }}
             - name: API_USERNAME
-              {{- if not (empty .Values.settings.existingSecret) }}
+              {{- if and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret)) }}
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Values.settings.existingSecret }}"
                   key: api-username
               {{- else }}
-              value: "{{ .Values.settings.api.apiUsername }}"
+              value: "{{ .Values.settings.api.useUserPass.apiUsername }}"
               {{- end }}
             - name: API_PASSWORD
-              {{- if not (empty .Values.settings.existingSecret) }}
+              {{- if and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret)) }}
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Values.settings.existingSecret }}"
                   key: api-password
               {{- else }}
-              value: "{{ .Values.settings.api.apiPassword }}"
+              value: "{{ .Values.settings.api.useUserPass.apiPassword }}"
               {{- end }}
+            {{- end }}
+              {{- if not (empty .Values.settings.api.apiAclBootstrapFile) }}
             - name: API_ACL_BOOTSTRAP_FILE
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: api-acl-json-file-path
-              {{- else }}
               value: "{{ .Values.settings.api.apiAclBootstrapFile }}"
               {{- end }}
             - name: API_WHITELIST_ENABLED
