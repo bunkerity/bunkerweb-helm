@@ -67,6 +67,8 @@ spec:
               value: "{{ .Values.settings.kubernetes.domainName }}"
             - name: KUBERNETES_IGNORE_ANNOTATIONS
               value: "{{ .Values.settings.kubernetes.ignoreAnnotations }}"
+            - name: BUNKERWEB_SERVICE_NAME
+              value: "{{ include "bunkerweb.fullname" . }}-external"
             {{- if .Values.controller.extraEnvs }}
             {{- toYaml .Values.controller.extraEnvs | nindent 12 }}
             {{- end }}
