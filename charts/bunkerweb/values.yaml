@@ -263,6 +263,10 @@ service:
   # NodePort: Exposes service on each node's IP at a static port
   # ClusterIP: Only accessible within the cluster
   type: LoadBalancer
+  
+  # Set defined NodePorts if using Service type NodePort, if not set, random ports will be assigned
+  # nodePortHttp: 30080
+  # nodePortHttps: 30443
 
   # External traffic policy: Local or Cluster
   # Local: Preserves client IP but may cause uneven distribution

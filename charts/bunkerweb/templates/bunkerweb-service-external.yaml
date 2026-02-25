@@ -20,8 +20,14 @@ spec:
       targetPort: 8080
       protocol: TCP
       name: http
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePortHttp }}
+      nodePort: {{ .Values.service.nodePortHttp }}
+      {{- end }}
     - port: 443
       targetPort: 8443
       protocol: TCP
       name: https
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePortHttps }}
+      nodePort: {{ .Values.service.nodePortHttps }}
+      {{- end }}
 {{- end }}
