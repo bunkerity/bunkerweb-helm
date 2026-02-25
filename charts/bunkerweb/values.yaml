@@ -964,7 +964,7 @@ scheduler:
     exec:
       command:
         - /usr/share/bunkerweb/helpers/healthcheck-scheduler.sh
-    initialDelaySeconds: 90
+    initialDelaySeconds: 180
     periodSeconds: 10
     timeoutSeconds: 1
     failureThreshold: 3
@@ -1036,7 +1036,7 @@ controller:
     exec:
       command:
         - /usr/share/bunkerweb/helpers/healthcheck-autoconf.sh
-    initialDelaySeconds: 30
+    initialDelaySeconds: 120
     periodSeconds: 1
     timeoutSeconds: 1
     failureThreshold: 3
