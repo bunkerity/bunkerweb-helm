@@ -159,6 +159,11 @@ settings:
     # TOTP secrets for two-factor authentication
     totpSecrets: ""
 
+    # Maximum upload size in bytes (default: 50MB)
+    maxContentLength: ""
+    # Max requests before Gunicorn worker restart
+    maxRequests: ""
+
   api:
     # Authentication settings
     # https://docs.bunkerweb.io/latest/api/#authentication
@@ -190,6 +195,8 @@ settings:
     redocUrl: "/redoc"
     # URL for OpenAPI specification, set to an empty value to disable
     openApiUrl: "/openapi.json"
+    # Max requests before Gunicorn worker restart
+    maxRequests: ""
     # Forwarded allow IPs for correct client IP detection
     forwardedAllowIps: "*"
     # Whitelist configuration for API access
@@ -306,7 +313,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.8
+  tag: 1.6.9
   pullPolicy: IfNotPresent
 
   # Resource requests and limits
@@ -479,7 +486,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.8
+  tag: 1.6.9
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -540,6 +547,42 @@ scheduler:
       disableDefaultServerStrictSni: ""
 
     # =============================================================================
+    # NGINX TIMEOUTS
+    # =============================================================================
+    timeouts:
+      # Timeout for reading client request body
+      clientBodyTimeout: ""
+      # Timeout for reading client request header
+      clientHeaderTimeout: ""
+      # Timeout for keep-alive client connections
+      keepaliveTimeout: ""
+      # Timeout for transmitting response to client
+      sendTimeout: ""
+
+    # =============================================================================
+    # DATABASE CONNECTION POOL
+    # =============================================================================
+    databasePool:
+      # Number of connections in the pool
+      databasePoolSize: ""
+      # Max connections above pool size
+      databasePoolMaxOverflow: ""
+      # Seconds to wait for a connection from pool
+      databasePoolTimeout: ""
+      # Seconds after which connection is recycled (-1 to disable)
+      databasePoolRecycle: ""
+      # Test connections for liveness on checkout
+      databasePoolPrePing: ""
+      # How to reset connection on return (auto/none/rollback)
+      databasePoolResetOnReturn: ""
+      # Max seconds to wait for database on startup
+      databaseRetryTimeout: ""
+      # Retry attempts for transient errors
+      databaseRequestRetryAttempts: ""
+      # Delay between retry attempts (seconds)
+      databaseRequestRetryDelay: ""
+
+    # =============================================================================
     # MODSECURITY WAF
     # =============================================================================
     modsecurity:
@@ -572,6 +615,8 @@ scheduler:
       antibotIgnoreIp: ""
       # URIs to bypass antibot challenges (regex patterns, space-separated)
       antibotIgnoreUri: ""
+      # Use classic reCAPTCHA instead of newer version
+      antibotRecaptchaClassic: ""
 
     # =============================================================================
     # RATE LIMITING
@@ -617,9 +662,9 @@ scheduler:
     # COUNTRY BLOCKING
     # =============================================================================
     geoBlocking:
-      # Allowed countries (ISO 3166-1 alpha-2 codes, space-separated)
+      # Allowed countries (ISO 3166-1 alpha-2 codes or group tokens like @EU, @G7, @FIVE_EYES, space-separated)
       whitelistCountry: ""
-      # Blocked countries (ISO 3166-1 alpha-2 codes, space-separated)
+      # Blocked countries (ISO 3166-1 alpha-2 codes or group tokens like @EU, @G7, @FIVE_EYES, space-separated)
       blacklistCountry: ""
 
     # =============================================================================
@@ -662,6 +707,22 @@ scheduler:
       letsEncryptDnsProvider: ""
       # Enable wildcard certificates (DNS challenges only)
       useLetsEncryptWildcard: ""
+      # Certificate authority server: "letsencrypt" or "zerossl"
+      letsEncryptServer: ""
+      # Certificate profile: "classic" or other profiles
+      letsEncryptProfile: ""
+      # Custom certificate profile (overrides letsEncryptProfile)
+      letsEncryptCustomProfile: ""
+      # ZeroSSL API key (optional, falls back to email)
+      letsEncryptZerosslApiKey: ""
+      # ZeroSSL API connection timeout (seconds)
+      letsEncryptZerosslApiConnectTimeout: ""
+      # ZeroSSL API max time (seconds)
+      letsEncryptZerosslApiMaxTime: ""
+      # ZeroSSL API retry count
+      letsEncryptZerosslApiRetry: ""
+      # ZeroSSL API retry delay (seconds)
+      letsEncryptZerosslApiRetryDelay: ""
 
     # Custom SSL certificate
     customSsl:
@@ -718,6 +779,45 @@ scheduler:
       reverseProxySendTimeout: ""
       # Read timeout
       reverseProxyReadTimeout: ""
+
+    # =============================================================================
+    # GRPC REVERSE PROXY
+    # =============================================================================
+    grpc:
+      # Enable gRPC reverse proxy mode
+      useGrpc: ""
+      # Location URL to proxy to gRPC upstream
+      grpcUrl: ""
+      # Upstream value (e.g., grpc://app:50051 or grpcs://app:443)
+      grpcHost: ""
+      # Timeout when connecting to gRPC upstream
+      grpcConnectTimeout: ""
+      # Timeout when reading from gRPC upstream
+      grpcReadTimeout: ""
+      # Timeout when sending to gRPC upstream
+      grpcSendTimeout: ""
+      # Override Host header sent to gRPC upstream
+      grpcCustomHost: ""
+      # Headers to send to gRPC upstream (semicolon-separated)
+      grpcHeaders: ""
+      # Headers to hide from clients
+      grpcHideHeaders: ""
+      # Intercept and rewrite gRPC upstream errors
+      grpcInterceptErrors: ""
+      # Enable keepalive for gRPC upstream sockets
+      grpcSocketKeepalive: ""
+      # Enable SNI for gRPC upstream
+      grpcSslSni: ""
+      # SNI host name for gRPC upstream
+      grpcSslSniName: ""
+      # Conditions for selecting next gRPC upstream server
+      grpcNextUpstream: ""
+      # Time limit for passing request to next server
+      grpcNextUpstreamTimeout: ""
+      # Max attempts to pass request to next server
+      grpcNextUpstreamTries: ""
+      # Additional config for gRPC location block
+      grpcIncludes: ""
 
     # =============================================================================
     # REAL IP DETECTION
@@ -959,6 +1059,17 @@ scheduler:
       # Backup directory
       backupDirectory: ""
 
+    # =============================================================================
+    # STREAM/PASSTHROUGH
+    # =============================================================================
+    stream:
+      # Enable non-ssl passthrough listening
+      listenStream: ""
+      # Port for non-ssl passthrough (empty to disable)
+      listenStreamPort: ""
+      # Port for ssl passthrough (empty to disable)
+      listenStreamPortSsl: ""
+
   # Additional environment variables for advanced configuration
   # These will be merged with the feature configuration above
   extraEnvs: []
@@ -985,7 +1096,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.8
+  tag: 1.6.9
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1057,7 +1168,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.8
+  tag: 1.6.9
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1185,7 +1296,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.8
+  tag: 1.6.9
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)

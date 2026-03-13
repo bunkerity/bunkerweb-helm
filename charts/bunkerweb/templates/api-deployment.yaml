@@ -104,6 +104,10 @@ spec:
               value: "{{ .Values.settings.api.rateLimit.strategy }}"
             - name: API_RATE_LIMIT_DEFAULTS
               value: "{{ .Values.settings.api.rateLimit.defaults }}"
+            {{- if .Values.settings.api.maxRequests }}
+            - name: API_MAX_REQUESTS
+              value: {{ .Values.settings.api.maxRequests | quote }}
+            {{- end }}
             {{- if .Values.ui.logs.enabled }}
             - name: LOG_TYPES
               value: "stderr syslog"

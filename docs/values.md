@@ -30,15 +30,15 @@ Comprehensive reference for all configuration values available in the BunkerWeb 
 
 These settings apply to all components unless overridden Global image pull secrets for private registries
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `fullnameOverride` | Override the full resource name (default: release-chart) | `string` | `""` |
-| `imagePullSecrets` | These settings apply to all components unless overridden Global image pull secrets for private regis... | `list` | `[]` |
-| `nameOverride` | Override the chart name (default: chart name) | `string` | `""` |
-| `namespaceOverride` | Override the namespace (default: release namespace) | `string` | `""` |
-| `nodeSelector` | Node selector for all pods (can be overridden per component) | `object` | `{}` |
-| `tolerations` | Tolerations for all pods (can be overridden per component) | `list` | `[]` |
-| `topologySpreadConstraints` | Topology spread constraints for better pod distribution | `list` | `[]` |
+| Parameter                   | Description                                                                                             | Type     | Default |
+| --------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| `fullnameOverride`          | Override the full resource name (default: release-chart)                                                | `string` | `""`    |
+| `imagePullSecrets`          | These settings apply to all components unless overridden Global image pull secrets for private regis... | `list`   | `[]`    |
+| `nameOverride`              | Override the chart name (default: chart name)                                                           | `string` | `""`    |
+| `namespaceOverride`         | Override the namespace (default: release namespace)                                                     | `string` | `""`    |
+| `nodeSelector`              | Node selector for all pods (can be overridden per component)                                            | `object` | `{}`    |
+| `tolerations`               | Tolerations for all pods (can be overridden per component)                                              | `list`   | `[]`    |
+| `topologySpreadConstraints` | Topology spread constraints for better pod distribution                                                 | `list`   | `[]`    |
 
 ---
 
@@ -46,68 +46,68 @@ These settings apply to all components unless overridden Global image pull secre
 
 Main reverse proxy and WAF component
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `bunkerweb` | Main reverse proxy and WAF component | `object` | See nested values |
-| `bunkerweb.affinity` | Pod affinity rules | `object` | `{}` |
-| `bunkerweb.enableInstance` | Pod annotations for Kubernetes integration (required) This enables BunkerWeb to be managed by the co... | `bool` | `true` |
-| `bunkerweb.enabled` | Enable external service creation | `bool` | `true` |
-| `bunkerweb.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `bunkerweb.hostPorts` | Use host ports for direct traffic (only for DaemonSet) Allows binding to ports 80/443 on each node | `bool` | `true` |
-| `bunkerweb.hpa` | Resource requests and limits RECOMMENDED: Uncomment and adjust for production resources: requests: c... | `object` | See nested values |
-| `bunkerweb.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
-| `bunkerweb.kind` | Deployment type: "DaemonSet" or "Deployment" or "StatefulSet" DaemonSet: Runs one pod per node (reco... | `string` | `"Deployment"` |
-| `bunkerweb.livenessProbe` | Liveness probe configuration | `object` | See nested values |
-| `bunkerweb.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `bunkerweb.pdb` | volumeMounts: - name: shared-data mountPath: /var/lib/bunkerweb/shared # PodDisruptionBudget for def... | `object` | See nested values |
-| `bunkerweb.podAnnotations` | Additional pod annotations | `object` | `{}` |
-| `bunkerweb.podAntiAffinityPreset` | Anti-affinity preset: "soft" or "hard" soft: Prefers not to schedule pods on same node hard: Never s... | `string` | `"soft"` |
-| `bunkerweb.podLabels` | Additional pod labels | `object` | `{}` |
-| `bunkerweb.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `bunkerweb.readinessProbe` | Readiness probe configuration | `object` | See nested values |
-| `bunkerweb.replicas` | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int` | `1` |
-| `bunkerweb.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb"` |
-| `bunkerweb.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `bunkerweb.service` | Internal service configuration (for inter-pod communication) | `object` | See nested values |
-| `bunkerweb.tag` | Configuration for tag | `string` | `"1.6.8"` |
-| `bunkerweb.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `bunkerweb.volumeMounts` | volumes: - name: shared-data persistentVolumeClaim: claimName: shared-pvc Custom volume mounts confi... | `list` | `[]` |
-| `bunkerweb.volumes` | Custom volumes configuration Allows mounting additional volumes to the BunkerWeb container | `list` | `[]` |
-| `bunkerweb.hpa.behavior` | HPA behavior configuration Controls the scaling speed and stabilization | `object` | See nested values |
-| `bunkerweb.hpa.cpu` | CPU-based scaling configuration | `object` | See nested values |
-| `bunkerweb.hpa.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
-| `bunkerweb.hpa.maxReplicas` | Maximum number of replicas | `int` | `10` |
-| `bunkerweb.hpa.memory` | Memory-based scaling configuration | `object` | See nested values |
-| `bunkerweb.hpa.minReplicas` | Minimum number of replicas (ignored for DaemonSet) | `int` | `2` |
-| `bunkerweb.hpa.nameOverride` | Optional name override for the target resource If empty, uses the default release fullname | `string` | `""` |
-| `bunkerweb.hpa.targetKind` | Target kind for scaling (Deployment or StatefulSet) | `string` | `"Deployment"` |
-| `bunkerweb.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
-| `bunkerweb.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `bunkerweb.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
-| `bunkerweb.livenessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `5` |
-| `bunkerweb.livenessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `bunkerweb.pdb.create` | Enable creation of Pod Disruption Budget Make sure you have at least 2 replicas if enabled | `bool` | `true` |
-| `bunkerweb.pdb.maxUnavailable` | Maximum number/percentage of pods that can be unavailable | `string` | `""` |
-| `bunkerweb.pdb.minAvailable` | Minimum number/percentage of pods that must remain available | `string` | `""` |
-| `bunkerweb.readinessProbe.exec` | Configuration for exec | `object` | See nested values |
-| `bunkerweb.readinessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `bunkerweb.readinessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
-| `bunkerweb.readinessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `1` |
-| `bunkerweb.readinessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `bunkerweb.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
-| `bunkerweb.securityContext.capabilities` | Configuration for capabilities | `object` | See nested values |
-| `bunkerweb.securityContext.runAsGroup` | Configuration for runAsGroup | `int` | `101` |
-| `bunkerweb.securityContext.runAsUser` | Configuration for runAsUser | `int` | `101` |
-| `bunkerweb.service.headless` | Use headless service (clusterIP: None) for service discovery If false, creates a ClusterIP service w... | `bool` | `true` |
-| `bunkerweb.hpa.behavior.scaleDown` | Configuration for scaleDown | `object` | See nested values |
-| `bunkerweb.hpa.behavior.scaleUp` | Configuration for scaleUp | `object` | See nested values |
-| `bunkerweb.hpa.cpu.enabled` | Enable HTTP routes for UI access | `bool` | `true` |
-| `bunkerweb.hpa.cpu.targetAverageUtilization` | Configuration for targetAverageUtilization | `int` | `90` |
-| `bunkerweb.hpa.memory.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `bunkerweb.hpa.memory.targetAverageUtilization` | Configuration for targetAverageUtilization | `int` | `90` |
-| `bunkerweb.livenessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck.sh']` |
-| `bunkerweb.readinessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck.sh', 'ok']` |
-| `bunkerweb.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |
+| Parameter                                            | Description                                                                                             | Type     | Default                                                 |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------- |
+| `bunkerweb`                                          | Main reverse proxy and WAF component                                                                    | `object` | See nested values                                       |
+| `bunkerweb.affinity`                                 | Pod affinity rules                                                                                      | `object` | `{}`                                                    |
+| `bunkerweb.enableInstance`                           | Pod annotations for Kubernetes integration (required) This enables BunkerWeb to be managed by the co... | `bool`   | `true`                                                  |
+| `bunkerweb.enabled`                                  | Enable external service creation                                                                        | `bool`   | `true`                                                  |
+| `bunkerweb.extraEnvs`                                | Additional environment variables                                                                        | `list`   | `[]`                                                    |
+| `bunkerweb.hostPorts`                                | Use host ports for direct traffic (only for DaemonSet) Allows binding to ports 80/443 on each node      | `bool`   | `true`                                                  |
+| `bunkerweb.hpa`                                      | Resource requests and limits RECOMMENDED: Uncomment and adjust for production resources: requests: c... | `object` | See nested values                                       |
+| `bunkerweb.imagePullSecrets`                         | Image pull secrets (overrides global setting)                                                           | `list`   | `[]`                                                    |
+| `bunkerweb.kind`                                     | Deployment type: "DaemonSet" or "Deployment" or "StatefulSet" DaemonSet: Runs one pod per node (reco... | `string` | `"Deployment"`                                          |
+| `bunkerweb.livenessProbe`                            | Liveness probe configuration                                                                            | `object` | See nested values                                       |
+| `bunkerweb.nodeSelector`                             | Node selector (overrides global setting)                                                                | `object` | `{}`                                                    |
+| `bunkerweb.pdb`                                      | volumeMounts: - name: shared-data mountPath: /var/lib/bunkerweb/shared # PodDisruptionBudget for def... | `object` | See nested values                                       |
+| `bunkerweb.podAnnotations`                           | Additional pod annotations                                                                              | `object` | `{}`                                                    |
+| `bunkerweb.podAntiAffinityPreset`                    | Anti-affinity preset: "soft" or "hard" soft: Prefers not to schedule pods on same node hard: Never s... | `string` | `"soft"`                                                |
+| `bunkerweb.podLabels`                                | Additional pod labels                                                                                   | `object` | `{}`                                                    |
+| `bunkerweb.pullPolicy`                               | Configuration for pullPolicy                                                                            | `string` | `"IfNotPresent"`                                        |
+| `bunkerweb.readinessProbe`                           | Readiness probe configuration                                                                           | `object` | See nested values                                       |
+| `bunkerweb.replicas`                                 | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int`    | `1`                                                     |
+| `bunkerweb.repository`                               | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb                             | `string` | `"docker.io/bunkerity/bunkerweb"`                       |
+| `bunkerweb.securityContext`                          | Security context for BunkerWeb container                                                                | `object` | See nested values                                       |
+| `bunkerweb.service`                                  | Internal service configuration (for inter-pod communication)                                            | `object` | See nested values                                       |
+| `bunkerweb.tag`                                      | Configuration for tag                                                                                   | `string` | `"1.6.9"`                                               |
+| `bunkerweb.tolerations`                              | Tolerations (overrides global setting)                                                                  | `list`   | `[]`                                                    |
+| `bunkerweb.volumeMounts`                             | volumes: - name: shared-data persistentVolumeClaim: claimName: shared-pvc Custom volume mounts confi... | `list`   | `[]`                                                    |
+| `bunkerweb.volumes`                                  | Custom volumes configuration Allows mounting additional volumes to the BunkerWeb container              | `list`   | `[]`                                                    |
+| `bunkerweb.hpa.behavior`                             | HPA behavior configuration Controls the scaling speed and stabilization                                 | `object` | See nested values                                       |
+| `bunkerweb.hpa.cpu`                                  | CPU-based scaling configuration                                                                         | `object` | See nested values                                       |
+| `bunkerweb.hpa.enabled`                              | Enable HPA for bunkerweb component                                                                      | `bool`   | `false`                                                 |
+| `bunkerweb.hpa.maxReplicas`                          | Maximum number of replicas                                                                              | `int`    | `10`                                                    |
+| `bunkerweb.hpa.memory`                               | Memory-based scaling configuration                                                                      | `object` | See nested values                                       |
+| `bunkerweb.hpa.minReplicas`                          | Minimum number of replicas (ignored for DaemonSet)                                                      | `int`    | `2`                                                     |
+| `bunkerweb.hpa.nameOverride`                         | Optional name override for the target resource If empty, uses the default release fullname              | `string` | `""`                                                    |
+| `bunkerweb.hpa.targetKind`                           | Target kind for scaling (Deployment or StatefulSet)                                                     | `string` | `"Deployment"`                                          |
+| `bunkerweb.livenessProbe.exec`                       | Configuration for exec                                                                                  | `object` | See nested values                                       |
+| `bunkerweb.livenessProbe.failureThreshold`           | Configuration for failureThreshold                                                                      | `int`    | `3`                                                     |
+| `bunkerweb.livenessProbe.initialDelaySeconds`        | Configuration for initialDelaySeconds                                                                   | `int`    | `30`                                                    |
+| `bunkerweb.livenessProbe.periodSeconds`              | Configuration for periodSeconds                                                                         | `int`    | `5`                                                     |
+| `bunkerweb.livenessProbe.timeoutSeconds`             | Configuration for timeoutSeconds                                                                        | `int`    | `1`                                                     |
+| `bunkerweb.pdb.create`                               | Enable creation of Pod Disruption Budget Make sure you have at least 2 replicas if enabled              | `bool`   | `true`                                                  |
+| `bunkerweb.pdb.maxUnavailable`                       | Maximum number/percentage of pods that can be unavailable                                               | `string` | `""`                                                    |
+| `bunkerweb.pdb.minAvailable`                         | Minimum number/percentage of pods that must remain available                                            | `string` | `""`                                                    |
+| `bunkerweb.readinessProbe.exec`                      | Configuration for exec                                                                                  | `object` | See nested values                                       |
+| `bunkerweb.readinessProbe.failureThreshold`          | Configuration for failureThreshold                                                                      | `int`    | `3`                                                     |
+| `bunkerweb.readinessProbe.initialDelaySeconds`       | Configuration for initialDelaySeconds                                                                   | `int`    | `30`                                                    |
+| `bunkerweb.readinessProbe.periodSeconds`             | Configuration for periodSeconds                                                                         | `int`    | `1`                                                     |
+| `bunkerweb.readinessProbe.timeoutSeconds`            | Configuration for timeoutSeconds                                                                        | `int`    | `1`                                                     |
+| `bunkerweb.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation                                                              | `bool`   | `false`                                                 |
+| `bunkerweb.securityContext.capabilities`             | Configuration for capabilities                                                                          | `object` | See nested values                                       |
+| `bunkerweb.securityContext.runAsGroup`               | Configuration for runAsGroup                                                                            | `int`    | `101`                                                   |
+| `bunkerweb.securityContext.runAsUser`                | Configuration for runAsUser                                                                             | `int`    | `101`                                                   |
+| `bunkerweb.service.headless`                         | Use headless service (clusterIP: None) for service discovery If false, creates a ClusterIP service w... | `bool`   | `true`                                                  |
+| `bunkerweb.hpa.behavior.scaleDown`                   | Configuration for scaleDown                                                                             | `object` | See nested values                                       |
+| `bunkerweb.hpa.behavior.scaleUp`                     | Configuration for scaleUp                                                                               | `object` | See nested values                                       |
+| `bunkerweb.hpa.cpu.enabled`                          | Enable HTTP routes for UI access                                                                        | `bool`   | `true`                                                  |
+| `bunkerweb.hpa.cpu.targetAverageUtilization`         | Configuration for targetAverageUtilization                                                              | `int`    | `90`                                                    |
+| `bunkerweb.hpa.memory.enabled`                       | Enable HTTP routes for UI access                                                                        | `bool`   | `false`                                                 |
+| `bunkerweb.hpa.memory.targetAverageUtilization`      | Configuration for targetAverageUtilization                                                              | `int`    | `90`                                                    |
+| `bunkerweb.livenessProbe.exec.command`               | Configuration for command                                                                               | `list`   | `['/usr/share/bunkerweb/helpers/healthcheck.sh']`       |
+| `bunkerweb.readinessProbe.exec.command`              | Configuration for command                                                                               | `list`   | `['/usr/share/bunkerweb/helpers/healthcheck.sh', 'ok']` |
+| `bunkerweb.securityContext.capabilities.drop`        | Configuration for drop                                                                                  | `list`   | `['ALL']`                                               |
 
 ---
 
@@ -115,54 +115,54 @@ Main reverse proxy and WAF component
 
 Web interface for BunkerWeb management and monitoring
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `ui` | Web interface for BunkerWeb management and monitoring | `object` | See nested values |
-| `ui.enabled` | Enable external service creation | `bool` | `true` |
-| `ui.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `ui.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
-| `ui.livenessProbe` | Liveness probe configuration | `object` | See nested values |
-| `ui.logs` | Log collection configuration | `object` | See nested values |
-| `ui.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `ui.podAnnotations` | Additional pod annotations | `object` | `{}` |
-| `ui.podLabels` | Additional pod labels | `object` | `{}` |
-| `ui.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `ui.readinessProbe` | Readiness probe configuration | `object` | See nested values |
-| `ui.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-ui"` |
-| `ui.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `ui.tag` | Configuration for tag | `string` | `"1.6.8"` |
-| `ui.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `ui.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
-| `ui.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `ui.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
-| `ui.livenessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `5` |
-| `ui.livenessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `ui.logs.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
-| `ui.logs.logrotate` | Log rotation and cleanup configuration Periodically rotates UI logs and removes old log files | `object` | See nested values |
-| `ui.logs.persistence` | Persistent storage for logs | `object` | See nested values |
-| `ui.logs.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `ui.logs.repository` | Syslog-ng container for log collection | `string` | `"docker.io/balabit/syslog-ng"` |
-| `ui.logs.syslogAddress` | Syslog address for log forwarding Automatically set to Sidecar service if empty Format: HOST:PORT "s... | `string` | `""` |
-| `ui.logs.tag` | Configuration for tag | `string` | `"4.8.0"` |
-| `ui.logs.timezone` | Timezone for the syslog-ng container If empty, uses the container default (UTC) | `string` | `""` |
-| `ui.readinessProbe.exec` | Configuration for exec | `object` | See nested values |
-| `ui.readinessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `ui.readinessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
-| `ui.readinessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `1` |
-| `ui.readinessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `ui.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
-| `ui.securityContext.capabilities` | Configuration for capabilities | `object` | See nested values |
-| `ui.securityContext.runAsGroup` | Configuration for runAsGroup | `int` | `101` |
-| `ui.securityContext.runAsUser` | Configuration for runAsUser | `int` | `101` |
-| `ui.livenessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck-ui.sh']` |
-| `ui.logs.logrotate.enabled` | Enable HTTP routes for UI access | `bool` | `true` |
-| `ui.logs.logrotate.files` | Log file patterns to rotate (required when logrotate.enabled=true). This list is matched against log... | `list` | `['bw-autoconf.log', 'bw-scheduler.log', 'bw-ui-access.log', 'bw-ui.log']` |
-| `ui.logs.logrotate.rotate` | Number of days to keep UI log files Log files older than this value will be automatically removed | `int` | `2` |
-| `ui.logs.logrotate.schedule` | Cron schedule for the log rotation job Default: daily at 00:00 | `string` | `"0 0 * * *"` |
-| `ui.logs.persistence.size` | Configuration for size | `string` | `"5Gi"` |
-| `ui.logs.persistence.storageClass` | Storage class for log persistence Leave empty for default storage class | `string` | `""` |
-| `ui.readinessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck-ui.sh']` |
-| `ui.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |
+| Parameter                                     | Description                                                                                             | Type     | Default                                                                    |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------- |
+| `ui`                                          | Web interface for BunkerWeb management and monitoring                                                   | `object` | See nested values                                                          |
+| `ui.enabled`                                  | Enable external service creation                                                                        | `bool`   | `true`                                                                     |
+| `ui.extraEnvs`                                | Additional environment variables                                                                        | `list`   | `[]`                                                                       |
+| `ui.imagePullSecrets`                         | Image pull secrets (overrides global setting)                                                           | `list`   | `[]`                                                                       |
+| `ui.livenessProbe`                            | Liveness probe configuration                                                                            | `object` | See nested values                                                          |
+| `ui.logs`                                     | Log collection configuration                                                                            | `object` | See nested values                                                          |
+| `ui.nodeSelector`                             | Node selector (overrides global setting)                                                                | `object` | `{}`                                                                       |
+| `ui.podAnnotations`                           | Additional pod annotations                                                                              | `object` | `{}`                                                                       |
+| `ui.podLabels`                                | Additional pod labels                                                                                   | `object` | `{}`                                                                       |
+| `ui.pullPolicy`                               | Configuration for pullPolicy                                                                            | `string` | `"IfNotPresent"`                                                           |
+| `ui.readinessProbe`                           | Readiness probe configuration                                                                           | `object` | See nested values                                                          |
+| `ui.repository`                               | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb                             | `string` | `"docker.io/bunkerity/bunkerweb-ui"`                                       |
+| `ui.securityContext`                          | Security context for BunkerWeb container                                                                | `object` | See nested values                                                          |
+| `ui.tag`                                      | Configuration for tag                                                                                   | `string` | `"1.6.9"`                                                                  |
+| `ui.tolerations`                              | Tolerations (overrides global setting)                                                                  | `list`   | `[]`                                                                       |
+| `ui.livenessProbe.exec`                       | Configuration for exec                                                                                  | `object` | See nested values                                                          |
+| `ui.livenessProbe.failureThreshold`           | Configuration for failureThreshold                                                                      | `int`    | `3`                                                                        |
+| `ui.livenessProbe.initialDelaySeconds`        | Configuration for initialDelaySeconds                                                                   | `int`    | `30`                                                                       |
+| `ui.livenessProbe.periodSeconds`              | Configuration for periodSeconds                                                                         | `int`    | `5`                                                                        |
+| `ui.livenessProbe.timeoutSeconds`             | Configuration for timeoutSeconds                                                                        | `int`    | `1`                                                                        |
+| `ui.logs.enabled`                             | Enable HPA for bunkerweb component                                                                      | `bool`   | `false`                                                                    |
+| `ui.logs.logrotate`                           | Log rotation and cleanup configuration Periodically rotates UI logs and removes old log files           | `object` | See nested values                                                          |
+| `ui.logs.persistence`                         | Persistent storage for logs                                                                             | `object` | See nested values                                                          |
+| `ui.logs.pullPolicy`                          | Configuration for pullPolicy                                                                            | `string` | `"IfNotPresent"`                                                           |
+| `ui.logs.repository`                          | Syslog-ng container for log collection                                                                  | `string` | `"docker.io/balabit/syslog-ng"`                                            |
+| `ui.logs.syslogAddress`                       | Syslog address for log forwarding Automatically set to Sidecar service if empty Format: HOST:PORT "s... | `string` | `""`                                                                       |
+| `ui.logs.tag`                                 | Configuration for tag                                                                                   | `string` | `"4.8.0"`                                                                  |
+| `ui.logs.timezone`                            | Timezone for the syslog-ng container If empty, uses the container default (UTC)                         | `string` | `""`                                                                       |
+| `ui.readinessProbe.exec`                      | Configuration for exec                                                                                  | `object` | See nested values                                                          |
+| `ui.readinessProbe.failureThreshold`          | Configuration for failureThreshold                                                                      | `int`    | `3`                                                                        |
+| `ui.readinessProbe.initialDelaySeconds`       | Configuration for initialDelaySeconds                                                                   | `int`    | `30`                                                                       |
+| `ui.readinessProbe.periodSeconds`             | Configuration for periodSeconds                                                                         | `int`    | `1`                                                                        |
+| `ui.readinessProbe.timeoutSeconds`            | Configuration for timeoutSeconds                                                                        | `int`    | `1`                                                                        |
+| `ui.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation                                                              | `bool`   | `false`                                                                    |
+| `ui.securityContext.capabilities`             | Configuration for capabilities                                                                          | `object` | See nested values                                                          |
+| `ui.securityContext.runAsGroup`               | Configuration for runAsGroup                                                                            | `int`    | `101`                                                                      |
+| `ui.securityContext.runAsUser`                | Configuration for runAsUser                                                                             | `int`    | `101`                                                                      |
+| `ui.livenessProbe.exec.command`               | Configuration for command                                                                               | `list`   | `['/usr/share/bunkerweb/helpers/healthcheck-ui.sh']`                       |
+| `ui.logs.logrotate.enabled`                   | Enable HTTP routes for UI access                                                                        | `bool`   | `true`                                                                     |
+| `ui.logs.logrotate.files`                     | Log file patterns to rotate (required when logrotate.enabled=true). This list is matched against log... | `list`   | `['bw-autoconf.log', 'bw-scheduler.log', 'bw-ui-access.log', 'bw-ui.log']` |
+| `ui.logs.logrotate.rotate`                    | Number of days to keep UI log files Log files older than this value will be automatically removed       | `int`    | `2`                                                                        |
+| `ui.logs.logrotate.schedule`                  | Cron schedule for the log rotation job Default: daily at 00:00                                          | `string` | `"0 0 * * *"`                                                              |
+| `ui.logs.persistence.size`                    | Configuration for size                                                                                  | `string` | `"5Gi"`                                                                    |
+| `ui.logs.persistence.storageClass`            | Storage class for log persistence Leave empty for default storage class                                 | `string` | `""`                                                                       |
+| `ui.readinessProbe.exec.command`              | Configuration for command                                                                               | `list`   | `['/usr/share/bunkerweb/helpers/healthcheck-ui.sh']`                       |
+| `ui.securityContext.capabilities.drop`        | Configuration for drop                                                                                  | `list`   | `['ALL']`                                                                  |
 
 ---
 
@@ -170,205 +170,251 @@ Web interface for BunkerWeb management and monitoring
 
 Manages BunkerWeb configuration and coordination
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `scheduler` | Manages BunkerWeb configuration and coordination | `object` | See nested values |
-| `scheduler.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `scheduler.features` | BunkerWeb feature configuration These settings control the behavior of BunkerWeb security features T... | `object` | See nested values |
-| `scheduler.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
-| `scheduler.livenessProbe` | Liveness probe configuration | `object` | See nested values |
-| `scheduler.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `scheduler.podAnnotations` | Additional pod annotations | `object` | `{}` |
-| `scheduler.podLabels` | Additional pod labels | `object` | `{}` |
-| `scheduler.proLicenseKey` | PRO Features configuration BunkerWeb PRO license key for advanced features | `string` | `""` |
-| `scheduler.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `scheduler.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-scheduler"` |
-| `scheduler.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `scheduler.tag` | Configuration for tag | `string` | `"1.6.8"` |
-| `scheduler.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `scheduler.usePrometheusExporter` | Enable Prometheus metrics exporter and creates a service for it Requires BunkerWeb PRO license | `bool` | `false` |
-| `scheduler.features.antibot` | Configuration for antibot | `object` | See nested values |
-| `scheduler.features.authBasic` | Configuration for authBasic | `object` | See nested values |
-| `scheduler.features.backup` | Configuration for backup | `object` | See nested values |
-| `scheduler.features.badBehavior` | Configuration for badBehavior | `object` | See nested values |
-| `scheduler.features.blacklist` | Configuration for blacklist | `object` | See nested values |
-| `scheduler.features.bunkerNet` | Configuration for bunkerNet | `object` | See nested values |
-| `scheduler.features.clientCache` | Configuration for clientCache | `object` | See nested values |
-| `scheduler.features.compression` | Configuration for compression | `object` | See nested values |
-| `scheduler.features.cors` | Configuration for cors | `object` | See nested values |
-| `scheduler.features.crowdSec` | Configuration for crowdSec | `object` | See nested values |
-| `scheduler.features.customSsl` | Custom SSL certificate | `object` | See nested values |
-| `scheduler.features.dnsbl` | Configuration for dnsbl | `object` | See nested values |
-| `scheduler.features.errors` | Configuration for errors | `object` | See nested values |
-| `scheduler.features.geoBlocking` | Configuration for geoBlocking | `object` | See nested values |
-| `scheduler.features.global` | Configuration for global | `object` | See nested values |
-| `scheduler.features.greylist` | Configuration for greylist | `object` | See nested values |
-| `scheduler.features.headers` | Configuration for headers | `object` | See nested values |
-| `scheduler.features.htmlInjection` | Configuration for htmlInjection | `object` | See nested values |
-| `scheduler.features.letsEncrypt` | Let's Encrypt configuration | `object` | See nested values |
-| `scheduler.features.metrics` | Configuration for metrics | `object` | See nested values |
-| `scheduler.features.modsecurity` | Configuration for modsecurity | `object` | See nested values |
-| `scheduler.features.php` | Configuration for php | `object` | See nested values |
-| `scheduler.features.rateLimit` | Rate limiting configuration for API access https://docs.bunkerweb.io/latest/api/#rate-limiting | `object` | See nested values |
-| `scheduler.features.realIp` | Configuration for realIp | `object` | See nested values |
-| `scheduler.features.redirect` | Configuration for redirect | `object` | See nested values |
-| `scheduler.features.reverseProxy` | Configuration for reverseProxy | `object` | See nested values |
-| `scheduler.features.reverseScan` | Configuration for reverseScan | `object` | See nested values |
-| `scheduler.features.robotsTxt` | Configuration for robotsTxt | `object` | See nested values |
-| `scheduler.features.securityTxt` | Configuration for securityTxt | `object` | See nested values |
-| `scheduler.features.sessions` | Configuration for sessions | `object` | See nested values |
-| `scheduler.features.ssl` | Configuration for ssl | `object` | See nested values |
-| `scheduler.features.whitelist` | Whitelist configuration for API access | `object` | See nested values |
-| `scheduler.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
-| `scheduler.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `scheduler.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `180` |
-| `scheduler.livenessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `10` |
-| `scheduler.livenessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `scheduler.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
-| `scheduler.securityContext.capabilities` | Configuration for capabilities | `object` | See nested values |
-| `scheduler.securityContext.runAsGroup` | Configuration for runAsGroup | `int` | `101` |
-| `scheduler.securityContext.runAsUser` | Configuration for runAsUser | `int` | `101` |
-| `scheduler.features.antibot.antibotIgnoreIp` | IPs to bypass antibot challenges (space-separated) | `string` | `""` |
-| `scheduler.features.antibot.antibotIgnoreUri` | URIs to bypass antibot challenges (regex patterns, space-separated) | `string` | `""` |
-| `scheduler.features.antibot.antibotTimeResolve` | Time limit to complete challenge (seconds) | `string` | `""` |
-| `scheduler.features.antibot.antibotTimeValid` | Challenge validity duration (seconds) | `string` | `""` |
-| `scheduler.features.antibot.antibotUri` | Challenge URI (must be unique and not used by your application) | `string` | `""` |
-| `scheduler.features.antibot.useAntibot` | Antibot challenge type: "no", "cookie", "javascript", "captcha", "recaptcha", "hcaptcha", "turnstile... | `string` | `""` |
-| `scheduler.features.authBasic.authBasicLocation` | Protection scope: "sitewide" or specific path | `string` | `""` |
-| `scheduler.features.authBasic.authBasicPassword` | Password (multiple values supported with suffix _1, _2, etc.) | `string` | `""` |
-| `scheduler.features.authBasic.authBasicText` | Authentication prompt text | `string` | `""` |
-| `scheduler.features.authBasic.authBasicUser` | Username (multiple values supported with suffix _1, _2, etc.) | `string` | `""` |
-| `scheduler.features.authBasic.useAuthBasic` | Enable HTTP Basic Authentication | `string` | `""` |
-| `scheduler.features.backup.backupDirectory` | Backup directory | `string` | `""` |
-| `scheduler.features.backup.backupRotation` | Number of backups to retain | `string` | `""` |
-| `scheduler.features.backup.backupSchedule` | Backup frequency: "daily", "weekly", "monthly" | `string` | `""` |
-| `scheduler.features.backup.useBackup` | Enable backup functionality | `string` | `""` |
-| `scheduler.features.badBehavior.badBehaviorBanTime` | Ban duration (seconds, 0 = permanent) | `string` | `""` |
-| `scheduler.features.badBehavior.badBehaviorCountTime` | Time window for counting bad requests (seconds) | `string` | `""` |
-| `scheduler.features.badBehavior.badBehaviorStatusCodes` | HTTP status codes considered "bad" (space-separated) | `string` | `""` |
-| `scheduler.features.badBehavior.badBehaviorThreshold` | Threshold before banning IP | `string` | `""` |
-| `scheduler.features.badBehavior.useBadBehavior` | Enable bad behavior detection | `string` | `""` |
-| `scheduler.features.blacklist.blacklistCommunityLists` | Community blacklists to use | `string` | `""` |
-| `scheduler.features.blacklist.blacklistIp` | Manual IP blacklist (space-separated) | `string` | `""` |
-| `scheduler.features.blacklist.blacklistIpUrls` | Blacklist URLs for automatic updates | `string` | `""` |
-| `scheduler.features.blacklist.useBlacklist` | Enable blacklist functionality | `string` | `""` |
-| `scheduler.features.bunkerNet.bunkernetServer` | BunkerNet API server | `string` | `""` |
-| `scheduler.features.bunkerNet.useBunkernet` | Enable BunkerNet threat intelligence | `string` | `""` |
-| `scheduler.features.clientCache.clientCacheControl` | Cache-Control header value | `string` | `""` |
-| `scheduler.features.clientCache.clientCacheEtag` | Enable ETags | `string` | `""` |
-| `scheduler.features.clientCache.clientCacheExtensions` | File extensions to cache (pipe-separated) | `string` | `""` |
-| `scheduler.features.clientCache.useClientCache` | Enable client-side caching | `string` | `""` |
-| `scheduler.features.compression.brotliCompLevel` | Brotli compression level (0-11) | `string` | `""` |
-| `scheduler.features.compression.gzipCompLevel` | GZIP compression level (1-9) | `string` | `""` |
-| `scheduler.features.compression.gzipMinLength` | Minimum response size for compression (bytes) | `string` | `""` |
-| `scheduler.features.compression.useBrotli` | Enable Brotli compression | `string` | `""` |
-| `scheduler.features.compression.useGzip` | Enable GZIP compression | `string` | `""` |
-| `scheduler.features.cors.corsAllowCredentials` | Allow credentials | `string` | `""` |
-| `scheduler.features.cors.corsAllowHeaders` | Allowed headers | `string` | `""` |
-| `scheduler.features.cors.corsAllowMethods` | Allowed HTTP methods | `string` | `""` |
-| `scheduler.features.cors.corsAllowOrigin` | Allowed origins (regex pattern or "self" or "*") | `string` | `""` |
-| `scheduler.features.cors.useCors` | Enable CORS | `string` | `""` |
-| `scheduler.features.crowdSec.crowdSecApi` | CrowdSec Local API URL | `string` | `""` |
-| `scheduler.features.crowdSec.crowdSecApiKey` | CrowdSec API key | `string` | `""` |
-| `scheduler.features.crowdSec.crowdSecAppsecUrl` | AppSec component URL (optional) | `string` | `""` |
-| `scheduler.features.crowdSec.crowdSecMode` | Operation mode: "live" or "stream" | `string` | `""` |
-| `scheduler.features.crowdSec.useCrowdSec` | Enable CrowdSec integration | `string` | `""` |
-| `scheduler.features.customSsl.customSslCert` | Certificate file path | `string` | `""` |
-| `scheduler.features.customSsl.customSslCertPriority` | Certificate priority: "file" or "data" | `string` | `""` |
-| `scheduler.features.customSsl.customSslKey` | Private key file path | `string` | `""` |
-| `scheduler.features.customSsl.useCustomSsl` | Use custom SSL certificates | `string` | `""` |
-| `scheduler.features.dnsbl.dnsblList` | DNSBL servers to query (space-separated) | `string` | `""` |
-| `scheduler.features.dnsbl.useDnsbl` | Enable DNSBL checking | `string` | `""` |
-| `scheduler.features.errors.errors` | Custom error page mappings (ERROR_CODE=/path/to/file.html) | `string` | `""` |
-| `scheduler.features.errors.interceptedErrorCodes` | HTTP error codes to intercept | `string` | `""` |
-| `scheduler.features.geoBlocking.blacklistCountry` | Blocked countries (ISO 3166-1 alpha-2 codes, space-separated) | `string` | `""` |
-| `scheduler.features.geoBlocking.whitelistCountry` | Allowed countries (ISO 3166-1 alpha-2 codes, space-separated) | `string` | `""` |
-| `scheduler.features.global.disableDefaultServer` | Default server protection | `string` | `""` |
-| `scheduler.features.global.disableDefaultServerStrictSni` | Configuration for disableDefaultServerStrictSni | `string` | `""` |
-| `scheduler.features.global.securityMode` | Security mode: "detect" for monitoring only, "block" for active protection | `string` | `""` |
-| `scheduler.features.greylist.greylistIp` | IP addresses to greylist (space-separated CIDR) | `string` | `""` |
-| `scheduler.features.greylist.greylistIpUrls` | Greylist URLs for automatic updates | `string` | `""` |
-| `scheduler.features.greylist.useGreylist` | Enable greylist functionality | `string` | `""` |
-| `scheduler.features.headers.contentSecurityPolicy` | Content Security Policy | `string` | `""` |
-| `scheduler.features.headers.contentSecurityPolicyReportOnly` | CSP report-only mode | `string` | `""` |
-| `scheduler.features.headers.customHeader` | Custom headers (multiple values supported with suffix _1, _2, etc.) | `string` | `""` |
-| `scheduler.features.headers.referrerPolicy` | Referrer Policy | `string` | `""` |
-| `scheduler.features.headers.removeHeaders` | Headers to remove (space-separated) | `string` | `""` |
-| `scheduler.features.headers.strictTransportSecurity` | HSTS header | `string` | `""` |
-| `scheduler.features.headers.xContentTypeOptions` | X-Content-Type-Options header | `string` | `""` |
-| `scheduler.features.headers.xFrameOptions` | X-Frame-Options header | `string` | `""` |
-| `scheduler.features.htmlInjection.injectBody` | HTML to inject before </body> | `string` | `""` |
-| `scheduler.features.htmlInjection.injectHead` | HTML to inject in <head> section | `string` | `""` |
-| `scheduler.features.letsEncrypt.autoLetsEncrypt` | Enable automatic Let's Encrypt certificates | `string` | `""` |
-| `scheduler.features.letsEncrypt.emailLetsEncrypt` | Email for Let's Encrypt notifications | `string` | `""` |
-| `scheduler.features.letsEncrypt.letsEncryptChallenge` | Challenge type: "http" or "dns" | `string` | `""` |
-| `scheduler.features.letsEncrypt.letsEncryptDnsProvider` | DNS provider for DNS challenges | `string` | `""` |
-| `scheduler.features.letsEncrypt.useLetsEncryptWildcard` | Enable wildcard certificates (DNS challenges only) | `string` | `""` |
-| `scheduler.features.metrics.metricsMaxBlockedRequests` | Max blocked requests per worker | `string` | `""` |
-| `scheduler.features.metrics.metricsMemorySize` | Memory size for metrics storage | `string` | `""` |
-| `scheduler.features.metrics.metricsSaveToRedis` | Save metrics to Redis | `string` | `""` |
-| `scheduler.features.metrics.useMetrics` | Enable metrics collection | `string` | `""` |
-| `scheduler.features.modsecurity.modsecurityCrsPlugins` | List of CRS plugins to install (space-separated) | `string` | `""` |
-| `scheduler.features.modsecurity.modsecurityCrsVersion` | CRS version: "3", "4", or "nightly" | `string` | `""` |
-| `scheduler.features.modsecurity.modsecuritySecRuleEngine` | Rule engine: "On", "DetectionOnly", or "Off" | `string` | `""` |
-| `scheduler.features.modsecurity.useModsecurity` | Enable ModSecurity Web Application Firewall | `string` | `""` |
-| `scheduler.features.modsecurity.useModsecurityCrs` | Enable OWASP Core Rule Set | `string` | `""` |
-| `scheduler.features.modsecurity.useModsecurityCrsPlugins` | Enable CRS plugins for enhanced protection | `string` | `""` |
-| `scheduler.features.php.localPhp` | Local PHP-FPM socket | `string` | `""` |
-| `scheduler.features.php.localPhpPath` | Local PHP-FPM path | `string` | `""` |
-| `scheduler.features.php.remotePhp` | Remote PHP-FPM host | `string` | `""` |
-| `scheduler.features.php.remotePhpPort` | Remote PHP-FPM port | `string` | `""` |
-| `scheduler.features.php.remotephpPath` | Remote PHP-FPM path | `string` | `""` |
-| `scheduler.features.rateLimit.limitConnMaxHttp1` | Max HTTP/1.1 connections per IP | `string` | `""` |
-| `scheduler.features.rateLimit.limitConnMaxHttp2` | Max HTTP/2 connections per IP | `string` | `""` |
-| `scheduler.features.rateLimit.limitConnMaxHttp3` | Max HTTP/3 connections per IP | `string` | `""` |
-| `scheduler.features.rateLimit.limitReqRate` | Rate limit (e.g., "2r/s", "60r/m") | `string` | `""` |
-| `scheduler.features.rateLimit.limitReqUrl` | URL pattern to apply rate limiting | `string` | `""` |
-| `scheduler.features.rateLimit.useLimitConn` | Enable connection limiting | `string` | `""` |
-| `scheduler.features.rateLimit.useLimitReq` | Enable request rate limiting | `string` | `""` |
-| `scheduler.features.realIp.realIpFrom` | Trusted proxy IPs (space-separated CIDR) | `string` | `""` |
-| `scheduler.features.realIp.realIpHeader` | Header containing real IP | `string` | `""` |
-| `scheduler.features.realIp.realIpRecursive` | Enable recursive IP detection | `string` | `""` |
-| `scheduler.features.realIp.useProxyProtocol` | Enable PROXY protocol support | `string` | `""` |
-| `scheduler.features.realIp.useRealIp` | Enable real IP detection (behind proxy/load balancer) | `string` | `""` |
-| `scheduler.features.redirect.redirectFrom` | Path to redirect from | `string` | `""` |
-| `scheduler.features.redirect.redirectTo` | Destination URL | `string` | `""` |
-| `scheduler.features.redirect.redirectToRequestUri` | Preserve request URI | `string` | `""` |
-| `scheduler.features.redirect.redirectToStatusCode` | HTTP status code for redirect | `string` | `""` |
-| `scheduler.features.reverseProxy.reverseProxyConnectTimeout` | Connection timeout | `string` | `""` |
-| `scheduler.features.reverseProxy.reverseProxyHost` | Backend server URLs (multiple values supported with suffix _1, _2, etc.) | `string` | `""` |
-| `scheduler.features.reverseProxy.reverseProxyReadTimeout` | Read timeout | `string` | `""` |
-| `scheduler.features.reverseProxy.reverseProxySendTimeout` | Send timeout | `string` | `""` |
-| `scheduler.features.reverseProxy.reverseProxyUrl` | URL paths to proxy (multiple values supported with suffix _1, _2, etc.) | `string` | `""` |
-| `scheduler.features.reverseProxy.useReverseProxy` | Enable reverse proxy functionality | `string` | `""` |
-| `scheduler.features.reverseScan.reverseScanPorts` | Ports to scan on client (space-separated) | `string` | `""` |
-| `scheduler.features.reverseScan.reverseScanTimeout` | Scan timeout (milliseconds) | `string` | `""` |
-| `scheduler.features.reverseScan.useReverseScan` | Enable client port scanning | `string` | `""` |
-| `scheduler.features.robotsTxt.robotsTxtCommunityLists` | Community lists to include | `string` | `""` |
-| `scheduler.features.robotsTxt.robotsTxtDarkvisitorsToken` | DarkVisitors API token | `string` | `""` |
-| `scheduler.features.robotsTxt.robotsTxtRule` | Manual robots.txt rules (multiple values supported) | `string` | `""` |
-| `scheduler.features.robotsTxt.robotsTxtSitemap` | Sitemap URLs (multiple values supported) | `string` | `""` |
-| `scheduler.features.robotsTxt.useRobotsTxt` | Enable robots.txt generation | `string` | `""` |
-| `scheduler.features.securityTxt.securityTxtContact` | Contact information (multiple values supported) | `string` | `""` |
-| `scheduler.features.securityTxt.securityTxtExpires` | Expiration date (ISO 8601 format) | `string` | `""` |
-| `scheduler.features.securityTxt.securityTxtPolicy` | Security policy URL | `string` | `""` |
-| `scheduler.features.securityTxt.useSecurityTxt` | Enable security.txt file | `string` | `""` |
-| `scheduler.features.sessions.sessionsAbsoluteTimeout` | Absolute timeout (seconds) | `string` | `""` |
-| `scheduler.features.sessions.sessionsCheckIp` | Check IP address consistency | `string` | `""` |
-| `scheduler.features.sessions.sessionsCheckUserAgent` | Check User-Agent consistency | `string` | `""` |
-| `scheduler.features.sessions.sessionsIdlingTimeout` | Idle timeout (seconds) | `string` | `""` |
-| `scheduler.features.sessions.sessionsName` | Session cookie name | `string` | `""` |
-| `scheduler.features.sessions.sessionsRollingTimeout` | Rolling timeout (seconds) | `string` | `""` |
-| `scheduler.features.sessions.sessionsSecret` | Session secret key (leave empty to auto-generate) | `string` | `""` |
-| `scheduler.features.ssl.autoRedirectHttpToHttps` | Auto-redirect HTTP to HTTPS | `string` | `""` |
-| `scheduler.features.ssl.listenHttps` | Enable HTTPS listening | `string` | `""` |
-| `scheduler.features.ssl.sslCiphersLevel` | Cipher security level: "old", "intermediate", "modern" | `string` | `""` |
-| `scheduler.features.ssl.sslProtocols` | SSL protocols to support | `string` | `""` |
-| `scheduler.features.whitelist.useWhitelist` | Enable whitelist functionality | `string` | `""` |
-| `scheduler.features.whitelist.whitelistIp` | Manual IP whitelist (space-separated CIDR) | `string` | `""` |
-| `scheduler.features.whitelist.whitelistIpUrls` | Whitelist URLs for automatic updates | `string` | `""` |
-| `scheduler.livenessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck-scheduler.sh']` |
-| `scheduler.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |
+| Parameter                                                            | Description                                                                                             | Type     | Default                                                     |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------- |
+| `scheduler`                                                          | Manages BunkerWeb configuration and coordination                                                        | `object` | See nested values                                           |
+| `scheduler.extraEnvs`                                                | Additional environment variables                                                                        | `list`   | `[]`                                                        |
+| `scheduler.features`                                                 | BunkerWeb feature configuration These settings control the behavior of BunkerWeb security features T... | `object` | See nested values                                           |
+| `scheduler.imagePullSecrets`                                         | Image pull secrets (overrides global setting)                                                           | `list`   | `[]`                                                        |
+| `scheduler.livenessProbe`                                            | Liveness probe configuration                                                                            | `object` | See nested values                                           |
+| `scheduler.nodeSelector`                                             | Node selector (overrides global setting)                                                                | `object` | `{}`                                                        |
+| `scheduler.podAnnotations`                                           | Additional pod annotations                                                                              | `object` | `{}`                                                        |
+| `scheduler.podLabels`                                                | Additional pod labels                                                                                   | `object` | `{}`                                                        |
+| `scheduler.proLicenseKey`                                            | PRO Features configuration BunkerWeb PRO license key for advanced features                              | `string` | `""`                                                        |
+| `scheduler.pullPolicy`                                               | Configuration for pullPolicy                                                                            | `string` | `"IfNotPresent"`                                            |
+| `scheduler.repository`                                               | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb                             | `string` | `"docker.io/bunkerity/bunkerweb-scheduler"`                 |
+| `scheduler.securityContext`                                          | Security context for BunkerWeb container                                                                | `object` | See nested values                                           |
+| `scheduler.tag`                                                      | Configuration for tag                                                                                   | `string` | `"1.6.9"`                                                   |
+| `scheduler.tolerations`                                              | Tolerations (overrides global setting)                                                                  | `list`   | `[]`                                                        |
+| `scheduler.usePrometheusExporter`                                    | Enable Prometheus metrics exporter and creates a service for it Requires BunkerWeb PRO license          | `bool`   | `false`                                                     |
+| `scheduler.features.antibot`                                         | Configuration for antibot                                                                               | `object` | See nested values                                           |
+| `scheduler.features.authBasic`                                       | Configuration for authBasic                                                                             | `object` | See nested values                                           |
+| `scheduler.features.backup`                                          | Configuration for backup                                                                                | `object` | See nested values                                           |
+| `scheduler.features.badBehavior`                                     | Configuration for badBehavior                                                                           | `object` | See nested values                                           |
+| `scheduler.features.blacklist`                                       | Configuration for blacklist                                                                             | `object` | See nested values                                           |
+| `scheduler.features.bunkerNet`                                       | Configuration for bunkerNet                                                                             | `object` | See nested values                                           |
+| `scheduler.features.clientCache`                                     | Configuration for clientCache                                                                           | `object` | See nested values                                           |
+| `scheduler.features.compression`                                     | Configuration for compression                                                                           | `object` | See nested values                                           |
+| `scheduler.features.cors`                                            | Configuration for cors                                                                                  | `object` | See nested values                                           |
+| `scheduler.features.crowdSec`                                        | Configuration for crowdSec                                                                              | `object` | See nested values                                           |
+| `scheduler.features.customSsl`                                       | Custom SSL certificate                                                                                  | `object` | See nested values                                           |
+| `scheduler.features.databasePool`                                    | Configuration for databasePool                                                                          | `object` | See nested values                                           |
+| `scheduler.features.dnsbl`                                           | Configuration for dnsbl                                                                                 | `object` | See nested values                                           |
+| `scheduler.features.errors`                                          | Configuration for errors                                                                                | `object` | See nested values                                           |
+| `scheduler.features.geoBlocking`                                     | Configuration for geoBlocking                                                                           | `object` | See nested values                                           |
+| `scheduler.features.global`                                          | Configuration for global                                                                                | `object` | See nested values                                           |
+| `scheduler.features.greylist`                                        | Configuration for greylist                                                                              | `object` | See nested values                                           |
+| `scheduler.features.grpc`                                            | Configuration for grpc                                                                                  | `object` | See nested values                                           |
+| `scheduler.features.headers`                                         | Configuration for headers                                                                               | `object` | See nested values                                           |
+| `scheduler.features.htmlInjection`                                   | Configuration for htmlInjection                                                                         | `object` | See nested values                                           |
+| `scheduler.features.letsEncrypt`                                     | Let's Encrypt configuration                                                                             | `object` | See nested values                                           |
+| `scheduler.features.metrics`                                         | Configuration for metrics                                                                               | `object` | See nested values                                           |
+| `scheduler.features.modsecurity`                                     | Configuration for modsecurity                                                                           | `object` | See nested values                                           |
+| `scheduler.features.php`                                             | Configuration for php                                                                                   | `object` | See nested values                                           |
+| `scheduler.features.rateLimit`                                       | Rate limiting configuration for API access https://docs.bunkerweb.io/latest/api/#rate-limiting          | `object` | See nested values                                           |
+| `scheduler.features.realIp`                                          | Configuration for realIp                                                                                | `object` | See nested values                                           |
+| `scheduler.features.redirect`                                        | Configuration for redirect                                                                              | `object` | See nested values                                           |
+| `scheduler.features.reverseProxy`                                    | Configuration for reverseProxy                                                                          | `object` | See nested values                                           |
+| `scheduler.features.reverseScan`                                     | Configuration for reverseScan                                                                           | `object` | See nested values                                           |
+| `scheduler.features.robotsTxt`                                       | Configuration for robotsTxt                                                                             | `object` | See nested values                                           |
+| `scheduler.features.securityTxt`                                     | Configuration for securityTxt                                                                           | `object` | See nested values                                           |
+| `scheduler.features.sessions`                                        | Configuration for sessions                                                                              | `object` | See nested values                                           |
+| `scheduler.features.ssl`                                             | Configuration for ssl                                                                                   | `object` | See nested values                                           |
+| `scheduler.features.stream`                                          | Configuration for stream                                                                                | `object` | See nested values                                           |
+| `scheduler.features.timeouts`                                        | Configuration for timeouts                                                                              | `object` | See nested values                                           |
+| `scheduler.features.whitelist`                                       | Whitelist configuration for API access                                                                  | `object` | See nested values                                           |
+| `scheduler.livenessProbe.exec`                                       | Configuration for exec                                                                                  | `object` | See nested values                                           |
+| `scheduler.livenessProbe.failureThreshold`                           | Configuration for failureThreshold                                                                      | `int`    | `3`                                                         |
+| `scheduler.livenessProbe.initialDelaySeconds`                        | Configuration for initialDelaySeconds                                                                   | `int`    | `180`                                                       |
+| `scheduler.livenessProbe.periodSeconds`                              | Configuration for periodSeconds                                                                         | `int`    | `10`                                                        |
+| `scheduler.livenessProbe.timeoutSeconds`                             | Configuration for timeoutSeconds                                                                        | `int`    | `1`                                                         |
+| `scheduler.securityContext.allowPrivilegeEscalation`                 | Configuration for allowPrivilegeEscalation                                                              | `bool`   | `false`                                                     |
+| `scheduler.securityContext.capabilities`                             | Configuration for capabilities                                                                          | `object` | See nested values                                           |
+| `scheduler.securityContext.runAsGroup`                               | Configuration for runAsGroup                                                                            | `int`    | `101`                                                       |
+| `scheduler.securityContext.runAsUser`                                | Configuration for runAsUser                                                                             | `int`    | `101`                                                       |
+| `scheduler.features.antibot.antibotIgnoreIp`                         | IPs to bypass antibot challenges (space-separated)                                                      | `string` | `""`                                                        |
+| `scheduler.features.antibot.antibotIgnoreUri`                        | URIs to bypass antibot challenges (regex patterns, space-separated)                                     | `string` | `""`                                                        |
+| `scheduler.features.antibot.antibotRecaptchaClassic`                 | Use classic reCAPTCHA instead of newer version                                                          | `string` | `""`                                                        |
+| `scheduler.features.antibot.antibotTimeResolve`                      | Time limit to complete challenge (seconds)                                                              | `string` | `""`                                                        |
+| `scheduler.features.antibot.antibotTimeValid`                        | Challenge validity duration (seconds)                                                                   | `string` | `""`                                                        |
+| `scheduler.features.antibot.antibotUri`                              | Challenge URI (must be unique and not used by your application)                                         | `string` | `""`                                                        |
+| `scheduler.features.antibot.useAntibot`                              | Antibot challenge type: "no", "cookie", "javascript", "captcha", "recaptcha", "hcaptcha", "turnstile... | `string` | `""`                                                        |
+| `scheduler.features.authBasic.authBasicLocation`                     | Protection scope: "sitewide" or specific path                                                           | `string` | `""`                                                        |
+| `scheduler.features.authBasic.authBasicPassword`                     | Password (multiple values supported with suffix _1, _2, etc.)                                           | `string` | `""`                                                        |
+| `scheduler.features.authBasic.authBasicText`                         | Authentication prompt text                                                                              | `string` | `""`                                                        |
+| `scheduler.features.authBasic.authBasicUser`                         | Username (multiple values supported with suffix _1, _2, etc.)                                           | `string` | `""`                                                        |
+| `scheduler.features.authBasic.useAuthBasic`                          | Enable HTTP Basic Authentication                                                                        | `string` | `""`                                                        |
+| `scheduler.features.backup.backupDirectory`                          | Backup directory                                                                                        | `string` | `""`                                                        |
+| `scheduler.features.backup.backupRotation`                           | Number of backups to retain                                                                             | `string` | `""`                                                        |
+| `scheduler.features.backup.backupSchedule`                           | Backup frequency: "daily", "weekly", "monthly"                                                          | `string` | `""`                                                        |
+| `scheduler.features.backup.useBackup`                                | Enable backup functionality                                                                             | `string` | `""`                                                        |
+| `scheduler.features.badBehavior.badBehaviorBanTime`                  | Ban duration (seconds, 0 = permanent)                                                                   | `string` | `""`                                                        |
+| `scheduler.features.badBehavior.badBehaviorCountTime`                | Time window for counting bad requests (seconds)                                                         | `string` | `""`                                                        |
+| `scheduler.features.badBehavior.badBehaviorStatusCodes`              | HTTP status codes considered "bad" (space-separated)                                                    | `string` | `""`                                                        |
+| `scheduler.features.badBehavior.badBehaviorThreshold`                | Threshold before banning IP                                                                             | `string` | `""`                                                        |
+| `scheduler.features.badBehavior.useBadBehavior`                      | Enable bad behavior detection                                                                           | `string` | `""`                                                        |
+| `scheduler.features.blacklist.blacklistCommunityLists`               | Community blacklists to use                                                                             | `string` | `""`                                                        |
+| `scheduler.features.blacklist.blacklistIp`                           | Manual IP blacklist (space-separated)                                                                   | `string` | `""`                                                        |
+| `scheduler.features.blacklist.blacklistIpUrls`                       | Blacklist URLs for automatic updates                                                                    | `string` | `""`                                                        |
+| `scheduler.features.blacklist.useBlacklist`                          | Enable blacklist functionality                                                                          | `string` | `""`                                                        |
+| `scheduler.features.bunkerNet.bunkernetServer`                       | BunkerNet API server                                                                                    | `string` | `""`                                                        |
+| `scheduler.features.bunkerNet.useBunkernet`                          | Enable BunkerNet threat intelligence                                                                    | `string` | `""`                                                        |
+| `scheduler.features.clientCache.clientCacheControl`                  | Cache-Control header value                                                                              | `string` | `""`                                                        |
+| `scheduler.features.clientCache.clientCacheEtag`                     | Enable ETags                                                                                            | `string` | `""`                                                        |
+| `scheduler.features.clientCache.clientCacheExtensions`               | File extensions to cache (pipe-separated)                                                               | `string` | `""`                                                        |
+| `scheduler.features.clientCache.useClientCache`                      | Enable client-side caching                                                                              | `string` | `""`                                                        |
+| `scheduler.features.compression.brotliCompLevel`                     | Brotli compression level (0-11)                                                                         | `string` | `""`                                                        |
+| `scheduler.features.compression.gzipCompLevel`                       | GZIP compression level (1-9)                                                                            | `string` | `""`                                                        |
+| `scheduler.features.compression.gzipMinLength`                       | Minimum response size for compression (bytes)                                                           | `string` | `""`                                                        |
+| `scheduler.features.compression.useBrotli`                           | Enable Brotli compression                                                                               | `string` | `""`                                                        |
+| `scheduler.features.compression.useGzip`                             | Enable GZIP compression                                                                                 | `string` | `""`                                                        |
+| `scheduler.features.cors.corsAllowCredentials`                       | Allow credentials                                                                                       | `string` | `""`                                                        |
+| `scheduler.features.cors.corsAllowHeaders`                           | Allowed headers                                                                                         | `string` | `""`                                                        |
+| `scheduler.features.cors.corsAllowMethods`                           | Allowed HTTP methods                                                                                    | `string` | `""`                                                        |
+| `scheduler.features.cors.corsAllowOrigin`                            | Allowed origins (regex pattern or "self" or "*")                                                        | `string` | `""`                                                        |
+| `scheduler.features.cors.useCors`                                    | Enable CORS                                                                                             | `string` | `""`                                                        |
+| `scheduler.features.crowdSec.crowdSecApi`                            | CrowdSec Local API URL                                                                                  | `string` | `""`                                                        |
+| `scheduler.features.crowdSec.crowdSecApiKey`                         | CrowdSec API key                                                                                        | `string` | `""`                                                        |
+| `scheduler.features.crowdSec.crowdSecAppsecUrl`                      | AppSec component URL (optional)                                                                         | `string` | `""`                                                        |
+| `scheduler.features.crowdSec.crowdSecMode`                           | Operation mode: "live" or "stream"                                                                      | `string` | `""`                                                        |
+| `scheduler.features.crowdSec.useCrowdSec`                            | Enable CrowdSec integration                                                                             | `string` | `""`                                                        |
+| `scheduler.features.customSsl.customSslCert`                         | Certificate file path                                                                                   | `string` | `""`                                                        |
+| `scheduler.features.customSsl.customSslCertPriority`                 | Certificate priority: "file" or "data"                                                                  | `string` | `""`                                                        |
+| `scheduler.features.customSsl.customSslKey`                          | Private key file path                                                                                   | `string` | `""`                                                        |
+| `scheduler.features.customSsl.useCustomSsl`                          | Use custom SSL certificates                                                                             | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databasePoolMaxOverflow`            | Max connections above pool size                                                                         | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databasePoolPrePing`                | Test connections for liveness on checkout                                                               | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databasePoolRecycle`                | Seconds after which connection is recycled (-1 to disable)                                              | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databasePoolResetOnReturn`          | How to reset connection on return (auto/none/rollback)                                                  | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databasePoolSize`                   | Number of connections in the pool                                                                       | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databasePoolTimeout`                | Seconds to wait for a connection from pool                                                              | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databaseRequestRetryAttempts`       | Retry attempts for transient errors                                                                     | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databaseRequestRetryDelay`          | Delay between retry attempts (seconds)                                                                  | `string` | `""`                                                        |
+| `scheduler.features.databasePool.databaseRetryTimeout`               | Max seconds to wait for database on startup                                                             | `string` | `""`                                                        |
+| `scheduler.features.dnsbl.dnsblList`                                 | DNSBL servers to query (space-separated)                                                                | `string` | `""`                                                        |
+| `scheduler.features.dnsbl.useDnsbl`                                  | Enable DNSBL checking                                                                                   | `string` | `""`                                                        |
+| `scheduler.features.errors.errors`                                   | Custom error page mappings (ERROR_CODE=/path/to/file.html)                                              | `string` | `""`                                                        |
+| `scheduler.features.errors.interceptedErrorCodes`                    | HTTP error codes to intercept                                                                           | `string` | `""`                                                        |
+| `scheduler.features.geoBlocking.blacklistCountry`                    | Blocked countries (ISO 3166-1 alpha-2 codes or group tokens like @EU, @G7, @FIVE_EYES, space-separat... | `string` | `""`                                                        |
+| `scheduler.features.geoBlocking.whitelistCountry`                    | Allowed countries (ISO 3166-1 alpha-2 codes or group tokens like @EU, @G7, @FIVE_EYES, space-separat... | `string` | `""`                                                        |
+| `scheduler.features.global.disableDefaultServer`                     | Default server protection                                                                               | `string` | `""`                                                        |
+| `scheduler.features.global.disableDefaultServerStrictSni`            | Configuration for disableDefaultServerStrictSni                                                         | `string` | `""`                                                        |
+| `scheduler.features.global.securityMode`                             | Security mode: "detect" for monitoring only, "block" for active protection                              | `string` | `""`                                                        |
+| `scheduler.features.greylist.greylistIp`                             | IP addresses to greylist (space-separated CIDR)                                                         | `string` | `""`                                                        |
+| `scheduler.features.greylist.greylistIpUrls`                         | Greylist URLs for automatic updates                                                                     | `string` | `""`                                                        |
+| `scheduler.features.greylist.useGreylist`                            | Enable greylist functionality                                                                           | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcConnectTimeout`                         | Timeout when connecting to gRPC upstream                                                                | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcCustomHost`                             | Override Host header sent to gRPC upstream                                                              | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcHeaders`                                | Headers to send to gRPC upstream (semicolon-separated)                                                  | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcHideHeaders`                            | Headers to hide from clients                                                                            | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcHost`                                   | Upstream value (e.g., grpc://app:50051 or grpcs://app:443)                                              | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcIncludes`                               | Additional config for gRPC location block                                                               | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcInterceptErrors`                        | Intercept and rewrite gRPC upstream errors                                                              | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcNextUpstream`                           | Conditions for selecting next gRPC upstream server                                                      | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcNextUpstreamTimeout`                    | Time limit for passing request to next server                                                           | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcNextUpstreamTries`                      | Max attempts to pass request to next server                                                             | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcReadTimeout`                            | Timeout when reading from gRPC upstream                                                                 | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcSendTimeout`                            | Timeout when sending to gRPC upstream                                                                   | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcSocketKeepalive`                        | Enable keepalive for gRPC upstream sockets                                                              | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcSslSni`                                 | Enable SNI for gRPC upstream                                                                            | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcSslSniName`                             | SNI host name for gRPC upstream                                                                         | `string` | `""`                                                        |
+| `scheduler.features.grpc.grpcUrl`                                    | Location URL to proxy to gRPC upstream                                                                  | `string` | `""`                                                        |
+| `scheduler.features.grpc.useGrpc`                                    | Enable gRPC reverse proxy mode                                                                          | `string` | `""`                                                        |
+| `scheduler.features.headers.contentSecurityPolicy`                   | Content Security Policy                                                                                 | `string` | `""`                                                        |
+| `scheduler.features.headers.contentSecurityPolicyReportOnly`         | CSP report-only mode                                                                                    | `string` | `""`                                                        |
+| `scheduler.features.headers.customHeader`                            | Custom headers (multiple values supported with suffix _1, _2, etc.)                                     | `string` | `""`                                                        |
+| `scheduler.features.headers.referrerPolicy`                          | Referrer Policy                                                                                         | `string` | `""`                                                        |
+| `scheduler.features.headers.removeHeaders`                           | Headers to remove (space-separated)                                                                     | `string` | `""`                                                        |
+| `scheduler.features.headers.strictTransportSecurity`                 | HSTS header                                                                                             | `string` | `""`                                                        |
+| `scheduler.features.headers.xContentTypeOptions`                     | X-Content-Type-Options header                                                                           | `string` | `""`                                                        |
+| `scheduler.features.headers.xFrameOptions`                           | X-Frame-Options header                                                                                  | `string` | `""`                                                        |
+| `scheduler.features.htmlInjection.injectBody`                        | HTML to inject before </body>                                                                           | `string` | `""`                                                        |
+| `scheduler.features.htmlInjection.injectHead`                        | HTML to inject in <head> section                                                                        | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.autoLetsEncrypt`                     | Enable automatic Let's Encrypt certificates                                                             | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.emailLetsEncrypt`                    | Email for Let's Encrypt notifications                                                                   | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptChallenge`                | Challenge type: "http" or "dns"                                                                         | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptCustomProfile`            | Custom certificate profile (overrides letsEncryptProfile)                                               | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptDnsProvider`              | DNS provider for DNS challenges                                                                         | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptProfile`                  | Certificate profile: "classic" or other profiles                                                        | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptServer`                   | Certificate authority server: "letsencrypt" or "zerossl"                                                | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptZerosslApiConnectTimeout` | ZeroSSL API connection timeout (seconds)                                                                | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptZerosslApiKey`            | ZeroSSL API key (optional, falls back to email)                                                         | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptZerosslApiMaxTime`        | ZeroSSL API max time (seconds)                                                                          | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptZerosslApiRetry`          | ZeroSSL API retry count                                                                                 | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.letsEncryptZerosslApiRetryDelay`     | ZeroSSL API retry delay (seconds)                                                                       | `string` | `""`                                                        |
+| `scheduler.features.letsEncrypt.useLetsEncryptWildcard`              | Enable wildcard certificates (DNS challenges only)                                                      | `string` | `""`                                                        |
+| `scheduler.features.metrics.metricsMaxBlockedRequests`               | Max blocked requests per worker                                                                         | `string` | `""`                                                        |
+| `scheduler.features.metrics.metricsMemorySize`                       | Memory size for metrics storage                                                                         | `string` | `""`                                                        |
+| `scheduler.features.metrics.metricsSaveToRedis`                      | Save metrics to Redis                                                                                   | `string` | `""`                                                        |
+| `scheduler.features.metrics.useMetrics`                              | Enable metrics collection                                                                               | `string` | `""`                                                        |
+| `scheduler.features.modsecurity.modsecurityCrsPlugins`               | List of CRS plugins to install (space-separated)                                                        | `string` | `""`                                                        |
+| `scheduler.features.modsecurity.modsecurityCrsVersion`               | CRS version: "3", "4", or "nightly"                                                                     | `string` | `""`                                                        |
+| `scheduler.features.modsecurity.modsecuritySecRuleEngine`            | Rule engine: "On", "DetectionOnly", or "Off"                                                            | `string` | `""`                                                        |
+| `scheduler.features.modsecurity.useModsecurity`                      | Enable ModSecurity Web Application Firewall                                                             | `string` | `""`                                                        |
+| `scheduler.features.modsecurity.useModsecurityCrs`                   | Enable OWASP Core Rule Set                                                                              | `string` | `""`                                                        |
+| `scheduler.features.modsecurity.useModsecurityCrsPlugins`            | Enable CRS plugins for enhanced protection                                                              | `string` | `""`                                                        |
+| `scheduler.features.php.localPhp`                                    | Local PHP-FPM socket                                                                                    | `string` | `""`                                                        |
+| `scheduler.features.php.localPhpPath`                                | Local PHP-FPM path                                                                                      | `string` | `""`                                                        |
+| `scheduler.features.php.remotePhp`                                   | Remote PHP-FPM host                                                                                     | `string` | `""`                                                        |
+| `scheduler.features.php.remotePhpPort`                               | Remote PHP-FPM port                                                                                     | `string` | `""`                                                        |
+| `scheduler.features.php.remotephpPath`                               | Remote PHP-FPM path                                                                                     | `string` | `""`                                                        |
+| `scheduler.features.rateLimit.limitConnMaxHttp1`                     | Max HTTP/1.1 connections per IP                                                                         | `string` | `""`                                                        |
+| `scheduler.features.rateLimit.limitConnMaxHttp2`                     | Max HTTP/2 connections per IP                                                                           | `string` | `""`                                                        |
+| `scheduler.features.rateLimit.limitConnMaxHttp3`                     | Max HTTP/3 connections per IP                                                                           | `string` | `""`                                                        |
+| `scheduler.features.rateLimit.limitReqRate`                          | Rate limit (e.g., "2r/s", "60r/m")                                                                      | `string` | `""`                                                        |
+| `scheduler.features.rateLimit.limitReqUrl`                           | URL pattern to apply rate limiting                                                                      | `string` | `""`                                                        |
+| `scheduler.features.rateLimit.useLimitConn`                          | Enable connection limiting                                                                              | `string` | `""`                                                        |
+| `scheduler.features.rateLimit.useLimitReq`                           | Enable request rate limiting                                                                            | `string` | `""`                                                        |
+| `scheduler.features.realIp.realIpFrom`                               | Trusted proxy IPs (space-separated CIDR)                                                                | `string` | `""`                                                        |
+| `scheduler.features.realIp.realIpHeader`                             | Header containing real IP                                                                               | `string` | `""`                                                        |
+| `scheduler.features.realIp.realIpRecursive`                          | Enable recursive IP detection                                                                           | `string` | `""`                                                        |
+| `scheduler.features.realIp.useProxyProtocol`                         | Enable PROXY protocol support                                                                           | `string` | `""`                                                        |
+| `scheduler.features.realIp.useRealIp`                                | Enable real IP detection (behind proxy/load balancer)                                                   | `string` | `""`                                                        |
+| `scheduler.features.redirect.redirectFrom`                           | Path to redirect from                                                                                   | `string` | `""`                                                        |
+| `scheduler.features.redirect.redirectTo`                             | Destination URL                                                                                         | `string` | `""`                                                        |
+| `scheduler.features.redirect.redirectToRequestUri`                   | Preserve request URI                                                                                    | `string` | `""`                                                        |
+| `scheduler.features.redirect.redirectToStatusCode`                   | HTTP status code for redirect                                                                           | `string` | `""`                                                        |
+| `scheduler.features.reverseProxy.reverseProxyConnectTimeout`         | Connection timeout                                                                                      | `string` | `""`                                                        |
+| `scheduler.features.reverseProxy.reverseProxyHost`                   | Backend server URLs (multiple values supported with suffix _1, _2, etc.)                                | `string` | `""`                                                        |
+| `scheduler.features.reverseProxy.reverseProxyReadTimeout`            | Read timeout                                                                                            | `string` | `""`                                                        |
+| `scheduler.features.reverseProxy.reverseProxySendTimeout`            | Send timeout                                                                                            | `string` | `""`                                                        |
+| `scheduler.features.reverseProxy.reverseProxyUrl`                    | URL paths to proxy (multiple values supported with suffix _1, _2, etc.)                                 | `string` | `""`                                                        |
+| `scheduler.features.reverseProxy.useReverseProxy`                    | Enable reverse proxy functionality                                                                      | `string` | `""`                                                        |
+| `scheduler.features.reverseScan.reverseScanPorts`                    | Ports to scan on client (space-separated)                                                               | `string` | `""`                                                        |
+| `scheduler.features.reverseScan.reverseScanTimeout`                  | Scan timeout (milliseconds)                                                                             | `string` | `""`                                                        |
+| `scheduler.features.reverseScan.useReverseScan`                      | Enable client port scanning                                                                             | `string` | `""`                                                        |
+| `scheduler.features.robotsTxt.robotsTxtCommunityLists`               | Community lists to include                                                                              | `string` | `""`                                                        |
+| `scheduler.features.robotsTxt.robotsTxtDarkvisitorsToken`            | DarkVisitors API token                                                                                  | `string` | `""`                                                        |
+| `scheduler.features.robotsTxt.robotsTxtRule`                         | Manual robots.txt rules (multiple values supported)                                                     | `string` | `""`                                                        |
+| `scheduler.features.robotsTxt.robotsTxtSitemap`                      | Sitemap URLs (multiple values supported)                                                                | `string` | `""`                                                        |
+| `scheduler.features.robotsTxt.useRobotsTxt`                          | Enable robots.txt generation                                                                            | `string` | `""`                                                        |
+| `scheduler.features.securityTxt.securityTxtContact`                  | Contact information (multiple values supported)                                                         | `string` | `""`                                                        |
+| `scheduler.features.securityTxt.securityTxtExpires`                  | Expiration date (ISO 8601 format)                                                                       | `string` | `""`                                                        |
+| `scheduler.features.securityTxt.securityTxtPolicy`                   | Security policy URL                                                                                     | `string` | `""`                                                        |
+| `scheduler.features.securityTxt.useSecurityTxt`                      | Enable security.txt file                                                                                | `string` | `""`                                                        |
+| `scheduler.features.sessions.sessionsAbsoluteTimeout`                | Absolute timeout (seconds)                                                                              | `string` | `""`                                                        |
+| `scheduler.features.sessions.sessionsCheckIp`                        | Check IP address consistency                                                                            | `string` | `""`                                                        |
+| `scheduler.features.sessions.sessionsCheckUserAgent`                 | Check User-Agent consistency                                                                            | `string` | `""`                                                        |
+| `scheduler.features.sessions.sessionsIdlingTimeout`                  | Idle timeout (seconds)                                                                                  | `string` | `""`                                                        |
+| `scheduler.features.sessions.sessionsName`                           | Session cookie name                                                                                     | `string` | `""`                                                        |
+| `scheduler.features.sessions.sessionsRollingTimeout`                 | Rolling timeout (seconds)                                                                               | `string` | `""`                                                        |
+| `scheduler.features.sessions.sessionsSecret`                         | Session secret key (leave empty to auto-generate)                                                       | `string` | `""`                                                        |
+| `scheduler.features.ssl.autoRedirectHttpToHttps`                     | Auto-redirect HTTP to HTTPS                                                                             | `string` | `""`                                                        |
+| `scheduler.features.ssl.listenHttps`                                 | Enable HTTPS listening                                                                                  | `string` | `""`                                                        |
+| `scheduler.features.ssl.sslCiphersLevel`                             | Cipher security level: "old", "intermediate", "modern"                                                  | `string` | `""`                                                        |
+| `scheduler.features.ssl.sslProtocols`                                | SSL protocols to support                                                                                | `string` | `""`                                                        |
+| `scheduler.features.stream.listenStream`                             | Enable non-ssl passthrough listening                                                                    | `string` | `""`                                                        |
+| `scheduler.features.stream.listenStreamPort`                         | Port for non-ssl passthrough (empty to disable)                                                         | `string` | `""`                                                        |
+| `scheduler.features.stream.listenStreamPortSsl`                      | Port for ssl passthrough (empty to disable)                                                             | `string` | `""`                                                        |
+| `scheduler.features.timeouts.clientBodyTimeout`                      | Timeout for reading client request body                                                                 | `string` | `""`                                                        |
+| `scheduler.features.timeouts.clientHeaderTimeout`                    | Timeout for reading client request header                                                               | `string` | `""`                                                        |
+| `scheduler.features.timeouts.keepaliveTimeout`                       | Timeout for keep-alive client connections                                                               | `string` | `""`                                                        |
+| `scheduler.features.timeouts.sendTimeout`                            | Timeout for transmitting response to client                                                             | `string` | `""`                                                        |
+| `scheduler.features.whitelist.useWhitelist`                          | Enable whitelist functionality                                                                          | `string` | `""`                                                        |
+| `scheduler.features.whitelist.whitelistIp`                           | Manual IP whitelist (space-separated CIDR)                                                              | `string` | `""`                                                        |
+| `scheduler.features.whitelist.whitelistIpUrls`                       | Whitelist URLs for automatic updates                                                                    | `string` | `""`                                                        |
+| `scheduler.livenessProbe.exec.command`                               | Configuration for command                                                                               | `list`   | `['/usr/share/bunkerweb/helpers/healthcheck-scheduler.sh']` |
+| `scheduler.securityContext.capabilities.drop`                        | Configuration for drop                                                                                  | `list`   | `['ALL']`                                                   |
 
 ---
 
@@ -376,39 +422,39 @@ Manages BunkerWeb configuration and coordination
 
 Kubernetes controller for automatic Ingress management
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `controller` | Kubernetes controller for automatic Ingress management | `object` | See nested values |
-| `controller.enabled` | Enable external service creation | `bool` | `true` |
-| `controller.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `controller.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
-| `controller.livenessProbe` | Liveness probe configuration | `object` | See nested values |
-| `controller.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `controller.podAnnotations` | Additional pod annotations | `object` | `{}` |
-| `controller.podLabels` | Additional pod labels | `object` | `{}` |
-| `controller.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `controller.readinessProbe` | Readiness probe configuration | `object` | See nested values |
-| `controller.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-autoconf"` |
-| `controller.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `controller.tag` | Configuration for tag | `string` | `"1.6.8"` |
-| `controller.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `controller.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
-| `controller.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `controller.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
-| `controller.livenessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `5` |
-| `controller.livenessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `controller.readinessProbe.exec` | Configuration for exec | `object` | See nested values |
-| `controller.readinessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `controller.readinessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `120` |
-| `controller.readinessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `1` |
-| `controller.readinessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `controller.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
-| `controller.securityContext.capabilities` | Configuration for capabilities | `object` | See nested values |
-| `controller.securityContext.runAsGroup` | Configuration for runAsGroup | `int` | `101` |
-| `controller.securityContext.runAsUser` | Configuration for runAsUser | `int` | `101` |
-| `controller.livenessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck-autoconf.sh']` |
-| `controller.readinessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck-autoconf.sh']` |
-| `controller.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |
+| Parameter                                             | Description                                                                 | Type     | Default                                                    |
+| ----------------------------------------------------- | --------------------------------------------------------------------------- | -------- | ---------------------------------------------------------- |
+| `controller`                                          | Kubernetes controller for automatic Ingress management                      | `object` | See nested values                                          |
+| `controller.enabled`                                  | Enable external service creation                                            | `bool`   | `true`                                                     |
+| `controller.extraEnvs`                                | Additional environment variables                                            | `list`   | `[]`                                                       |
+| `controller.imagePullSecrets`                         | Image pull secrets (overrides global setting)                               | `list`   | `[]`                                                       |
+| `controller.livenessProbe`                            | Liveness probe configuration                                                | `object` | See nested values                                          |
+| `controller.nodeSelector`                             | Node selector (overrides global setting)                                    | `object` | `{}`                                                       |
+| `controller.podAnnotations`                           | Additional pod annotations                                                  | `object` | `{}`                                                       |
+| `controller.podLabels`                                | Additional pod labels                                                       | `object` | `{}`                                                       |
+| `controller.pullPolicy`                               | Configuration for pullPolicy                                                | `string` | `"IfNotPresent"`                                           |
+| `controller.readinessProbe`                           | Readiness probe configuration                                               | `object` | See nested values                                          |
+| `controller.repository`                               | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-autoconf"`                 |
+| `controller.securityContext`                          | Security context for BunkerWeb container                                    | `object` | See nested values                                          |
+| `controller.tag`                                      | Configuration for tag                                                       | `string` | `"1.6.9"`                                                  |
+| `controller.tolerations`                              | Tolerations (overrides global setting)                                      | `list`   | `[]`                                                       |
+| `controller.livenessProbe.exec`                       | Configuration for exec                                                      | `object` | See nested values                                          |
+| `controller.livenessProbe.failureThreshold`           | Configuration for failureThreshold                                          | `int`    | `3`                                                        |
+| `controller.livenessProbe.initialDelaySeconds`        | Configuration for initialDelaySeconds                                       | `int`    | `30`                                                       |
+| `controller.livenessProbe.periodSeconds`              | Configuration for periodSeconds                                             | `int`    | `5`                                                        |
+| `controller.livenessProbe.timeoutSeconds`             | Configuration for timeoutSeconds                                            | `int`    | `1`                                                        |
+| `controller.readinessProbe.exec`                      | Configuration for exec                                                      | `object` | See nested values                                          |
+| `controller.readinessProbe.failureThreshold`          | Configuration for failureThreshold                                          | `int`    | `3`                                                        |
+| `controller.readinessProbe.initialDelaySeconds`       | Configuration for initialDelaySeconds                                       | `int`    | `120`                                                      |
+| `controller.readinessProbe.periodSeconds`             | Configuration for periodSeconds                                             | `int`    | `1`                                                        |
+| `controller.readinessProbe.timeoutSeconds`            | Configuration for timeoutSeconds                                            | `int`    | `1`                                                        |
+| `controller.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation                                  | `bool`   | `false`                                                    |
+| `controller.securityContext.capabilities`             | Configuration for capabilities                                              | `object` | See nested values                                          |
+| `controller.securityContext.runAsGroup`               | Configuration for runAsGroup                                                | `int`    | `101`                                                      |
+| `controller.securityContext.runAsUser`                | Configuration for runAsUser                                                 | `int`    | `101`                                                      |
+| `controller.livenessProbe.exec.command`               | Configuration for command                                                   | `list`   | `['/usr/share/bunkerweb/helpers/healthcheck-autoconf.sh']` |
+| `controller.readinessProbe.exec.command`              | Configuration for command                                                   | `list`   | `['/usr/share/bunkerweb/helpers/healthcheck-autoconf.sh']` |
+| `controller.securityContext.capabilities.drop`        | Configuration for drop                                                      | `list`   | `['ALL']`                                                  |
 
 ---
 
@@ -416,26 +462,26 @@ Kubernetes controller for automatic Ingress management
 
 Database backend for BunkerWeb configuration and logs
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `mariadb` | Database backend for BunkerWeb configuration and logs | `object` | See nested values |
-| `mariadb.args` | Additional arguments for MariaDB | `list` | `['--max-allowed-packet=67108864']` |
-| `mariadb.config` | Configuration for config | `object` | See nested values |
-| `mariadb.enabled` | Enable external service creation | `bool` | `true` |
-| `mariadb.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `mariadb.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
-| `mariadb.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `mariadb.persistence` | Persistent storage configuration | `object` | See nested values |
-| `mariadb.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `mariadb.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/mariadb"` |
-| `mariadb.tag` | Configuration for tag | `string` | `"11"` |
-| `mariadb.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `mariadb.config.database` | BunkerWeb database name | `string` | `"db"` |
-| `mariadb.config.password` | BunkerWeb database password SECURITY: Change this in production or use existingSecret | `string` | `"changeme"` |
-| `mariadb.config.randomRootPassword` | Generate random root password | `string` | `"1"` |
-| `mariadb.config.user` | BunkerWeb database user | `string` | `"bunkerweb"` |
-| `mariadb.persistence.size` | Storage size for database | `string` | `"5Gi"` |
-| `mariadb.persistence.storageClass` | Storage class for database persistence Leave empty for default storage class | `string` | `""` |
+| Parameter                           | Description                                                                           | Type     | Default                             |
+| ----------------------------------- | ------------------------------------------------------------------------------------- | -------- | ----------------------------------- |
+| `mariadb`                           | Database backend for BunkerWeb configuration and logs                                 | `object` | See nested values                   |
+| `mariadb.args`                      | Additional arguments for MariaDB                                                      | `list`   | `['--max-allowed-packet=67108864']` |
+| `mariadb.config`                    | Configuration for config                                                              | `object` | See nested values                   |
+| `mariadb.enabled`                   | Enable external service creation                                                      | `bool`   | `true`                              |
+| `mariadb.extraEnvs`                 | Additional environment variables                                                      | `list`   | `[]`                                |
+| `mariadb.imagePullSecrets`          | Image pull secrets (overrides global setting)                                         | `list`   | `[]`                                |
+| `mariadb.nodeSelector`              | Node selector (overrides global setting)                                              | `object` | `{}`                                |
+| `mariadb.persistence`               | Persistent storage configuration                                                      | `object` | See nested values                   |
+| `mariadb.pullPolicy`                | Configuration for pullPolicy                                                          | `string` | `"IfNotPresent"`                    |
+| `mariadb.repository`                | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb           | `string` | `"docker.io/mariadb"`               |
+| `mariadb.tag`                       | Configuration for tag                                                                 | `string` | `"11"`                              |
+| `mariadb.tolerations`               | Tolerations (overrides global setting)                                                | `list`   | `[]`                                |
+| `mariadb.config.database`           | BunkerWeb database name                                                               | `string` | `"db"`                              |
+| `mariadb.config.password`           | BunkerWeb database password SECURITY: Change this in production or use existingSecret | `string` | `"changeme"`                        |
+| `mariadb.config.randomRootPassword` | Generate random root password                                                         | `string` | `"1"`                               |
+| `mariadb.config.user`               | BunkerWeb database user                                                               | `string` | `"bunkerweb"`                       |
+| `mariadb.persistence.size`          | Storage size for database                                                             | `string` | `"5Gi"`                             |
+| `mariadb.persistence.storageClass`  | Storage class for database persistence Leave empty for default storage class          | `string` | `""`                                |
 
 ---
 
@@ -443,21 +489,21 @@ Database backend for BunkerWeb configuration and logs
 
 Cache and session storage for BunkerWeb
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `redis` | Cache and session storage for BunkerWeb | `object` | See nested values |
-| `redis.config` | Configuration for config | `object` | See nested values |
-| `redis.enabled` | Enable external service creation | `bool` | `true` |
-| `redis.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `redis.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
-| `redis.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `redis.persistence` | Persistent storage configuration | `object` | See nested values |
-| `redis.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `redis.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/redis"` |
-| `redis.tag` | Configuration for tag | `string` | `"7-alpine"` |
-| `redis.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `redis.useConfigFile` | Use custom Redis configuration file | `bool` | `false` |
-| `redis.config.file` | Custom Redis configuration Applied when useConfigFile is true | `string` | `"appendonly yes
+| Parameter                | Description                                                                 | Type     | Default             |
+| ------------------------ | --------------------------------------------------------------------------- | -------- | ------------------- |
+| `redis`                  | Cache and session storage for BunkerWeb                                     | `object` | See nested values   |
+| `redis.config`           | Configuration for config                                                    | `object` | See nested values   |
+| `redis.enabled`          | Enable external service creation                                            | `bool`   | `true`              |
+| `redis.extraEnvs`        | Additional environment variables                                            | `list`   | `[]`                |
+| `redis.imagePullSecrets` | Image pull secrets (overrides global setting)                               | `list`   | `[]`                |
+| `redis.nodeSelector`     | Node selector (overrides global setting)                                    | `object` | `{}`                |
+| `redis.persistence`      | Persistent storage configuration                                            | `object` | See nested values   |
+| `redis.pullPolicy`       | Configuration for pullPolicy                                                | `string` | `"IfNotPresent"`    |
+| `redis.repository`       | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/redis"` |
+| `redis.tag`              | Configuration for tag                                                       | `string` | `"7-alpine"`        |
+| `redis.tolerations`      | Tolerations (overrides global setting)                                      | `list`   | `[]`                |
+| `redis.useConfigFile`    | Use custom Redis configuration file                                         | `bool`   | `false`             |
+| `redis.config.file`      | Custom Redis configuration Applied when useConfigFile is true               | `string` | `"appendonly yes    |
 save ""
 loglevel verbose
 maxmemory 512mb
@@ -473,37 +519,37 @@ maxmemory-policy allkeys-lru
 
 Dashboards and visualization
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `grafana` | Dashboards and visualization | `object` | See nested values |
-| `grafana.adminPassword` | Admin password (leave empty to generate random) SECURITY: Set a strong password or use existingSecre... | `string` | `""` |
-| `grafana.adminUser` | Admin user configuration | `string` | `"admin"` |
-| `grafana.enabled` | Enable external service creation | `bool` | `false` |
-| `grafana.existingSecret` | Specify the name of an existing secret containing sensitive parameters. When using this, the followi... | `string` | `""` |
-| `grafana.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `grafana.ingress` | Configuration for ingress | `object` | See nested values |
-| `grafana.persistence` | Persistent storage configuration | `object` | See nested values |
-| `grafana.podAnnotations` | Additional pod annotations | `object` | `{}` |
-| `grafana.podLabels` | Additional pod labels | `object` | `{}` |
-| `grafana.prometheusDatasource` | Additional annotations for the PVC annotations: {} Prometheus data source configuration Automaticall... | `object` | See nested values |
-| `grafana.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `grafana.replicas` | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int` | `1` |
-| `grafana.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/grafana/grafana"` |
-| `grafana.securityContext` | Security context for BunkerWeb container | `object` | `{}` |
-| `grafana.service` | Internal service configuration (for inter-pod communication) | `object` | See nested values |
-| `grafana.tag` | Configuration for tag | `string` | `"latest"` |
-| `grafana.ingress.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
-| `grafana.persistence.accessModes` | Access modes for the persistent volume | `list` | `['ReadWriteOnce']` |
-| `grafana.persistence.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
-| `grafana.persistence.size` | Storage size for database | `string` | `"10Gi"` |
-| `grafana.persistence.storageClass` | Storage class for database persistence Leave empty for default storage class | `string` | `""` |
-| `grafana.prometheusDatasource.access` | Configuration for access | `string` | `"proxy"` |
-| `grafana.prometheusDatasource.isDefault` | Configuration for isDefault | `bool` | `true` |
-| `grafana.prometheusDatasource.name` | Configuration for name | `string` | `"Prometheus"` |
-| `grafana.prometheusDatasource.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"prometheus"` |
-| `grafana.prometheusDatasource.url` | Configuration for url | `string` | `"http://prometheus-{{ include "bunkerweb.fullname" . }}.{{ include "bunkerweb.namespace" . }}.svc:9090"` |
-| `grafana.service.port` | Service port | `int` | `3000` |
-| `grafana.service.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"ClusterIP"` |
+| Parameter                                | Description                                                                                             | Type     | Default                                                                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| `grafana`                                | Dashboards and visualization                                                                            | `object` | See nested values                                                                                         |
+| `grafana.adminPassword`                  | Admin password (leave empty to generate random) SECURITY: Set a strong password or use existingSecre... | `string` | `""`                                                                                                      |
+| `grafana.adminUser`                      | Admin user configuration                                                                                | `string` | `"admin"`                                                                                                 |
+| `grafana.enabled`                        | Enable external service creation                                                                        | `bool`   | `false`                                                                                                   |
+| `grafana.existingSecret`                 | Specify the name of an existing secret containing sensitive parameters. When using this, the followi... | `string` | `""`                                                                                                      |
+| `grafana.extraEnvs`                      | Additional environment variables                                                                        | `list`   | `[]`                                                                                                      |
+| `grafana.ingress`                        | Configuration for ingress                                                                               | `object` | See nested values                                                                                         |
+| `grafana.persistence`                    | Persistent storage configuration                                                                        | `object` | See nested values                                                                                         |
+| `grafana.podAnnotations`                 | Additional pod annotations                                                                              | `object` | `{}`                                                                                                      |
+| `grafana.podLabels`                      | Additional pod labels                                                                                   | `object` | `{}`                                                                                                      |
+| `grafana.prometheusDatasource`           | Additional annotations for the PVC annotations: {} Prometheus data source configuration Automaticall... | `object` | See nested values                                                                                         |
+| `grafana.pullPolicy`                     | Configuration for pullPolicy                                                                            | `string` | `"IfNotPresent"`                                                                                          |
+| `grafana.replicas`                       | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int`    | `1`                                                                                                       |
+| `grafana.repository`                     | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb                             | `string` | `"docker.io/grafana/grafana"`                                                                             |
+| `grafana.securityContext`                | Security context for BunkerWeb container                                                                | `object` | `{}`                                                                                                      |
+| `grafana.service`                        | Internal service configuration (for inter-pod communication)                                            | `object` | See nested values                                                                                         |
+| `grafana.tag`                            | Configuration for tag                                                                                   | `string` | `"latest"`                                                                                                |
+| `grafana.ingress.enabled`                | Enable HPA for bunkerweb component                                                                      | `bool`   | `false`                                                                                                   |
+| `grafana.persistence.accessModes`        | Access modes for the persistent volume                                                                  | `list`   | `['ReadWriteOnce']`                                                                                       |
+| `grafana.persistence.enabled`            | Enable HPA for bunkerweb component                                                                      | `bool`   | `false`                                                                                                   |
+| `grafana.persistence.size`               | Storage size for database                                                                               | `string` | `"10Gi"`                                                                                                  |
+| `grafana.persistence.storageClass`       | Storage class for database persistence Leave empty for default storage class                            | `string` | `""`                                                                                                      |
+| `grafana.prometheusDatasource.access`    | Configuration for access                                                                                | `string` | `"proxy"`                                                                                                 |
+| `grafana.prometheusDatasource.isDefault` | Configuration for isDefault                                                                             | `bool`   | `true`                                                                                                    |
+| `grafana.prometheusDatasource.name`      | Configuration for name                                                                                  | `string` | `"Prometheus"`                                                                                            |
+| `grafana.prometheusDatasource.type`      | Service type: ClusterIP, NodePort, or LoadBalancer                                                      | `string` | `"prometheus"`                                                                                            |
+| `grafana.prometheusDatasource.url`       | Configuration for url                                                                                   | `string` | `"http://prometheus-{{ include "bunkerweb.fullname" . }}.{{ include "bunkerweb.namespace" . }}.svc:9090"` |
+| `grafana.service.port`                   | Service port                                                                                            | `int`    | `3000`                                                                                                    |
+| `grafana.service.type`                   | Service type: ClusterIP, NodePort, or LoadBalancer                                                      | `string` | `"ClusterIP"`                                                                                             |
 
 ---
 
@@ -511,23 +557,23 @@ Dashboards and visualization
 
 Metrics collection and storage
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `prometheus` | Metrics collection and storage | `object` | See nested values |
-| `prometheus.enabled` | Enable external service creation | `bool` | `false` |
-| `prometheus.persistence` | Persistent storage configuration | `object` | See nested values |
-| `prometheus.podAnnotations` | Additional pod annotations | `object` | `{}` |
-| `prometheus.podLabels` | Additional pod labels | `object` | `{}` |
-| `prometheus.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `prometheus.replicas` | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int` | `1` |
-| `prometheus.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/prom/prometheus"` |
-| `prometheus.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `prometheus.tag` | Configuration for tag | `string` | `"v3.3.1"` |
-| `prometheus.persistence.accessModes` | Access modes for the persistent volume | `list` | `['ReadWriteOnce']` |
-| `prometheus.persistence.enabled` | Enable HPA for bunkerweb component | `bool` | `true` |
-| `prometheus.persistence.size` | Storage size for database | `string` | `"8Gi"` |
-| `prometheus.persistence.storageClass` | Storage class for database persistence Leave empty for default storage class | `string` | `""` |
-| `prometheus.securityContext.fsGroup` | Configuration for fsGroup | `int` | `65534` |
+| Parameter                             | Description                                                                                             | Type     | Default                       |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | ----------------------------- |
+| `prometheus`                          | Metrics collection and storage                                                                          | `object` | See nested values             |
+| `prometheus.enabled`                  | Enable external service creation                                                                        | `bool`   | `false`                       |
+| `prometheus.persistence`              | Persistent storage configuration                                                                        | `object` | See nested values             |
+| `prometheus.podAnnotations`           | Additional pod annotations                                                                              | `object` | `{}`                          |
+| `prometheus.podLabels`                | Additional pod labels                                                                                   | `object` | `{}`                          |
+| `prometheus.pullPolicy`               | Configuration for pullPolicy                                                                            | `string` | `"IfNotPresent"`              |
+| `prometheus.replicas`                 | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int`    | `1`                           |
+| `prometheus.repository`               | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb                             | `string` | `"docker.io/prom/prometheus"` |
+| `prometheus.securityContext`          | Security context for BunkerWeb container                                                                | `object` | See nested values             |
+| `prometheus.tag`                      | Configuration for tag                                                                                   | `string` | `"v3.3.1"`                    |
+| `prometheus.persistence.accessModes`  | Access modes for the persistent volume                                                                  | `list`   | `['ReadWriteOnce']`           |
+| `prometheus.persistence.enabled`      | Enable HPA for bunkerweb component                                                                      | `bool`   | `true`                        |
+| `prometheus.persistence.size`         | Storage size for database                                                                               | `string` | `"8Gi"`                       |
+| `prometheus.persistence.storageClass` | Storage class for database persistence Leave empty for default storage class                            | `string` | `""`                          |
+| `prometheus.securityContext.fsGroup`  | Configuration for fsGroup                                                                               | `int`    | `65534`                       |
 
 ---
 
@@ -535,32 +581,32 @@ Metrics collection and storage
 
 External API for BunkerWeb that exposes REST interface for automation tools
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `api` | External API for BunkerWeb that exposes REST interface for automation tools | `object` | See nested values |
-| `api.enabled` | Enable external service creation | `bool` | `true` |
-| `api.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `api.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
-| `api.livenessProbe` | Liveness probe configuration | `object` | See nested values |
-| `api.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `api.podAnnotations` | Additional pod annotations | `object` | `{}` |
-| `api.podLabels` | Additional pod labels | `object` | `{}` |
-| `api.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `api.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-api"` |
-| `api.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `api.tag` | Configuration for tag | `string` | `"1.6.8"` |
-| `api.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `api.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
-| `api.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `api.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
-| `api.livenessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `5` |
-| `api.livenessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `api.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
-| `api.securityContext.capabilities` | Configuration for capabilities | `object` | See nested values |
-| `api.securityContext.runAsGroup` | Configuration for runAsGroup | `int` | `101` |
-| `api.securityContext.runAsUser` | Configuration for runAsUser | `int` | `101` |
-| `api.livenessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck-api.sh']` |
-| `api.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |
+| Parameter                                      | Description                                                                 | Type     | Default                                               |
+| ---------------------------------------------- | --------------------------------------------------------------------------- | -------- | ----------------------------------------------------- |
+| `api`                                          | External API for BunkerWeb that exposes REST interface for automation tools | `object` | See nested values                                     |
+| `api.enabled`                                  | Enable external service creation                                            | `bool`   | `true`                                                |
+| `api.extraEnvs`                                | Additional environment variables                                            | `list`   | `[]`                                                  |
+| `api.imagePullSecrets`                         | Image pull secrets (overrides global setting)                               | `list`   | `[]`                                                  |
+| `api.livenessProbe`                            | Liveness probe configuration                                                | `object` | See nested values                                     |
+| `api.nodeSelector`                             | Node selector (overrides global setting)                                    | `object` | `{}`                                                  |
+| `api.podAnnotations`                           | Additional pod annotations                                                  | `object` | `{}`                                                  |
+| `api.podLabels`                                | Additional pod labels                                                       | `object` | `{}`                                                  |
+| `api.pullPolicy`                               | Configuration for pullPolicy                                                | `string` | `"IfNotPresent"`                                      |
+| `api.repository`                               | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-api"`                 |
+| `api.securityContext`                          | Security context for BunkerWeb container                                    | `object` | See nested values                                     |
+| `api.tag`                                      | Configuration for tag                                                       | `string` | `"1.6.9"`                                             |
+| `api.tolerations`                              | Tolerations (overrides global setting)                                      | `list`   | `[]`                                                  |
+| `api.livenessProbe.exec`                       | Configuration for exec                                                      | `object` | See nested values                                     |
+| `api.livenessProbe.failureThreshold`           | Configuration for failureThreshold                                          | `int`    | `3`                                                   |
+| `api.livenessProbe.initialDelaySeconds`        | Configuration for initialDelaySeconds                                       | `int`    | `30`                                                  |
+| `api.livenessProbe.periodSeconds`              | Configuration for periodSeconds                                             | `int`    | `5`                                                   |
+| `api.livenessProbe.timeoutSeconds`             | Configuration for timeoutSeconds                                            | `int`    | `1`                                                   |
+| `api.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation                                  | `bool`   | `false`                                               |
+| `api.securityContext.capabilities`             | Configuration for capabilities                                              | `object` | See nested values                                     |
+| `api.securityContext.runAsGroup`               | Configuration for runAsGroup                                                | `int`    | `101`                                                 |
+| `api.securityContext.runAsUser`                | Configuration for runAsUser                                                 | `int`    | `101`                                                 |
+| `api.livenessProbe.exec.command`               | Configuration for command                                                   | `list`   | `['/usr/share/bunkerweb/helpers/healthcheck-api.sh']` |
+| `api.securityContext.capabilities.drop`        | Configuration for drop                                                      | `list`   | `['ALL']`                                             |
 
 ---
 
@@ -568,12 +614,12 @@ External API for BunkerWeb that exposes REST interface for automation tools
 
 Kubernetes GatewayClass resource for BunkerWeb
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `gatewayClass` | Kubernetes GatewayClass resource for BunkerWeb | `object` | See nested values |
-| `gatewayClass.controller` | Controller identifier for this GatewayClass | `string` | `"bunkerweb.io/gateway-controller"` |
-| `gatewayClass.enabled` | Enable external service creation | `bool` | `false` |
-| `gatewayClass.name` | GatewayClass name (used in gateway resources) | `string` | `"bunkerweb"` |
+| Parameter                 | Description                                    | Type     | Default                             |
+| ------------------------- | ---------------------------------------------- | -------- | ----------------------------------- |
+| `gatewayClass`            | Kubernetes GatewayClass resource for BunkerWeb | `object` | See nested values                   |
+| `gatewayClass.controller` | Controller identifier for this GatewayClass    | `string` | `"bunkerweb.io/gateway-controller"` |
+| `gatewayClass.enabled`    | Enable external service creation               | `bool`   | `false`                             |
+| `gatewayClass.name`       | GatewayClass name (used in gateway resources)  | `string` | `"bunkerweb"`                       |
 
 ---
 
@@ -581,12 +627,12 @@ Kubernetes GatewayClass resource for BunkerWeb
 
 Kubernetes IngressClass resource for BunkerWeb
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `ingressClass` | Kubernetes IngressClass resource for BunkerWeb | `object` | See nested values |
-| `ingressClass.controller` | Controller identifier for this GatewayClass | `string` | `"bunkerweb.io/ingress-controller"` |
-| `ingressClass.enabled` | Enable external service creation | `bool` | `true` |
-| `ingressClass.name` | GatewayClass name (used in gateway resources) | `string` | `"bunkerweb"` |
+| Parameter                 | Description                                    | Type     | Default                             |
+| ------------------------- | ---------------------------------------------- | -------- | ----------------------------------- |
+| `ingressClass`            | Kubernetes IngressClass resource for BunkerWeb | `object` | See nested values                   |
+| `ingressClass.controller` | Controller identifier for this GatewayClass    | `string` | `"bunkerweb.io/ingress-controller"` |
+| `ingressClass.enabled`    | Enable external service creation               | `bool`   | `true`                              |
+| `ingressClass.name`       | GatewayClass name (used in gateway resources)  | `string` | `"bunkerweb"`                       |
 
 ---
 
@@ -594,81 +640,81 @@ Kubernetes IngressClass resource for BunkerWeb
 
 Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API component to be enabled
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `mcp` | Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API component to be enabled | `object` | See nested values |
-| `mcp.config` | Configuration for config | `object` | See nested values |
-| `mcp.enabled` | Enable external service creation | `bool` | `true` |
-| `mcp.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `mcp.httpRoutes` | Alternative to Ingress for Kubernetes Gateway API | `object` | See nested values |
-| `mcp.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
-| `mcp.ingress` | Configuration for ingress | `object` | See nested values |
-| `mcp.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `mcp.podAnnotations` | Additional pod annotations | `object` | `{}` |
-| `mcp.podLabels` | Additional pod labels | `object` | `{}` |
-| `mcp.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `mcp.replicas` | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int` | `1` |
-| `mcp.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-mcp"` |
-| `mcp.secrets` | Configuration for secrets | `object` | See nested values |
-| `mcp.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `mcp.service` | Internal service configuration (for inter-pod communication) | `object` | See nested values |
-| `mcp.serviceMonitor` | Configuration for serviceMonitor | `object` | See nested values |
-| `mcp.tag` | Configuration for tag | `string` | `"v0.1.0"` |
-| `mcp.terminationGracePeriodSeconds` | readinessProbe: httpGet: path: /ready port: http initialDelaySeconds: 5 periodSeconds: 10 timeoutSec... | `int` | `30` |
-| `mcp.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `mcp.config.allowedHosts` | Allowed hosts (auto-configured based on service names if empty) | `string` | `""` |
-| `mcp.config.allowedOrigins` | Allowed origins for CORS | `string` | `""` |
-| `mcp.config.bunkerwebBaseUrl` | BunkerWeb API Configuration Base URL will be auto-configured to use internal API service if empty | `string` | `""` |
-| `mcp.config.bunkerwebMaxRetries` | Configuration for bunkerwebMaxRetries | `string` | `"3"` |
-| `mcp.config.bunkerwebRequestTimeoutSeconds` | Configuration for bunkerwebRequestTimeoutSeconds | `string` | `"30"` |
-| `mcp.config.bunkerwebRetryBackoffInitial` | Configuration for bunkerwebRetryBackoffInitial | `string` | `"0.5"` |
-| `mcp.config.bunkerwebRetryBackoffMax` | Configuration for bunkerwebRetryBackoffMax | `string` | `"5"` |
-| `mcp.config.cacheEnabled` | Configuration for cacheEnabled | `string` | `"true"` |
-| `mcp.config.enableDnsRebindingProtection` | MCP Transport Security (DNS Rebinding Protection) | `string` | `"false"` |
-| `mcp.config.logLevel` | Logging | `string` | `"INFO"` |
-| `mcp.config.rateLimitEnabled` | Performance Configuration | `string` | `"false"` |
-| `mcp.config.rateLimitRpc` | Configuration for rateLimitRpc | `string` | `"100/minute"` |
-| `mcp.config.rateLimitTools` | Configuration for rateLimitTools | `string` | `"30/minute"` |
-| `mcp.config.rateLimitWs` | Configuration for rateLimitWs | `string` | `"500/minute"` |
-| `mcp.config.searchApiUrl` | Configuration for searchApiUrl | `string` | `""` |
-| `mcp.config.searchMode` | Semantic Search Configuration Released in the future, currently non-functional | `string` | `"disabled"` |
-| `mcp.config.searchTimeout` | Configuration for searchTimeout | `string` | `"10.0"` |
-| `mcp.config.workers` | Number of workers for the MCP server | `string` | `"4"` |
-| `mcp.httpRoutes.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
-| `mcp.httpRoutes.extraAnnotations` | Additional annotations for the HTTPRoute resource SECURITY: Configure whitelist to restrict access t... | `mixed` | `None` |
-| `mcp.httpRoutes.gatewayClassName` | GatewayClass name to use | `string` | `""` |
-| `mcp.httpRoutes.serverName` | Domain name for MCP access | `string` | `""` |
-| `mcp.httpRoutes.serverPath` | Path for MCP access | `string` | `"/"` |
-| `mcp.httpRoutes.tlsSecretName` | Whitelist configuration (RECOMMENDED for MCP security) bunkerweb.io/USE_WHITELIST: "yes" bunkerweb.i... | `string` | `""` |
-| `mcp.ingress.annotations` | Additional service annotations | `object` | See nested values |
-| `mcp.ingress.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
-| `mcp.ingress.ingressClassName` | IngressClass name to use | `string` | `"bunkerweb"` |
-| `mcp.ingress.serverName` | Domain name for MCP access | `string` | `""` |
-| `mcp.ingress.serverPath` | Path for MCP access | `string` | `"/"` |
-| `mcp.ingress.tls` | Whitelist configuration (RECOMMENDED for MCP security) Uncomment and configure to restrict access to... | `object` | See nested values |
-| `mcp.secrets.bunkerwebApiToken` | BunkerWeb API Bearer Token (if not using existingSecret) Leave empty to use basic auth instead | `string` | `""` |
-| `mcp.secrets.bunkerwebBasicPassword` | Configuration for bunkerwebBasicPassword | `string` | `""` |
-| `mcp.secrets.bunkerwebBasicUsername` | BunkerWeb API Basic Auth (if not using existingSecret or token) | `string` | `""` |
-| `mcp.secrets.existingSecret` | Use existing secret for sensitive data If set, the following keys should be present: - BUNKERWEB_API... | `string` | `""` |
-| `mcp.secrets.websocketToken` | WebSocket authentication token (optional) | `string` | `""` |
-| `mcp.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
-| `mcp.securityContext.capabilities` | Configuration for capabilities | `object` | See nested values |
-| `mcp.securityContext.runAsGroup` | Configuration for runAsGroup | `int` | `1000` |
-| `mcp.securityContext.runAsUser` | Configuration for runAsUser | `int` | `1000` |
-| `mcp.service.annotations` | Additional service annotations | `object` | `{}` |
-| `mcp.service.port` | Service port | `int` | `8080` |
-| `mcp.service.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"ClusterIP"` |
-| `mcp.serviceMonitor.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
-| `mcp.serviceMonitor.interval` | Scrape interval | `string` | `"30s"` |
-| `mcp.serviceMonitor.labels` | Additional labels for ServiceMonitor | `object` | `{}` |
-| `mcp.serviceMonitor.scrapeTimeout` | Scrape timeout | `string` | `"10s"` |
-| `mcp.ingress.annotations.bunkerweb.io/AUTO_LETS_ENCRYPT` | Configuration for bunkerweb.io/AUTO_LETS_ENCRYPT | `string` | `"yes"` |
-| `mcp.ingress.annotations.bunkerweb.io/REVERSE_PROXY_HOST` | Configuration for bunkerweb.io/REVERSE_PROXY_HOST | `string` | `"http://mcp-bunkerweb.bunkerweb.svc.cluster.local:8080"` |
-| `mcp.ingress.annotations.bunkerweb.io/REVERSE_PROXY_URL` | Configuration for bunkerweb.io/REVERSE_PROXY_URL | `string` | `"/"` |
-| `mcp.ingress.annotations.bunkerweb.io/USE_REVERSE_PROXY` | Configuration for bunkerweb.io/USE_REVERSE_PROXY | `string` | `"yes"` |
-| `mcp.ingress.tls.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `mcp.ingress.tls.secretName` | Secret name containing TLS certificate | `string` | `""` |
-| `mcp.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |
+| Parameter                                                 | Description                                                                                             | Type     | Default                                                   |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------- |
+| `mcp`                                                     | Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API component to be enabled        | `object` | See nested values                                         |
+| `mcp.config`                                              | Configuration for config                                                                                | `object` | See nested values                                         |
+| `mcp.enabled`                                             | Enable external service creation                                                                        | `bool`   | `true`                                                    |
+| `mcp.extraEnvs`                                           | Additional environment variables                                                                        | `list`   | `[]`                                                      |
+| `mcp.httpRoutes`                                          | Alternative to Ingress for Kubernetes Gateway API                                                       | `object` | See nested values                                         |
+| `mcp.imagePullSecrets`                                    | Image pull secrets (overrides global setting)                                                           | `list`   | `[]`                                                      |
+| `mcp.ingress`                                             | Configuration for ingress                                                                               | `object` | See nested values                                         |
+| `mcp.nodeSelector`                                        | Node selector (overrides global setting)                                                                | `object` | `{}`                                                      |
+| `mcp.podAnnotations`                                      | Additional pod annotations                                                                              | `object` | `{}`                                                      |
+| `mcp.podLabels`                                           | Additional pod labels                                                                                   | `object` | `{}`                                                      |
+| `mcp.pullPolicy`                                          | Configuration for pullPolicy                                                                            | `string` | `"IfNotPresent"`                                          |
+| `mcp.replicas`                                            | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int`    | `1`                                                       |
+| `mcp.repository`                                          | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb                             | `string` | `"docker.io/bunkerity/bunkerweb-mcp"`                     |
+| `mcp.secrets`                                             | Configuration for secrets                                                                               | `object` | See nested values                                         |
+| `mcp.securityContext`                                     | Security context for BunkerWeb container                                                                | `object` | See nested values                                         |
+| `mcp.service`                                             | Internal service configuration (for inter-pod communication)                                            | `object` | See nested values                                         |
+| `mcp.serviceMonitor`                                      | Configuration for serviceMonitor                                                                        | `object` | See nested values                                         |
+| `mcp.tag`                                                 | Configuration for tag                                                                                   | `string` | `"v0.1.0"`                                                |
+| `mcp.terminationGracePeriodSeconds`                       | readinessProbe: httpGet: path: /ready port: http initialDelaySeconds: 5 periodSeconds: 10 timeoutSec... | `int`    | `30`                                                      |
+| `mcp.tolerations`                                         | Tolerations (overrides global setting)                                                                  | `list`   | `[]`                                                      |
+| `mcp.config.allowedHosts`                                 | Allowed hosts (auto-configured based on service names if empty)                                         | `string` | `""`                                                      |
+| `mcp.config.allowedOrigins`                               | Allowed origins for CORS                                                                                | `string` | `""`                                                      |
+| `mcp.config.bunkerwebBaseUrl`                             | BunkerWeb API Configuration Base URL will be auto-configured to use internal API service if empty       | `string` | `""`                                                      |
+| `mcp.config.bunkerwebMaxRetries`                          | Configuration for bunkerwebMaxRetries                                                                   | `string` | `"3"`                                                     |
+| `mcp.config.bunkerwebRequestTimeoutSeconds`               | Configuration for bunkerwebRequestTimeoutSeconds                                                        | `string` | `"30"`                                                    |
+| `mcp.config.bunkerwebRetryBackoffInitial`                 | Configuration for bunkerwebRetryBackoffInitial                                                          | `string` | `"0.5"`                                                   |
+| `mcp.config.bunkerwebRetryBackoffMax`                     | Configuration for bunkerwebRetryBackoffMax                                                              | `string` | `"5"`                                                     |
+| `mcp.config.cacheEnabled`                                 | Configuration for cacheEnabled                                                                          | `string` | `"true"`                                                  |
+| `mcp.config.enableDnsRebindingProtection`                 | MCP Transport Security (DNS Rebinding Protection)                                                       | `string` | `"false"`                                                 |
+| `mcp.config.logLevel`                                     | Logging                                                                                                 | `string` | `"INFO"`                                                  |
+| `mcp.config.rateLimitEnabled`                             | Performance Configuration                                                                               | `string` | `"false"`                                                 |
+| `mcp.config.rateLimitRpc`                                 | Configuration for rateLimitRpc                                                                          | `string` | `"100/minute"`                                            |
+| `mcp.config.rateLimitTools`                               | Configuration for rateLimitTools                                                                        | `string` | `"30/minute"`                                             |
+| `mcp.config.rateLimitWs`                                  | Configuration for rateLimitWs                                                                           | `string` | `"500/minute"`                                            |
+| `mcp.config.searchApiUrl`                                 | Configuration for searchApiUrl                                                                          | `string` | `""`                                                      |
+| `mcp.config.searchMode`                                   | Semantic Search Configuration Released in the future, currently non-functional                          | `string` | `"disabled"`                                              |
+| `mcp.config.searchTimeout`                                | Configuration for searchTimeout                                                                         | `string` | `"10.0"`                                                  |
+| `mcp.config.workers`                                      | Number of workers for the MCP server                                                                    | `string` | `"4"`                                                     |
+| `mcp.httpRoutes.enabled`                                  | Enable HPA for bunkerweb component                                                                      | `bool`   | `false`                                                   |
+| `mcp.httpRoutes.extraAnnotations`                         | Additional annotations for the HTTPRoute resource SECURITY: Configure whitelist to restrict access t... | `mixed`  | `None`                                                    |
+| `mcp.httpRoutes.gatewayClassName`                         | GatewayClass name to use                                                                                | `string` | `""`                                                      |
+| `mcp.httpRoutes.serverName`                               | Domain name for MCP access                                                                              | `string` | `""`                                                      |
+| `mcp.httpRoutes.serverPath`                               | Path for MCP access                                                                                     | `string` | `"/"`                                                     |
+| `mcp.httpRoutes.tlsSecretName`                            | Whitelist configuration (RECOMMENDED for MCP security) bunkerweb.io/USE_WHITELIST: "yes" bunkerweb.i... | `string` | `""`                                                      |
+| `mcp.ingress.annotations`                                 | Additional service annotations                                                                          | `object` | See nested values                                         |
+| `mcp.ingress.enabled`                                     | Enable HPA for bunkerweb component                                                                      | `bool`   | `false`                                                   |
+| `mcp.ingress.ingressClassName`                            | IngressClass name to use                                                                                | `string` | `"bunkerweb"`                                             |
+| `mcp.ingress.serverName`                                  | Domain name for MCP access                                                                              | `string` | `""`                                                      |
+| `mcp.ingress.serverPath`                                  | Path for MCP access                                                                                     | `string` | `"/"`                                                     |
+| `mcp.ingress.tls`                                         | Whitelist configuration (RECOMMENDED for MCP security) Uncomment and configure to restrict access to... | `object` | See nested values                                         |
+| `mcp.secrets.bunkerwebApiToken`                           | BunkerWeb API Bearer Token (if not using existingSecret) Leave empty to use basic auth instead          | `string` | `""`                                                      |
+| `mcp.secrets.bunkerwebBasicPassword`                      | Configuration for bunkerwebBasicPassword                                                                | `string` | `""`                                                      |
+| `mcp.secrets.bunkerwebBasicUsername`                      | BunkerWeb API Basic Auth (if not using existingSecret or token)                                         | `string` | `""`                                                      |
+| `mcp.secrets.existingSecret`                              | Use existing secret for sensitive data If set, the following keys should be present: - BUNKERWEB_API... | `string` | `""`                                                      |
+| `mcp.secrets.websocketToken`                              | WebSocket authentication token (optional)                                                               | `string` | `""`                                                      |
+| `mcp.securityContext.allowPrivilegeEscalation`            | Configuration for allowPrivilegeEscalation                                                              | `bool`   | `false`                                                   |
+| `mcp.securityContext.capabilities`                        | Configuration for capabilities                                                                          | `object` | See nested values                                         |
+| `mcp.securityContext.runAsGroup`                          | Configuration for runAsGroup                                                                            | `int`    | `1000`                                                    |
+| `mcp.securityContext.runAsUser`                           | Configuration for runAsUser                                                                             | `int`    | `1000`                                                    |
+| `mcp.service.annotations`                                 | Additional service annotations                                                                          | `object` | `{}`                                                      |
+| `mcp.service.port`                                        | Service port                                                                                            | `int`    | `8080`                                                    |
+| `mcp.service.type`                                        | Service type: ClusterIP, NodePort, or LoadBalancer                                                      | `string` | `"ClusterIP"`                                             |
+| `mcp.serviceMonitor.enabled`                              | Enable HPA for bunkerweb component                                                                      | `bool`   | `false`                                                   |
+| `mcp.serviceMonitor.interval`                             | Scrape interval                                                                                         | `string` | `"30s"`                                                   |
+| `mcp.serviceMonitor.labels`                               | Additional labels for ServiceMonitor                                                                    | `object` | `{}`                                                      |
+| `mcp.serviceMonitor.scrapeTimeout`                        | Scrape timeout                                                                                          | `string` | `"10s"`                                                   |
+| `mcp.ingress.annotations.bunkerweb.io/AUTO_LETS_ENCRYPT`  | Configuration for bunkerweb.io/AUTO_LETS_ENCRYPT                                                        | `string` | `"yes"`                                                   |
+| `mcp.ingress.annotations.bunkerweb.io/REVERSE_PROXY_HOST` | Configuration for bunkerweb.io/REVERSE_PROXY_HOST                                                       | `string` | `"http://mcp-bunkerweb.bunkerweb.svc.cluster.local:8080"` |
+| `mcp.ingress.annotations.bunkerweb.io/REVERSE_PROXY_URL`  | Configuration for bunkerweb.io/REVERSE_PROXY_URL                                                        | `string` | `"/"`                                                     |
+| `mcp.ingress.annotations.bunkerweb.io/USE_REVERSE_PROXY`  | Configuration for bunkerweb.io/USE_REVERSE_PROXY                                                        | `string` | `"yes"`                                                   |
+| `mcp.ingress.tls.enabled`                                 | Enable HTTP routes for UI access                                                                        | `bool`   | `false`                                                   |
+| `mcp.ingress.tls.secretName`                              | Secret name containing TLS certificate                                                                  | `string` | `""`                                                      |
+| `mcp.securityContext.capabilities.drop`                   | Configuration for drop                                                                                  | `list`   | `['ALL']`                                                 |
 
 ---
 
@@ -676,17 +722,17 @@ Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API compone
 
 Network policies for micro-segmentation
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `networkPolicy` | Network policies for micro-segmentation | `object` | See nested values |
-| `networkPolicy.egress` | Egress traffic configuration | `object` | See nested values |
-| `networkPolicy.enabled` | Enable external service creation | `bool` | `false` |
-| `networkPolicy.egress.allowDatabaseVNet` | Allow access to database virtual network | `bool` | `true` |
-| `networkPolicy.egress.allowInternet` | Allow internet access for updates and external APIs | `bool` | `true` |
-| `networkPolicy.egress.allowSameNamespace` | Allow traffic to pods in the same namespace | `bool` | `true` |
-| `networkPolicy.egress.databasePort` | Database port for access | `int` | `3306` |
-| `networkPolicy.egress.databaseVNetCIDR` | CIDR range for database network | `string` | `"10.0.0.0/16"` |
-| `networkPolicy.egress.internetPorts` | Ports allowed for internet access | `list` | `[80, 443]` |
+| Parameter                                 | Description                                         | Type     | Default           |
+| ----------------------------------------- | --------------------------------------------------- | -------- | ----------------- |
+| `networkPolicy`                           | Network policies for micro-segmentation             | `object` | See nested values |
+| `networkPolicy.egress`                    | Egress traffic configuration                        | `object` | See nested values |
+| `networkPolicy.enabled`                   | Enable external service creation                    | `bool`   | `false`           |
+| `networkPolicy.egress.allowDatabaseVNet`  | Allow access to database virtual network            | `bool`   | `true`            |
+| `networkPolicy.egress.allowInternet`      | Allow internet access for updates and external APIs | `bool`   | `true`            |
+| `networkPolicy.egress.allowSameNamespace` | Allow traffic to pods in the same namespace         | `bool`   | `true`            |
+| `networkPolicy.egress.databasePort`       | Database port for access                            | `int`    | `3306`            |
+| `networkPolicy.egress.databaseVNetCIDR`   | CIDR range for database network                     | `string` | `"10.0.0.0/16"`   |
+| `networkPolicy.egress.internetPorts`      | Ports allowed for internet access                   | `list`   | `[80, 443]`       |
 
 ---
 
@@ -694,13 +740,13 @@ Network policies for micro-segmentation
 
 External service for BunkerWeb (LoadBalancer/NodePort)
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `service` | External service for BunkerWeb (LoadBalancer/NodePort) | `object` | See nested values |
-| `service.annotations` | Additional service annotations | `object` | `{}` |
-| `service.enabled` | Enable external service creation | `bool` | `true` |
-| `service.externalTrafficPolicy` | Set defined NodePorts if using Service type NodePort, if not set, random ports will be assigned node... | `string` | `"Local"` |
-| `service.type` | Service type: LoadBalancer, NodePort, or ClusterIP LoadBalancer: Exposes service externally using cl... | `string` | `"LoadBalancer"` |
+| Parameter                       | Description                                                                                             | Type     | Default           |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | ----------------- |
+| `service`                       | External service for BunkerWeb (LoadBalancer/NodePort)                                                  | `object` | See nested values |
+| `service.annotations`           | Additional service annotations                                                                          | `object` | `{}`              |
+| `service.enabled`               | Enable external service creation                                                                        | `bool`   | `true`            |
+| `service.externalTrafficPolicy` | Set defined NodePorts if using Service type NodePort, if not set, random ports will be assigned node... | `string` | `"Local"`         |
+| `service.type`                  | Service type: LoadBalancer, NodePort, or ClusterIP LoadBalancer: Exposes service externally using cl... | `string` | `"LoadBalancer"`  |
 
 ---
 
@@ -708,80 +754,83 @@ External service for BunkerWeb (LoadBalancer/NodePort)
 
 Configuration for BunkerWeb behavior in Kubernetes environment
 
-| Parameter | Description | Type | Default |
-|-----------|-------------|------|---------|
-| `settings` | Configuration for BunkerWeb behavior in Kubernetes environment | `object` | See nested values |
-| `settings.api` | Configuration for api | `object` | See nested values |
-| `settings.existingSecret` | Specify the name of an existing secret containing sensitive parameters. When using this, the followi... | `string` | `""` |
-| `settings.kubernetes` | Configuration for kubernetes | `object` | See nested values |
-| `settings.misc` | Configuration for misc | `object` | See nested values |
-| `settings.redis` | Configuration for redis | `object` | See nested values |
-| `settings.ui` | Configuration for ui | `object` | See nested values |
-| `settings.api.apiAclBootstrapFile` | OR/AND ConfigMap name that includes ACL based JSON File https://docs.bunkerweb.io/latest/api/#permis... | `string` | `""` |
-| `settings.api.docsUrl` | URL for API documentation, set to an empty value to disable | `string` | `"/docs"` |
-| `settings.api.forwardedAllowIps` | Forwarded allow IPs for correct client IP detection | `string` | `"*"` |
-| `settings.api.httpRoutes` | if using new Gateway API integration instead of ingress resources HTTP routes configuration for UI a... | `object` | See nested values |
-| `settings.api.ingress` | Ingress configuration for UI access | `object` | See nested values |
-| `settings.api.openApiUrl` | URL for OpenAPI specification, set to an empty value to disable | `string` | `"/openapi.json"` |
-| `settings.api.rateLimit` | Rate limiting configuration for API access https://docs.bunkerweb.io/latest/api/#rate-limiting | `object` | See nested values |
-| `settings.api.redocUrl` | URL for ReDoc API documentation, set to an empty value to disable | `string` | `"/redoc"` |
-| `settings.api.rootPath` | API Configuration https://docs.bunkerweb.io/latest/api/#configuration Root path for the API | `string` | `""` |
-| `settings.api.useBearerToken` | Authentication settings https://docs.bunkerweb.io/latest/api/#authentication Choose at least one met... | `object` | See nested values |
-| `settings.api.useUserPass` | Username and Password | `object` | See nested values |
-| `settings.api.whitelist` | Whitelist configuration for API access | `object` | See nested values |
-| `settings.kubernetes.domainName` | Kubernetes cluster domain name for service discovery | `string` | `"cluster.local"` |
-| `settings.kubernetes.ignoreAnnotations` | Annotations to be ignored by bunkerweb-controller when multiple ingress controllers (comma-separated... | `string` | `""` |
-| `settings.kubernetes.ingressClass` | Ingress class name that BunkerWeb will handle Must match the IngressClass resource name | `string` | `""` |
-| `settings.kubernetes.namespaces` | Comma-separated list of namespaces to monitor for Ingress resources Empty string means all namespace... | `string` | `""` |
-| `settings.misc.apiWhitelistIp` | IP ranges allowed to access BunkerWeb API (space-separated CIDR blocks) Includes common Kubernetes a... | `string` | `"127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"` |
-| `settings.misc.databaseUri` | Database connection URI (auto-generated if using internal MariaDB) Format: mysql+pymysql://user:pass... | `string` | `""` |
-| `settings.misc.dnsResolvers` | DNS resolvers for BunkerWeb (space-separated) Default uses CoreDNS service in kube-system namespace | `string` | `"coredns.kube-system.svc.cluster.local"` |
-| `settings.redis.redisHost` | Redis hostname (auto-configured if using internal Redis) | `string` | `""` |
-| `settings.redis.redisPassword` | Configuration for redisPassword | `string` | `""` |
-| `settings.redis.redisUsername` | Redis authentication (leave empty if not using auth) | `string` | `""` |
-| `settings.redis.useRedis` | Enable Redis for caching and persistence Recommended for production environments | `string` | `"yes"` |
-| `settings.ui.adminPassword` | Configuration for adminPassword | `string` | `""` |
-| `settings.ui.adminUsername` | UI authentication settings | `string` | `""` |
-| `settings.ui.flaskSecret` | Flask session secret (auto-generated if empty) | `string` | `""` |
-| `settings.ui.httpRoutes` | if using new Gateway API integration instead of ingress resources HTTP routes configuration for UI a... | `object` | See nested values |
-| `settings.ui.ingress` | Ingress configuration for UI access | `object` | See nested values |
-| `settings.ui.overrideAdminCreds` | Override admin credentials on startup Set to "yes" to reset admin credentials to the values above | `string` | `"no"` |
-| `settings.ui.totpSecrets` | TOTP secrets for two-factor authentication | `string` | `""` |
-| `settings.ui.wizard` | Enable the setup wizard on first launch | `bool` | `true` |
-| `settings.api.httpRoutes.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `settings.api.httpRoutes.extraAnnotations` | Additional annotations for the httpRoute resource | `object` | `{}` |
-| `settings.api.httpRoutes.gatewayClassName` | GatewayClass name to use | `string` | `""` |
-| `settings.api.httpRoutes.serverName` | Domain name for UI access | `string` | `""` |
-| `settings.api.httpRoutes.serverPath` | Path for UI access | `string` | `"/admin"` |
-| `settings.api.httpRoutes.tlsSecretName` | Secret name containing TLS certificate Leave empty to disable HTTPS | `string` | `""` |
-| `settings.api.ingress.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `settings.api.ingress.extraAnnotations` | Additional annotations for the httpRoute resource | `object` | `{}` |
-| `settings.api.ingress.ingressClassName` | IngressClass name to use | `string` | `""` |
-| `settings.api.ingress.serverName` | Domain name for UI access | `string` | `""` |
-| `settings.api.ingress.serverPath` | Path for UI access | `string` | `"/"` |
-| `settings.api.ingress.tlsSecretName` | Secret name containing TLS certificate Leave empty to disable HTTPS | `string` | `""` |
-| `settings.api.rateLimit.defaults` | Rate limit per period, Supported formats: "[10/seconde]", "[100/minute]", "[1000/day]" https://limit... | `list` | `['100/minute']` |
-| `settings.api.rateLimit.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `settings.api.rateLimit.strategy` | Strategy: "fixed-window" or "moving-window" or "sliding-window" https://limits.readthedocs.io/en/sta... | `string` | `"fixed-window"` |
-| `settings.api.useBearerToken.fromExistingSecret` | If enable, it will use settings.existingSecret | `bool` | `false` |
-| `settings.api.useBearerToken.token` | If not using existingSecret, set the token here | `string` | `""` |
-| `settings.api.useUserPass.apiPassword` | Configuration for apiPassword | `string` | `""` |
-| `settings.api.useUserPass.apiUsername` | If not using existingSecret, set the credentials here | `string` | `""` |
-| `settings.api.useUserPass.fromExistingSecret` | If enable, it will use settings.existingSecret | `bool` | `false` |
-| `settings.api.whitelist.enabled` | Enable HTTP routes for UI access | `bool` | `true` |
-| `settings.api.whitelist.whitelistIps` | space-separated list of IPs/CIDR allowed to access the API | `string` | `"10.0.0.0/8 127.0.0.1/32 127.0.0.0/8"` |
-| `settings.ui.httpRoutes.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `settings.ui.httpRoutes.extraAnnotations` | Additional annotations for the httpRoute resource | `object` | `{}` |
-| `settings.ui.httpRoutes.gatewayClassName` | GatewayClass name to use | `string` | `""` |
-| `settings.ui.httpRoutes.serverName` | Domain name for UI access | `string` | `""` |
-| `settings.ui.httpRoutes.serverPath` | Path for UI access | `string` | `"/"` |
-| `settings.ui.httpRoutes.tlsSecretName` | Secret name containing TLS certificate Leave empty to disable HTTPS | `string` | `""` |
-| `settings.ui.ingress.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `settings.ui.ingress.extraAnnotations` | Additional annotations for the httpRoute resource | `object` | `{}` |
-| `settings.ui.ingress.ingressClassName` | IngressClass name to use | `string` | `""` |
-| `settings.ui.ingress.serverName` | Domain name for UI access | `string` | `""` |
-| `settings.ui.ingress.serverPath` | Path for UI access | `string` | `"/"` |
-| `settings.ui.ingress.tlsSecretName` | Secret name containing TLS certificate Leave empty to disable HTTPS | `string` | `""` |
+| Parameter                                        | Description                                                                                             | Type     | Default                                                 |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------- |
+| `settings`                                       | Configuration for BunkerWeb behavior in Kubernetes environment                                          | `object` | See nested values                                       |
+| `settings.api`                                   | Configuration for api                                                                                   | `object` | See nested values                                       |
+| `settings.existingSecret`                        | Specify the name of an existing secret containing sensitive parameters. When using this, the followi... | `string` | `""`                                                    |
+| `settings.kubernetes`                            | Configuration for kubernetes                                                                            | `object` | See nested values                                       |
+| `settings.misc`                                  | Configuration for misc                                                                                  | `object` | See nested values                                       |
+| `settings.redis`                                 | Configuration for redis                                                                                 | `object` | See nested values                                       |
+| `settings.ui`                                    | Configuration for ui                                                                                    | `object` | See nested values                                       |
+| `settings.api.apiAclBootstrapFile`               | OR/AND ConfigMap name that includes ACL based JSON File https://docs.bunkerweb.io/latest/api/#permis... | `string` | `""`                                                    |
+| `settings.api.docsUrl`                           | URL for API documentation, set to an empty value to disable                                             | `string` | `"/docs"`                                               |
+| `settings.api.forwardedAllowIps`                 | Forwarded allow IPs for correct client IP detection                                                     | `string` | `"*"`                                                   |
+| `settings.api.httpRoutes`                        | if using new Gateway API integration instead of ingress resources HTTP routes configuration for UI a... | `object` | See nested values                                       |
+| `settings.api.ingress`                           | Ingress configuration for UI access                                                                     | `object` | See nested values                                       |
+| `settings.api.maxRequests`                       | Max requests before Gunicorn worker restart                                                             | `string` | `""`                                                    |
+| `settings.api.openApiUrl`                        | URL for OpenAPI specification, set to an empty value to disable                                         | `string` | `"/openapi.json"`                                       |
+| `settings.api.rateLimit`                         | Rate limiting configuration for API access https://docs.bunkerweb.io/latest/api/#rate-limiting          | `object` | See nested values                                       |
+| `settings.api.redocUrl`                          | URL for ReDoc API documentation, set to an empty value to disable                                       | `string` | `"/redoc"`                                              |
+| `settings.api.rootPath`                          | API Configuration https://docs.bunkerweb.io/latest/api/#configuration Root path for the API             | `string` | `""`                                                    |
+| `settings.api.useBearerToken`                    | Authentication settings https://docs.bunkerweb.io/latest/api/#authentication Choose at least one met... | `object` | See nested values                                       |
+| `settings.api.useUserPass`                       | Username and Password                                                                                   | `object` | See nested values                                       |
+| `settings.api.whitelist`                         | Whitelist configuration for API access                                                                  | `object` | See nested values                                       |
+| `settings.kubernetes.domainName`                 | Kubernetes cluster domain name for service discovery                                                    | `string` | `"cluster.local"`                                       |
+| `settings.kubernetes.ignoreAnnotations`          | Annotations to be ignored by bunkerweb-controller when multiple ingress controllers (comma-separated... | `string` | `""`                                                    |
+| `settings.kubernetes.ingressClass`               | Ingress class name that BunkerWeb will handle Must match the IngressClass resource name                 | `string` | `""`                                                    |
+| `settings.kubernetes.namespaces`                 | Comma-separated list of namespaces to monitor for Ingress resources Empty string means all namespace... | `string` | `""`                                                    |
+| `settings.misc.apiWhitelistIp`                   | IP ranges allowed to access BunkerWeb API (space-separated CIDR blocks) Includes common Kubernetes a... | `string` | `"127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"` |
+| `settings.misc.databaseUri`                      | Database connection URI (auto-generated if using internal MariaDB) Format: mysql+pymysql://user:pass... | `string` | `""`                                                    |
+| `settings.misc.dnsResolvers`                     | DNS resolvers for BunkerWeb (space-separated) Default uses CoreDNS service in kube-system namespace     | `string` | `"coredns.kube-system.svc.cluster.local"`               |
+| `settings.redis.redisHost`                       | Redis hostname (auto-configured if using internal Redis)                                                | `string` | `""`                                                    |
+| `settings.redis.redisPassword`                   | Configuration for redisPassword                                                                         | `string` | `""`                                                    |
+| `settings.redis.redisUsername`                   | Redis authentication (leave empty if not using auth)                                                    | `string` | `""`                                                    |
+| `settings.redis.useRedis`                        | Enable Redis for caching and persistence Recommended for production environments                        | `string` | `"yes"`                                                 |
+| `settings.ui.adminPassword`                      | Configuration for adminPassword                                                                         | `string` | `""`                                                    |
+| `settings.ui.adminUsername`                      | UI authentication settings                                                                              | `string` | `""`                                                    |
+| `settings.ui.flaskSecret`                        | Flask session secret (auto-generated if empty)                                                          | `string` | `""`                                                    |
+| `settings.ui.httpRoutes`                         | if using new Gateway API integration instead of ingress resources HTTP routes configuration for UI a... | `object` | See nested values                                       |
+| `settings.ui.ingress`                            | Ingress configuration for UI access                                                                     | `object` | See nested values                                       |
+| `settings.ui.maxContentLength`                   | Maximum upload size in bytes (default: 50MB)                                                            | `string` | `""`                                                    |
+| `settings.ui.maxRequests`                        | Max requests before Gunicorn worker restart                                                             | `string` | `""`                                                    |
+| `settings.ui.overrideAdminCreds`                 | Override admin credentials on startup Set to "yes" to reset admin credentials to the values above       | `string` | `"no"`                                                  |
+| `settings.ui.totpSecrets`                        | TOTP secrets for two-factor authentication                                                              | `string` | `""`                                                    |
+| `settings.ui.wizard`                             | Enable the setup wizard on first launch                                                                 | `bool`   | `true`                                                  |
+| `settings.api.httpRoutes.enabled`                | Enable HTTP routes for UI access                                                                        | `bool`   | `false`                                                 |
+| `settings.api.httpRoutes.extraAnnotations`       | Additional annotations for the httpRoute resource                                                       | `object` | `{}`                                                    |
+| `settings.api.httpRoutes.gatewayClassName`       | GatewayClass name to use                                                                                | `string` | `""`                                                    |
+| `settings.api.httpRoutes.serverName`             | Domain name for UI access                                                                               | `string` | `""`                                                    |
+| `settings.api.httpRoutes.serverPath`             | Path for UI access                                                                                      | `string` | `"/admin"`                                              |
+| `settings.api.httpRoutes.tlsSecretName`          | Secret name containing TLS certificate Leave empty to disable HTTPS                                     | `string` | `""`                                                    |
+| `settings.api.ingress.enabled`                   | Enable HTTP routes for UI access                                                                        | `bool`   | `false`                                                 |
+| `settings.api.ingress.extraAnnotations`          | Additional annotations for the httpRoute resource                                                       | `object` | `{}`                                                    |
+| `settings.api.ingress.ingressClassName`          | IngressClass name to use                                                                                | `string` | `""`                                                    |
+| `settings.api.ingress.serverName`                | Domain name for UI access                                                                               | `string` | `""`                                                    |
+| `settings.api.ingress.serverPath`                | Path for UI access                                                                                      | `string` | `"/"`                                                   |
+| `settings.api.ingress.tlsSecretName`             | Secret name containing TLS certificate Leave empty to disable HTTPS                                     | `string` | `""`                                                    |
+| `settings.api.rateLimit.defaults`                | Rate limit per period, Supported formats: "[10/seconde]", "[100/minute]", "[1000/day]" https://limit... | `list`   | `['100/minute']`                                        |
+| `settings.api.rateLimit.enabled`                 | Enable HTTP routes for UI access                                                                        | `bool`   | `false`                                                 |
+| `settings.api.rateLimit.strategy`                | Strategy: "fixed-window" or "moving-window" or "sliding-window" https://limits.readthedocs.io/en/sta... | `string` | `"fixed-window"`                                        |
+| `settings.api.useBearerToken.fromExistingSecret` | If enable, it will use settings.existingSecret                                                          | `bool`   | `false`                                                 |
+| `settings.api.useBearerToken.token`              | If not using existingSecret, set the token here                                                         | `string` | `""`                                                    |
+| `settings.api.useUserPass.apiPassword`           | Configuration for apiPassword                                                                           | `string` | `""`                                                    |
+| `settings.api.useUserPass.apiUsername`           | If not using existingSecret, set the credentials here                                                   | `string` | `""`                                                    |
+| `settings.api.useUserPass.fromExistingSecret`    | If enable, it will use settings.existingSecret                                                          | `bool`   | `false`                                                 |
+| `settings.api.whitelist.enabled`                 | Enable HTTP routes for UI access                                                                        | `bool`   | `true`                                                  |
+| `settings.api.whitelist.whitelistIps`            | space-separated list of IPs/CIDR allowed to access the API                                              | `string` | `"10.0.0.0/8 127.0.0.1/32 127.0.0.0/8"`                 |
+| `settings.ui.httpRoutes.enabled`                 | Enable HTTP routes for UI access                                                                        | `bool`   | `false`                                                 |
+| `settings.ui.httpRoutes.extraAnnotations`        | Additional annotations for the httpRoute resource                                                       | `object` | `{}`                                                    |
+| `settings.ui.httpRoutes.gatewayClassName`        | GatewayClass name to use                                                                                | `string` | `""`                                                    |
+| `settings.ui.httpRoutes.serverName`              | Domain name for UI access                                                                               | `string` | `""`                                                    |
+| `settings.ui.httpRoutes.serverPath`              | Path for UI access                                                                                      | `string` | `"/"`                                                   |
+| `settings.ui.httpRoutes.tlsSecretName`           | Secret name containing TLS certificate Leave empty to disable HTTPS                                     | `string` | `""`                                                    |
+| `settings.ui.ingress.enabled`                    | Enable HTTP routes for UI access                                                                        | `bool`   | `false`                                                 |
+| `settings.ui.ingress.extraAnnotations`           | Additional annotations for the httpRoute resource                                                       | `object` | `{}`                                                    |
+| `settings.ui.ingress.ingressClassName`           | IngressClass name to use                                                                                | `string` | `""`                                                    |
+| `settings.ui.ingress.serverName`                 | Domain name for UI access                                                                               | `string` | `""`                                                    |
+| `settings.ui.ingress.serverPath`                 | Path for UI access                                                                                      | `string` | `"/"`                                                   |
+| `settings.ui.ingress.tlsSecretName`              | Secret name containing TLS certificate Leave empty to disable HTTPS                                     | `string` | `""`                                                    |
 
 ---
 
