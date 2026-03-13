@@ -1,0 +1,32 @@
+{{- if and .Values.mcp.enabled .Values.mcp.httpRoutes.enabled -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mcp-{{ include "bunkerweb.fullname" . }}-httproute
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+  annotations:
+    bunkerweb.io/USE_REVERSE_PROXY: "yes"
+    bunkerweb.io/REVERSE_PROXY_URL: "/"
+    bunkerweb.io/REVERSE_PROXY_HOST: "http://mcp-{{ include "bunkerweb.fullname" . }}.{{ include "bunkerweb.namespace" . }}.svc.cluster.local:8080"
+    {{- with .Values.mcp.httpRoutes.extraAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  parentRefs:
+    - name: {{ include "bunkerweb.fullname" . }}-gateway
+      namespace: {{ include "bunkerweb.namespace" . }}
+  {{- if .Values.mcp.httpRoutes.serverName }}
+  hostnames:
+    - {{ .Values.mcp.httpRoutes.serverName | quote }}
+  {{- end }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ .Values.mcp.httpRoutes.serverPath | default "/" }}
+      backendRefs:
+        - name: mcp-{{ include "bunkerweb.fullname" . }}
+          port: 8080
+{{- end }}

@@ -1,10 +1,26 @@
 # =============================================================================
-# BunkerWeb Helm Chart Values
+# BunkerWeb Helm Chart - MCP Integration Example
 # =============================================================================
-# This file contains all configurable values for the BunkerWeb Helm chart.
-# For more information about BunkerWeb configuration, visit:
-# https://docs.bunkerweb.io/
-
+# This example shows how to configure the MCP (Model Context Protocol) server
+# for AI assistant integration (Claude Code, etc.)
+#
+# Based on minimal.yaml with MCP server enabled.
+#
+# The MCP server allows AI assistants to manage BunkerWeb configuration through
+# a standardized protocol.
+#
+# SECURITY WARNING:
+# The MCP server has no built-in authentication for the /mcp endpoint.
+# You MUST secure access using one of these methods:
+# - IP whitelisting via BunkerWeb annotations
+# - Network policies
+# - Not exposing externally (use kubectl port-forward)
+#
+# USAGE:
+# 1. Deploy: helm install bunkerweb bunkerweb/bunkerweb -f mcp-integration.yaml
+# 2. Access MCP locally: kubectl port-forward svc/mcp-bunkerweb 8080:8080
+# 3. Configure Claude Code MCP settings with: http://localhost:8080/mcp
+#
 # =============================================================================
 # GLOBAL CONFIGURATION
 # =============================================================================
@@ -39,6 +55,7 @@ topologySpreadConstraints: []
 # BUNKERWEB CORE SETTINGS
 # =============================================================================
 # Configuration for BunkerWeb behavior in Kubernetes environment
+
 
 settings:
   # ----- SECRET MANAGEMENT -----
@@ -79,8 +96,15 @@ settings:
   # ----- GENERAL CONFIGURATION -----
   misc:
     # Database connection URI (auto-generated if using internal MariaDB)
-    # Format: mysql+pymysql://user:password@host:port/database
-    databaseUri: ""
+    # Examples for different providers:
+    # PostgreSQL: "postgresql://username:password@postgres.example.com:5432/bunkerweb"
+    # MySQL/MariaDB: "mysql+pymysql://username:password@mysql.example.com:3306/bunkerweb"
+    # Cloud SQL: "mysql+pymysql://username:password@127.0.0.1:3306/bunkerweb" (with Cloud SQL Proxy)
+    databaseUri: "fill-in-your-external-mariadb-uri-here-or-use-settings.existingSecret"
+    # Additional arguments for MariaDB
+    # Example: args: ["--character-set-server=utf8mb4"]
+    # args:
+    #   - "--max-allowed-packet=67108864"
 
     # DNS resolvers for BunkerWeb (space-separated)
     # Default uses CoreDNS service in kube-system namespace
@@ -97,7 +121,7 @@ settings:
     useRedis: "yes"
 
     # Redis hostname (auto-configured if using internal Redis)
-    redisHost: ""
+    redisHost: "fill-in-your-external-redis-host"
 
     # Redis authentication (leave empty if not using auth)
     redisUsername: ""
@@ -106,41 +130,27 @@ settings:
   # ----- WEB UI CONFIGURATION -----
   ui:
     # Enable the setup wizard on first launch
-    wizard: true
-
-    # if using new Gateway API integration instead of ingress resources
-    # HTTP routes configuration for UI access
-    httpRoutes:
-      # Enable HTTP routes for UI access
-      enabled: false
-      # GatewayClass name to use
-      gatewayClassName: ""
-      # Domain name for UI access
-      # Example: "bunkerweb-ui.example.com"
-      serverName: ""
-      # Path for UI access
-      serverPath: "/"
-      # Additional annotations for the httpRoute resource
-      # Example: {"cert-manager.io/cluster-issuer": "letsencrypt-prod"}
-      extraAnnotations: {}
-      # Secret name containing TLS certificate
-      # Leave empty to disable HTTPS
-      tlsSecretName: ""
+    wizard: false
 
     # Ingress configuration for UI access
     ingress:
       # Set to true to create an Ingress resource for the UI
       enabled: false
+
       # IngressClass name to use
       ingressClassName: ""
+
       # Domain name for UI access
       # Example: "bunkerweb-ui.example.com"
       serverName: ""
+
       # Path for UI access (usually "/")
       serverPath: "/"
+
       # Additional annotations for the Ingress resource
       # Example: {"cert-manager.io/cluster-issuer": "letsencrypt-prod"}
       extraAnnotations: {}
+
       # Secret name containing TLS certificate
       # Leave empty to disable HTTPS
       tlsSecretName: ""
@@ -212,39 +222,25 @@ settings:
       # https://limits.readthedocs.io/en/stable/quickstart.html#rate-limit-string-notation
       defaults: ["100/minute"]
 
-    # if using new Gateway API integration instead of ingress resources
-    # HTTP routes configuration for API access
-    httpRoutes:
-      # Enable HTTP routes for API access
-      enabled: false
-      # GatewayClass name to use
-      gatewayClassName: ""
-      # Domain name for API access
-      # Example: "bunkerweb-api.example.com"
-      serverName: ""
-      # Path for API access
-      serverPath: "/admin"
-      # Additional annotations for the Ingress resource
-      # Example: {"cert-manager.io/cluster-issuer": "letsencrypt-prod"}
-      extraAnnotations: {}
-      # Secret name containing TLS certificate
-      # Leave empty to disable HTTPS
-      tlsSecretName: ""
-
     # Ingress configuration for API access
     ingress:
       # Set to true to create an Ingress resource for the API
       enabled: false
+
       # IngressClass name to use
       ingressClassName: ""
+
       # Domain name for API access
       # Example: "bunkerweb-api.example.com"
       serverName: ""
+
       # Path for API access (usually "/")
       serverPath: "/"
+
       # Additional annotations for the Ingress resource
       # Example: {"cert-manager.io/cluster-issuer": "letsencrypt-prod"}
       extraAnnotations: {}
+
       # Secret name containing TLS certificate
       # Leave empty to disable HTTPS
       tlsSecretName: ""
@@ -263,10 +259,6 @@ service:
   # NodePort: Exposes service on each node's IP at a static port
   # ClusterIP: Only accessible within the cluster
   type: LoadBalancer
-  
-  # Set defined NodePorts if using Service type NodePort, if not set, random ports will be assigned
-  # nodePortHttp: 30080
-  # nodePortHttps: 30443
 
   # External traffic policy: Local or Cluster
   # Local: Preserves client IP but may cause uneven distribution
@@ -297,7 +289,7 @@ bunkerweb:
 
   # Use host ports for direct traffic (only for DaemonSet)
   # Allows binding to ports 80/443 on each node
-  hostPorts: true
+  hostPorts: false
 
   # Number of replicas (for Deployment & StatefulSet kind)
   # Minimum 2 for high availability and PodDisruptionBudget
@@ -306,8 +298,8 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.8
-  pullPolicy: IfNotPresent
+  tag: 1.6.6
+  pullPolicy: Always
 
   # Resource requests and limits
   # RECOMMENDED: Uncomment and adjust for production
@@ -377,7 +369,7 @@ bunkerweb:
   service:
     # Use headless service (clusterIP: None) for service discovery
     # If false, creates a ClusterIP service with BWAPI port 5000
-    headless: true
+    headless: false
 
   # Image pull secrets (overrides global setting)
   imagePullSecrets: []
@@ -460,7 +452,7 @@ bunkerweb:
   pdb:
     # Enable creation of Pod Disruption Budget
     # Make sure you have at least 2 replicas if enabled
-    create: true
+    create: false
 
     # Minimum number/percentage of pods that must remain available
     # Example: minAvailable: 1 or minAvailable: "50%"
@@ -479,8 +471,8 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.8
-  pullPolicy: IfNotPresent
+  tag: 1.6.6
+  pullPolicy: Always
 
   # Image pull secrets (overrides global setting)
   imagePullSecrets: []
@@ -521,7 +513,7 @@ scheduler:
   proLicenseKey: ""
   # Enable Prometheus metrics exporter and creates a service for it
   # Requires BunkerWeb PRO license
-  usePrometheusExporter: false
+  usePrometheusExporter: true
   # ==================================================== #
 
   # BunkerWeb feature configuration
@@ -970,8 +962,8 @@ scheduler:
         - /usr/share/bunkerweb/helpers/healthcheck-scheduler.sh
     initialDelaySeconds: 180
     periodSeconds: 10
-    timeoutSeconds: 1
-    failureThreshold: 3
+    timeoutSeconds: 10
+    failureThreshold: 5
 
 # =============================================================================
 # CONTROLLER COMPONENT
@@ -985,8 +977,8 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.8
-  pullPolicy: IfNotPresent
+  tag: 1.6.6
+  pullPolicy: Always
 
   # Image pull secrets (overrides global setting)
   imagePullSecrets: []
@@ -1040,7 +1032,7 @@ controller:
     exec:
       command:
         - /usr/share/bunkerweb/helpers/healthcheck-autoconf.sh
-    initialDelaySeconds: 120
+    initialDelaySeconds: 30
     periodSeconds: 1
     timeoutSeconds: 1
     failureThreshold: 3
@@ -1057,8 +1049,8 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.8
-  pullPolicy: IfNotPresent
+  tag: 1.6.6
+  pullPolicy: Always
 
   # Image pull secrets (overrides global setting)
   imagePullSecrets: []
@@ -1100,7 +1092,6 @@ ui:
   # Log collection configuration
   logs:
     # Enable log collection sidecar
-    # ONLY WORKING FROM BunkerWeb version 1.6.7 and later
     enabled: false
 
     # Syslog address for log forwarding
@@ -1110,13 +1101,8 @@ ui:
 
     # Syslog-ng container for log collection
     repository: docker.io/balabit/syslog-ng
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: 4.8.0
-
-    # Timezone for the syslog-ng container
-    # If empty, uses the container default (UTC)
-    # Example: "Europe/Paris", "America/New_York"
-    timezone: ""
 
     # Persistent storage for logs
     persistence:
@@ -1124,34 +1110,6 @@ ui:
       # Storage class for log persistence
       # Leave empty for default storage class
       storageClass: ""
-
-    # Log rotation and cleanup configuration
-    # Periodically rotates UI logs and removes old log files
-    logrotate:
-      # Enable periodic log rotation for UI logs
-      enabled: true
-
-      # Cron schedule for the log rotation job
-      # Default: daily at 00:00
-      schedule: 0 0 * * *
-
-      # Number of days to keep UI log files
-      # Log files older than this value will be automatically removed
-      rotate: 2
-
-      # Log file patterns to rotate (required when logrotate.enabled=true).
-      #
-      # This list is matched against log file names under /var/log/bunkerweb/.
-      # You can use glob patterns:
-      #   - *.com.log
-      #
-      # If this list is empty, no logrotate rules are generated and nothing will be rotated.
-      files:
-        - bw-autoconf.log
-        - bw-scheduler.log
-        - bw-ui-access.log
-        - bw-ui.log
-      # - '*.com.log'
 
   # Liveness probe configuration
   livenessProbe:
@@ -1174,19 +1132,19 @@ ui:
     failureThreshold: 3
 
 # =============================================================================
-# EXTERNAL API COMPONENT
+# API COMPONENT
 # =============================================================================
-# External API for BunkerWeb that exposes REST interface for automation tools
+# External API for BunkerWeb (required for MCP)
 
 api:
-  # Enable the external API
+  # Enable the external API (required for MCP)
   enabled: true
 
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.8
-  pullPolicy: IfNotPresent
+  tag: 1.6.6
+  pullPolicy: Always
 
   # Image pull secrets (overrides global setting)
   imagePullSecrets: []
@@ -1237,13 +1195,12 @@ api:
 
 
 # =============================================================================
-# BunkerWeb MCP COMPONENT
+# MCP SERVER CONFIGURATION
 # =============================================================================
-# Model Context Protocol (MCP) server for BunkerWeb
-# Requires BunkerWeb API component to be enabled
+# Model Context Protocol server for AI assistant integration
 
 mcp:
-  # Enable the BunkerWeb MCP server
+  # Enable the MCP server
   enabled: true
 
   # Container image configuration
@@ -1251,198 +1208,84 @@ mcp:
   tag: v0.1.0
   pullPolicy: IfNotPresent
 
-  # Number of replicas
+  # Number of replicas (1 is usually sufficient)
   replicas: 1
 
-  # Image pull secrets (overrides global setting)
-  imagePullSecrets: []
-
-  # Node selector (overrides global setting)
-  nodeSelector: {}
-
-  # Tolerations (overrides global setting)
-  tolerations: []
-
-  # Resource requests and limits
-  # RECOMMENDED: Uncomment and adjust for production
-  # resources:
-  #   requests:
-  #     cpu: "250m"
-  #     memory: "256Mi"
-  #   limits:
-  #     cpu: "1000m"
-  #     memory: "512Mi"
-
-  # Additional pod annotations
-  podAnnotations: {}
-
-  # Additional pod labels
-  podLabels: {}
-
-  # Security context for MCP container
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-        - ALL
-
-  # Additional environment variables
-  extraEnvs: []
-
-  # ----- MCP SERVER CONFIGURATION -----
+  # ----- MCP SERVER SETTINGS -----
   config:
-    # Number of workers for the MCP server
-    workers: "4"
-
-    # BunkerWeb API Configuration
-    # Base URL will be auto-configured to use internal API service if empty
-    bunkerwebBaseUrl: ""
-    bunkerwebRequestTimeoutSeconds: "30"
-    bunkerwebMaxRetries: "3"
-    bunkerwebRetryBackoffInitial: "0.5"
-    bunkerwebRetryBackoffMax: "5"
-
-    # Logging
+    # Log level: DEBUG, INFO, WARNING, ERROR
     logLevel: "INFO"
 
-    # MCP Transport Security (DNS Rebinding Protection)
-    enableDnsRebindingProtection: "false"
-    # Allowed hosts (auto-configured based on service names if empty)
-    allowedHosts: ""
+    # Request timeout in seconds
+    requestTimeout: 30
+
+    # Maximum retries for failed requests
+    maxRetries: 3
+
+    # DNS rebinding protection (recommended)
+    enableDnsRebindingProtection: true
+
+    # Allowed hosts for DNS rebinding protection
+    # Add your MCP domain here
+    allowedHosts: "localhost,127.0.0.1,mcp.example.com"
+
     # Allowed origins for CORS
-    allowedOrigins: ""
+    allowedOrigins: "*"
 
-    # Performance Configuration
-    rateLimitEnabled: "false"
-    rateLimitTools: "30/minute"
-    rateLimitRpc: "100/minute"
-    rateLimitWs: "500/minute"
-    cacheEnabled: "true"
+    # Enable caching for read operations
+    cacheEnabled: true
 
-    # Semantic Search Configuration
-    # Released in the future, currently non-functional 
+    # Search mode: "remote" or "disabled"
     searchMode: "disabled"
-    searchApiUrl: ""
-    searchTimeout: "10.0"
 
-  # ----- SECRETS CONFIGURATION -----
+  # ----- MCP SECRETS -----
+  # Credentials for MCP to authenticate with the BunkerWeb API
+  # MUST match the settings.api configuration above
   secrets:
-    # Use existing secret for sensitive data
-    # If set, the following keys should be present:
-    #   - BUNKERWEB_API_TOKEN: Bearer token for BunkerWeb API
-    # OR:
-    #   - BUNKERWEB_BASIC_USERNAME: Basic auth username
-    #   - BUNKERWEB_BASIC_PASSWORD: Basic auth password
-    existingSecret: ""
+    # Use Bearer token (matches settings.api.useBearerToken.token)
+    bunkerwebApiToken: "your-secure-api-token-here"  # Same as settings.api!
 
-    # BunkerWeb API Bearer Token (if not using existingSecret)
-    # Leave empty to use basic auth instead
-    bunkerwebApiToken: ""
+    # Or use Basic auth (matches settings.api.useBasicAuth)
+    # bunkerwebBasicUsername: "api-admin"
+    # bunkerwebBasicPassword: "your-secure-password"
 
-    # BunkerWeb API Basic Auth (if not using existingSecret or token)
-    bunkerwebBasicUsername: ""
-    bunkerwebBasicPassword: ""
-
-    # WebSocket authentication token (optional)
-    websocketToken: ""
-
-  # ----- SERVICE CONFIGURATION -----
-  service:
-    # Service type: ClusterIP, NodePort, or LoadBalancer
-    type: ClusterIP
-    # Service port
-    port: 8080
-    # Additional service annotations
-    annotations: {}
-
-  # ----- INGRESS CONFIGURATION -----
+  # ----- INGRESS CONFIGURATION (Legacy) -----
+  # Use this for traditional Ingress resources
   ingress:
-    # Enable ingress for external access
-    # WARNING: The MCP server has no built-in authentication for the /mcp endpoint (used by Claude Code).
-    # You MUST secure access using BunkerWeb annotations (whitelist, auth) or network policies.
-    enabled: false
-    # IngressClass name to use
+    enabled: false  # Set to true to enable
     ingressClassName: "bunkerweb"
-    # Domain name for MCP access
-    serverName: ""
-    # Path for MCP access
+    serverName: "mcp.example.com"
     serverPath: "/"
-    # Additional annotations for the Ingress resource
-    # SECURITY: Configure whitelist to restrict access to trusted IPs only
     annotations:
       bunkerweb.io/AUTO_LETS_ENCRYPT: "yes"
       bunkerweb.io/USE_REVERSE_PROXY: "yes"
       bunkerweb.io/REVERSE_PROXY_URL: "/"
       bunkerweb.io/REVERSE_PROXY_HOST: "http://mcp-bunkerweb.bunkerweb.svc.cluster.local:8080"
-      # Whitelist configuration (RECOMMENDED for MCP security)
-      # Uncomment and configure to restrict access to trusted IPs/networks
-      # bunkerweb.io/USE_WHITELIST: "yes"
-      # bunkerweb.io/WHITELIST_IP: "10.0.0.0/8 192.168.0.0/16 YOUR_PUBLIC_IP/32"
-    # TLS configuration
+      # SECURITY: Restrict access to trusted IPs only
+      bunkerweb.io/USE_WHITELIST: "yes"
+      bunkerweb.io/WHITELIST_IP: "10.0.0.0/8 192.168.0.0/16"  # Add your IP!
     tls:
-      enabled: false
-      # Secret name containing TLS certificate
-      secretName: ""
+      enabled: true
+      secretName: "mcp-tls-secret"  # Or use AUTO_LETS_ENCRYPT
 
-  # ----- GATEWAY API (HTTPRoute) -----
-  # Alternative to Ingress for Kubernetes Gateway API
+  # ----- GATEWAY API CONFIGURATION (Modern) -----
+  # Use this for Kubernetes Gateway API (recommended for new clusters)
   httpRoutes:
-    # Enable HTTPRoute for external access
-    # WARNING: The MCP server has no built-in authentication for the /mcp endpoint (used by Claude Code).
-    # You MUST secure access using BunkerWeb annotations (whitelist, auth) or network policies.
-    enabled: false
-    # GatewayClass name to use
+    enabled: false  # Set to true to enable
     gatewayClassName: ""
-    # Domain name for MCP access
-    # Example: "mcp.example.com"
-    serverName: ""
-    # Path for MCP access
+    serverName: "mcp.example.com"
     serverPath: "/"
-    # Additional annotations for the HTTPRoute resource
-    # SECURITY: Configure whitelist to restrict access to trusted IPs only
     extraAnnotations:
-      # Whitelist configuration (RECOMMENDED for MCP security)
-      # bunkerweb.io/USE_WHITELIST: "yes"
-      # bunkerweb.io/WHITELIST_IP: "10.0.0.0/8 192.168.0.0/16 YOUR_PUBLIC_IP/32"
-    # Secret name containing TLS certificate
-    # Leave empty to disable HTTPS
+      # SECURITY: Restrict access to trusted IPs only
+      bunkerweb.io/USE_WHITELIST: "yes"
+      bunkerweb.io/WHITELIST_IP: "10.0.0.0/8 192.168.0.0/16"  # Add your IP!
     tlsSecretName: ""
 
-  # ----- SERVICE MONITOR (PROMETHEUS) -----
+  # ----- PROMETHEUS MONITORING -----
   serviceMonitor:
-    # Enable ServiceMonitor for Prometheus Operator
-    enabled: false
-    # Scrape interval
+    enabled: false  # Set to true if using Prometheus Operator
     interval: 30s
-    # Scrape timeout
     scrapeTimeout: 10s
-    # Additional labels for ServiceMonitor
-    labels: {}
-
-  # ----- PROBES CONFIGURATION -----
-  # readinessProbe:
-  #   httpGet:
-  #     path: /ready
-  #     port: http
-  #   initialDelaySeconds: 5
-  #   periodSeconds: 10
-  #   timeoutSeconds: 5
-  #   failureThreshold: 2
-
-  # livenessProbe:
-  #   httpGet:
-  #     path: /health
-  #     port: http
-  #   initialDelaySeconds: 10
-  #   periodSeconds: 30
-  #   timeoutSeconds: 5
-  #   failureThreshold: 3
-
-  # Termination grace period
-  terminationGracePeriodSeconds: 30
-
 
 # =============================================================================
 # DATABASE (MARIADB) COMPONENT
@@ -1452,71 +1295,7 @@ mcp:
 mariadb:
   # Enable internal MariaDB instance
   # Set to false to use external database
-  enabled: true
-
-  # Container image configuration
-  repository: docker.io/mariadb
-  tag: "11"
-  pullPolicy: IfNotPresent
-
-  # Image pull secrets (overrides global setting)
-  imagePullSecrets: []
-
-  # Deployment update strategy for MariaDB
-  # Default: RollingUpdate
-  # Uncomment and set to "Recreate" when using single-node block storage
-  # (e.g. EBS with ReadWriteOnce) to avoid volume attach conflicts
-  # strategy: Recreate
-
-  # Node selector (overrides global setting)
-  nodeSelector: {}
-
-  # Tolerations (overrides global setting)
-  tolerations: []
-
-  # Persistent storage configuration
-  persistence:
-    # Storage size for database
-    size: 5Gi
-
-    # Storage class for database persistence
-    # Leave empty for default storage class
-    # Example: "fast-ssd", "standard", "gp2"
-    storageClass: ""
-
-  # Database configuration
-  config:
-    # Generate random root password
-    randomRootPassword: "1"
-
-    # BunkerWeb database name
-    database: "db"
-
-    # BunkerWeb database user
-    user: "bunkerweb"
-
-    # BunkerWeb database password
-    # SECURITY: Change this in production or use existingSecret
-    password: "changeme"
-
-  # Additional arguments for MariaDB
-  # Example: args: ["--character-set-server=utf8mb4"]
-  args:
-    - "--max-allowed-packet=67108864"
-
-  # Additional environment variables for MariaDB container
-  # Example: extraEnvs: [{"name": "MARIADB_AUTO_UPGRADE", "value": "1"}]
-  extraEnvs: []
-
-  # Resource requests and limits
-  # RECOMMENDED: Uncomment and adjust for production
-  # resources:
-  #   requests:
-  #     cpu: "250m"
-  #     memory: "512Mi"
-  #   limits:
-  #     cpu: "500m"
-  #     memory: "1024Mi"
+  enabled: false
 
 # =============================================================================
 # REDIS COMPONENT
@@ -1526,83 +1305,7 @@ mariadb:
 redis:
   # Enable internal Redis instance
   # Set to false to use external Redis
-  enabled: true
-
-  # Container image configuration
-  repository: docker.io/redis
-  tag: 7-alpine
-  pullPolicy: IfNotPresent
-  # Persistent storage configuration
-  persistence:
-    # Storage size for Redis data
-    size: 1Gi
-
-    # Storage class for Redis persistence
-    # Leave empty for default storage class
-    storageClass: ""
-
-  # Image pull secrets (overrides global setting)
-  imagePullSecrets: []
-
-  # Deployment update strategy for Redis
-  # Default: RollingUpdate
-  # Uncomment and set to "Recreate" when using single-node block storage
-  # (e.g. EBS with ReadWriteOnce) to avoid volume attach conflicts
-  # strategy: Recreate
-
-  # Node selector (overrides global setting)
-  nodeSelector: {}
-
-  # Tolerations (overrides global setting)
-  tolerations: []
-
-  # Use custom Redis configuration file
-  useConfigFile: false
-
-  # Redis configuration
-  config:
-    # Redis authentication password
-    # SECURITY: Change this in production or use existingSecret
-    password: "changeme"
-
-    # Custom Redis configuration
-    # Applied when useConfigFile is true
-    file: |
-      appendonly yes
-      save ""
-      loglevel verbose
-      maxmemory 512mb
-      maxmemory-policy allkeys-lru
-
-  # Additional environment variables for Redis container
-  # Example: extraEnvs: [{"name": "REDIS_ARGS", "value": "--maxmemory 256mb"}]
-  extraEnvs: []
-
-  # Resource requests and limits
-  # RECOMMENDED: Uncomment and adjust for production
-  # resources:
-  #   requests:
-  #     cpu: "250m"
-  #     memory: "512Mi"
-  #   limits:
-  #     cpu: "500m"
-  #     memory: "1024Mi"
-
-# =============================================================================
-# GATEWAY CLASS
-# =============================================================================
-# Kubernetes GatewayClass resource for BunkerWeb
-
-gatewayClass:
-  # Create GatewayClass resource
-  # Requires Kubernetes Gateway API CRDs to be installed in the cluster: https://gateway-api.sigs.k8s.io/guides/getting-started/#installing-gateway-api
   enabled: false
-
-  # GatewayClass name (used in gateway resources)
-  name: "bunkerweb"
-
-  # Controller identifier for this GatewayClass
-  controller: "bunkerweb.io/gateway-controller"
 
 # =============================================================================
 # INGRESS CLASS
@@ -1629,38 +1332,19 @@ prometheus:
   # Requires BunkerWeb PRO for advanced metrics
   enabled: false
 
-  # Container image configuration
-  repository: docker.io/prom/prometheus
-  pullPolicy: IfNotPresent
-  tag: v3.3.1
+# =============================================================================
+# MONITORING - GRAFANA
+# =============================================================================
+# Dashboards and visualization
 
-  # Number of Prometheus replicas
-  replicas: 1
+grafana:
+  # Enable Grafana for dashboards
+  enabled: false
 
-  # Additional pod annotations
-  podAnnotations: {}
-
-  # Additional pod labels
-  podLabels: {}
-
-  # Security context for Prometheus
-  securityContext:
-    fsGroup: 65534
-
-  # Persistent storage configuration
-  persistence:
-    # Enable persistent storage
-    enabled: true
-
-    # Storage size for metrics data
-    size: 8Gi
-
-    # Storage class for metrics persistence
-    storageClass: ""
-
-    # Access modes for the persistent volume
-    accessModes:
-      - ReadWriteOnce
+prometheus:
+  # Enable Prometheus for metrics collection
+  # Requires BunkerWeb PRO for advanced metrics
+  enabled: false
 
 # =============================================================================
 # MONITORING - GRAFANA
@@ -1671,90 +1355,9 @@ grafana:
   # Enable Grafana for dashboards
   enabled: false
 
-  # Container image configuration
-  repository: docker.io/grafana/grafana
-  tag: latest
-  pullPolicy: IfNotPresent
-
-  # Number of Grafana replicas
-  replicas: 1
-
-  # Admin user configuration
-  adminUser: admin
-
-  # Admin password (leave empty to generate random)
-  # SECURITY: Set a strong password or use existingSecret
-  adminPassword: ""
-
-  # Use existing secret for admin password
-  # Secret should contain 'admin-password' key
-  # existingSecret: "grafana-admin-secret"
-  existingSecret: ""
-
-  # Additional environment variables (missing from values.yaml)
-  extraEnvs: []
-
-  # Service configuration
-  service:
-    type: ClusterIP
-    port: 3000
-
-  # Ingress configuration for external access
-  ingress:
-    enabled: false
-    # ingressClassName: "bunkerweb"
-    # serverName: "grafana.example.com"
-    # serverPath: "/"
-    # tlsSecretName: "grafana-tls"
-    # annotations:
-    #   bunkerweb.io/AUTO_LETS_ENCRYPT: "yes"
-
-  # Persistent storage configuration
-  persistence:
-    enabled: false
-    size: 10Gi
-
-    # Storage class for dashboard persistence
-    storageClass: ""
-
-    # Access modes for the persistent volume
-    accessModes:
-      - ReadWriteOnce
-
-    # Additional annotations for the PVC
-    # annotations: {}
-
-  # Prometheus data source configuration
-  # Automatically configured when Prometheus is enabled
-  prometheusDatasource:
-    name: Prometheus
-    type: prometheus
-    url: 'http://prometheus-{{ include "bunkerweb.fullname" . }}.{{ include "bunkerweb.namespace" . }}.svc:9090'
-    access: proxy
-    isDefault: true
-
-  # Additional pod annotations
-  podAnnotations: {}
-
-  # Additional pod labels
-  podLabels: {}
-
-  # Security context for Grafana
-  securityContext: {}
-    # fsGroup: 472
-    # runAsUser: 472
-    # runAsGroup: 472
-
-  # Additional environment variables
-  # extraEnvs: []
-
-  # Sidecar configuration for dashboard provisioning
-  # sidecar:
-  #   dashboards:
-  #     enabled: false
-  #     label: grafana_dashboard
-  #     labelValue: "1"
-  #     folder: /tmp/dashboards
+grafana:
+  # Enable Grafana for dashboards
+  enabled: false
 
 # =============================================================================
 # NETWORK SECURITY

@@ -19,6 +19,7 @@ Comprehensive reference for all configuration values available in the BunkerWeb 
 - [api](#api) - External API for BunkerWeb that exposes REST interface for automation tools
 - [gatewayClass](#gatewayclass) - Kubernetes GatewayClass resource for BunkerWeb
 - [ingressClass](#ingressclass) - Kubernetes IngressClass resource for BunkerWeb
+- [mcp](#mcp) - Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API component to be enabled
 - [networkPolicy](#networkpolicy) - Network policies for micro-segmentation
 - [service](#service) - External service for BunkerWeb (LoadBalancer/NodePort)
 - [settings](#settings) - Configuration for BunkerWeb behavior in Kubernetes environment
@@ -220,7 +221,7 @@ Manages BunkerWeb configuration and coordination
 | `scheduler.features.whitelist` | Whitelist configuration for API access | `object` | See nested values |
 | `scheduler.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
 | `scheduler.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `scheduler.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `90` |
+| `scheduler.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `180` |
 | `scheduler.livenessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `10` |
 | `scheduler.livenessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
 | `scheduler.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
@@ -398,7 +399,7 @@ Kubernetes controller for automatic Ingress management
 | `controller.livenessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
 | `controller.readinessProbe.exec` | Configuration for exec | `object` | See nested values |
 | `controller.readinessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
-| `controller.readinessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
+| `controller.readinessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `120` |
 | `controller.readinessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `1` |
 | `controller.readinessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
 | `controller.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
@@ -419,7 +420,7 @@ Database backend for BunkerWeb configuration and logs
 |-----------|-------------|------|---------|
 | `mariadb` | Database backend for BunkerWeb configuration and logs | `object` | See nested values |
 | `mariadb.args` | Additional arguments for MariaDB | `list` | `['--max-allowed-packet=67108864']` |
-| `mariadb.config` | Database configuration | `object` | See nested values |
+| `mariadb.config` | Configuration for config | `object` | See nested values |
 | `mariadb.enabled` | Enable external service creation | `bool` | `true` |
 | `mariadb.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `mariadb.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
@@ -445,7 +446,7 @@ Cache and session storage for BunkerWeb
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `redis` | Cache and session storage for BunkerWeb | `object` | See nested values |
-| `redis.config` | Database configuration | `object` | See nested values |
+| `redis.config` | Configuration for config | `object` | See nested values |
 | `redis.enabled` | Enable external service creation | `bool` | `true` |
 | `redis.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `redis.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
@@ -480,7 +481,7 @@ Dashboards and visualization
 | `grafana.enabled` | Enable external service creation | `bool` | `false` |
 | `grafana.existingSecret` | Specify the name of an existing secret containing sensitive parameters. When using this, the followi... | `string` | `""` |
 | `grafana.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `grafana.ingress` | Ingress configuration for external access | `object` | See nested values |
+| `grafana.ingress` | Configuration for ingress | `object` | See nested values |
 | `grafana.persistence` | Persistent storage configuration | `object` | See nested values |
 | `grafana.podAnnotations` | Additional pod annotations | `object` | `{}` |
 | `grafana.podLabels` | Additional pod labels | `object` | `{}` |
@@ -499,10 +500,10 @@ Dashboards and visualization
 | `grafana.prometheusDatasource.access` | Configuration for access | `string` | `"proxy"` |
 | `grafana.prometheusDatasource.isDefault` | Configuration for isDefault | `bool` | `true` |
 | `grafana.prometheusDatasource.name` | Configuration for name | `string` | `"Prometheus"` |
-| `grafana.prometheusDatasource.type` | Configuration for type | `string` | `"prometheus"` |
+| `grafana.prometheusDatasource.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"prometheus"` |
 | `grafana.prometheusDatasource.url` | Configuration for url | `string` | `"http://prometheus-{{ include "bunkerweb.fullname" . }}.{{ include "bunkerweb.namespace" . }}.svc:9090"` |
-| `grafana.service.port` | Configuration for port | `int` | `3000` |
-| `grafana.service.type` | Configuration for type | `string` | `"ClusterIP"` |
+| `grafana.service.port` | Service port | `int` | `3000` |
+| `grafana.service.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"ClusterIP"` |
 
 ---
 
@@ -589,6 +590,88 @@ Kubernetes IngressClass resource for BunkerWeb
 
 ---
 
+## mcp
+
+Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API component to be enabled
+
+| Parameter | Description | Type | Default |
+|-----------|-------------|------|---------|
+| `mcp` | Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API component to be enabled | `object` | See nested values |
+| `mcp.config` | Configuration for config | `object` | See nested values |
+| `mcp.enabled` | Enable external service creation | `bool` | `true` |
+| `mcp.extraEnvs` | Additional environment variables | `list` | `[]` |
+| `mcp.httpRoutes` | Alternative to Ingress for Kubernetes Gateway API | `object` | See nested values |
+| `mcp.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
+| `mcp.ingress` | Configuration for ingress | `object` | See nested values |
+| `mcp.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
+| `mcp.podAnnotations` | Additional pod annotations | `object` | `{}` |
+| `mcp.podLabels` | Additional pod labels | `object` | `{}` |
+| `mcp.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
+| `mcp.replicas` | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int` | `1` |
+| `mcp.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-mcp"` |
+| `mcp.secrets` | Configuration for secrets | `object` | See nested values |
+| `mcp.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
+| `mcp.service` | Internal service configuration (for inter-pod communication) | `object` | See nested values |
+| `mcp.serviceMonitor` | Configuration for serviceMonitor | `object` | See nested values |
+| `mcp.tag` | Configuration for tag | `string` | `"v0.1.0"` |
+| `mcp.terminationGracePeriodSeconds` | readinessProbe: httpGet: path: /ready port: http initialDelaySeconds: 5 periodSeconds: 10 timeoutSec... | `int` | `30` |
+| `mcp.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
+| `mcp.config.allowedHosts` | Allowed hosts (auto-configured based on service names if empty) | `string` | `""` |
+| `mcp.config.allowedOrigins` | Allowed origins for CORS | `string` | `""` |
+| `mcp.config.bunkerwebBaseUrl` | BunkerWeb API Configuration Base URL will be auto-configured to use internal API service if empty | `string` | `""` |
+| `mcp.config.bunkerwebMaxRetries` | Configuration for bunkerwebMaxRetries | `string` | `"3"` |
+| `mcp.config.bunkerwebRequestTimeoutSeconds` | Configuration for bunkerwebRequestTimeoutSeconds | `string` | `"30"` |
+| `mcp.config.bunkerwebRetryBackoffInitial` | Configuration for bunkerwebRetryBackoffInitial | `string` | `"0.5"` |
+| `mcp.config.bunkerwebRetryBackoffMax` | Configuration for bunkerwebRetryBackoffMax | `string` | `"5"` |
+| `mcp.config.cacheEnabled` | Configuration for cacheEnabled | `string` | `"true"` |
+| `mcp.config.enableDnsRebindingProtection` | MCP Transport Security (DNS Rebinding Protection) | `string` | `"false"` |
+| `mcp.config.logLevel` | Logging | `string` | `"INFO"` |
+| `mcp.config.rateLimitEnabled` | Performance Configuration | `string` | `"false"` |
+| `mcp.config.rateLimitRpc` | Configuration for rateLimitRpc | `string` | `"100/minute"` |
+| `mcp.config.rateLimitTools` | Configuration for rateLimitTools | `string` | `"30/minute"` |
+| `mcp.config.rateLimitWs` | Configuration for rateLimitWs | `string` | `"500/minute"` |
+| `mcp.config.searchApiUrl` | Configuration for searchApiUrl | `string` | `""` |
+| `mcp.config.searchMode` | Semantic Search Configuration Released in the future, currently non-functional | `string` | `"disabled"` |
+| `mcp.config.searchTimeout` | Configuration for searchTimeout | `string` | `"10.0"` |
+| `mcp.config.workers` | Number of workers for the MCP server | `string` | `"4"` |
+| `mcp.httpRoutes.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
+| `mcp.httpRoutes.extraAnnotations` | Additional annotations for the HTTPRoute resource SECURITY: Configure whitelist to restrict access t... | `mixed` | `None` |
+| `mcp.httpRoutes.gatewayClassName` | GatewayClass name to use | `string` | `""` |
+| `mcp.httpRoutes.serverName` | Domain name for MCP access | `string` | `""` |
+| `mcp.httpRoutes.serverPath` | Path for MCP access | `string` | `"/"` |
+| `mcp.httpRoutes.tlsSecretName` | Whitelist configuration (RECOMMENDED for MCP security) bunkerweb.io/USE_WHITELIST: "yes" bunkerweb.i... | `string` | `""` |
+| `mcp.ingress.annotations` | Additional service annotations | `object` | See nested values |
+| `mcp.ingress.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
+| `mcp.ingress.ingressClassName` | IngressClass name to use | `string` | `"bunkerweb"` |
+| `mcp.ingress.serverName` | Domain name for MCP access | `string` | `""` |
+| `mcp.ingress.serverPath` | Path for MCP access | `string` | `"/"` |
+| `mcp.ingress.tls` | Whitelist configuration (RECOMMENDED for MCP security) Uncomment and configure to restrict access to... | `object` | See nested values |
+| `mcp.secrets.bunkerwebApiToken` | BunkerWeb API Bearer Token (if not using existingSecret) Leave empty to use basic auth instead | `string` | `""` |
+| `mcp.secrets.bunkerwebBasicPassword` | Configuration for bunkerwebBasicPassword | `string` | `""` |
+| `mcp.secrets.bunkerwebBasicUsername` | BunkerWeb API Basic Auth (if not using existingSecret or token) | `string` | `""` |
+| `mcp.secrets.existingSecret` | Use existing secret for sensitive data If set, the following keys should be present: - BUNKERWEB_API... | `string` | `""` |
+| `mcp.secrets.websocketToken` | WebSocket authentication token (optional) | `string` | `""` |
+| `mcp.securityContext.allowPrivilegeEscalation` | Configuration for allowPrivilegeEscalation | `bool` | `false` |
+| `mcp.securityContext.capabilities` | Configuration for capabilities | `object` | See nested values |
+| `mcp.securityContext.runAsGroup` | Configuration for runAsGroup | `int` | `1000` |
+| `mcp.securityContext.runAsUser` | Configuration for runAsUser | `int` | `1000` |
+| `mcp.service.annotations` | Additional service annotations | `object` | `{}` |
+| `mcp.service.port` | Service port | `int` | `8080` |
+| `mcp.service.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"ClusterIP"` |
+| `mcp.serviceMonitor.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
+| `mcp.serviceMonitor.interval` | Scrape interval | `string` | `"30s"` |
+| `mcp.serviceMonitor.labels` | Additional labels for ServiceMonitor | `object` | `{}` |
+| `mcp.serviceMonitor.scrapeTimeout` | Scrape timeout | `string` | `"10s"` |
+| `mcp.ingress.annotations.bunkerweb.io/AUTO_LETS_ENCRYPT` | Configuration for bunkerweb.io/AUTO_LETS_ENCRYPT | `string` | `"yes"` |
+| `mcp.ingress.annotations.bunkerweb.io/REVERSE_PROXY_HOST` | Configuration for bunkerweb.io/REVERSE_PROXY_HOST | `string` | `"http://mcp-bunkerweb.bunkerweb.svc.cluster.local:8080"` |
+| `mcp.ingress.annotations.bunkerweb.io/REVERSE_PROXY_URL` | Configuration for bunkerweb.io/REVERSE_PROXY_URL | `string` | `"/"` |
+| `mcp.ingress.annotations.bunkerweb.io/USE_REVERSE_PROXY` | Configuration for bunkerweb.io/USE_REVERSE_PROXY | `string` | `"yes"` |
+| `mcp.ingress.tls.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
+| `mcp.ingress.tls.secretName` | Secret name containing TLS certificate | `string` | `""` |
+| `mcp.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |
+
+---
+
 ## networkPolicy
 
 Network policies for micro-segmentation
@@ -616,7 +699,7 @@ External service for BunkerWeb (LoadBalancer/NodePort)
 | `service` | External service for BunkerWeb (LoadBalancer/NodePort) | `object` | See nested values |
 | `service.annotations` | Additional service annotations | `object` | `{}` |
 | `service.enabled` | Enable external service creation | `bool` | `true` |
-| `service.externalTrafficPolicy` | External traffic policy: Local or Cluster Local: Preserves client IP but may cause uneven distributi... | `string` | `"Local"` |
+| `service.externalTrafficPolicy` | Set defined NodePorts if using Service type NodePort, if not set, random ports will be assigned node... | `string` | `"Local"` |
 | `service.type` | Service type: LoadBalancer, NodePort, or ClusterIP LoadBalancer: Exposes service externally using cl... | `string` | `"LoadBalancer"` |
 
 ---

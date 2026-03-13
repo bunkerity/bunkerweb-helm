@@ -11,6 +11,7 @@ Official [Helm chart](https://helm.sh/docs/) to deploy [BunkerWeb](https://www.b
 - **High Availability**: Support for DaemonSet and Deployment modes
 - **Monitoring**: Built-in Prometheus metrics and Grafana dashboards
 - **Management UI**: Web interface for configuration and monitoring
+- **AI Integration**: MCP server for AI assistants (Claude Code, etc.)
 - **Auto-scaling**: Kubernetes-native scaling capabilities
 - **Secret Management**: Integration with Kubernetes secrets
 
@@ -55,6 +56,8 @@ helm install mybunkerweb bunkerweb/bunkerweb -n bunkerweb --create-namespace
 | **Scheduler** | Configuration management | Required |
 | **Controller** | Kubernetes integration | Enabled |
 | **UI** | Web management interface | Enabled |
+| **API** | External REST API for automation | Enabled |
+| **MCP** | Model Context Protocol server for AI assistants | Enabled |
 | **MariaDB** | Database backend | Enabled |
 | **Redis** | Caching and persistence | Enabled |
 | **Prometheus** | Metrics collection | Disabled |
@@ -108,6 +111,36 @@ service:
   type: LoadBalancer
   externalTrafficPolicy: Local
 ```
+
+### MCP Server (AI Assistant Integration)
+
+The MCP (Model Context Protocol) server enables AI assistants like Claude Code to manage BunkerWeb configuration.
+
+```yaml
+mcp:
+  enabled: true
+  # API credentials (must match settings.api configuration)
+  secrets:
+    bunkerwebApiToken: "your-api-token"
+
+  # Expose via Ingress (legacy)
+  ingress:
+    enabled: true
+    serverName: "mcp.example.com"
+    annotations:
+      bunkerweb.io/USE_WHITELIST: "yes"
+      bunkerweb.io/WHITELIST_IP: "YOUR_IP/32"
+
+  # Or expose via Gateway API (modern)
+  httpRoutes:
+    enabled: true
+    serverName: "mcp.example.com"
+    extraAnnotations:
+      bunkerweb.io/USE_WHITELIST: "yes"
+      bunkerweb.io/WHITELIST_IP: "YOUR_IP/32"
+```
+
+> **Security Warning**: The MCP server has no built-in authentication for the `/mcp` endpoint. Always use IP whitelisting or network policies to restrict access.
 
 ### Secret Management
 
@@ -186,6 +219,7 @@ The chart includes pre-configured Grafana dashboards for:
 3. **Network Policies**: Enable network policies for production environments
 4. **Resource Limits**: Set appropriate CPU/memory limits
 5. **Pod Security**: Review and adjust security contexts
+6. **MCP Access Control**: Always configure IP whitelisting when exposing the MCP server
 
 ## Troubleshooting
 
@@ -247,8 +281,10 @@ kubectl delete namespace bunkerweb
 ### Key Configuration Areas
 
 - **Global Settings**: Common configuration across all components
-- **BunkerWeb**: Main reverse proxy configuration  
+- **BunkerWeb**: Main reverse proxy configuration
 - **UI**: Web interface settings
+- **API**: External REST API for automation and integrations
+- **MCP**: AI assistant integration (Claude Code, etc.)
 - **Database**: MariaDB configuration
 - **Monitoring**: Prometheus and Grafana setup
 - **Security**: Network policies and access control

@@ -1,0 +1,35 @@
+{{- if and .Values.mcp.enabled .Values.mcp.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcp-{{ include "bunkerweb.fullname" . }}
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mcp
+  {{- with .Values.mcp.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.mcp.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.mcp.ingress.ingressClassName }}
+  {{- end }}
+  {{- if and .Values.mcp.ingress.tls.enabled .Values.mcp.ingress.tls.secretName }}
+  tls:
+    - hosts:
+        - {{ .Values.mcp.ingress.serverName }}
+      secretName: {{ .Values.mcp.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.mcp.ingress.serverName }}
+      http:
+        paths:
+          - path: {{ .Values.mcp.ingress.serverPath }}
+            pathType: Prefix
+            backend:
+              service:
+                name: mcp-{{ include "bunkerweb.fullname" . }}
+                port:
+                  name: http
+{{- end }}

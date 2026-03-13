@@ -1,0 +1,54 @@
+{{- if .Values.mcp.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-{{ include "bunkerweb.fullname" . }}-config
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mcp
+data:
+  # BunkerWeb API Configuration
+  {{- if .Values.mcp.config.bunkerwebBaseUrl }}
+  BUNKERWEB_BASE_URL: {{ .Values.mcp.config.bunkerwebBaseUrl | quote }}
+  {{- else }}
+  BUNKERWEB_BASE_URL: {{ printf "http://api-%s.%s.svc.%s:5000" (include "bunkerweb.fullname" .) (include "bunkerweb.namespace" .) .Values.settings.kubernetes.domainName | quote }}
+  {{- end }}
+  BUNKERWEB_REQUEST_TIMEOUT_SECONDS: {{ .Values.mcp.config.bunkerwebRequestTimeoutSeconds | quote }}
+  BUNKERWEB_MAX_RETRIES: {{ .Values.mcp.config.bunkerwebMaxRetries | quote }}
+  BUNKERWEB_RETRY_BACKOFF_INITIAL: {{ .Values.mcp.config.bunkerwebRetryBackoffInitial | quote }}
+  BUNKERWEB_RETRY_BACKOFF_MAX: {{ .Values.mcp.config.bunkerwebRetryBackoffMax | quote }}
+
+  # Logging
+  BUNKERWEB_LOG_LEVEL: {{ .Values.mcp.config.logLevel | quote }}
+
+  # MCP Transport Security (DNS Rebinding Protection)
+  MCP_ENABLE_DNS_REBINDING_PROTECTION: {{ .Values.mcp.config.enableDnsRebindingProtection | quote }}
+  {{- if .Values.mcp.config.allowedHosts }}
+  MCP_ALLOWED_HOSTS: {{ .Values.mcp.config.allowedHosts | quote }}
+  {{- else }}
+  {{- $fullname := include "bunkerweb.fullname" . }}
+  {{- $namespace := include "bunkerweb.namespace" . }}
+  {{- $domain := .Values.settings.kubernetes.domainName }}
+  {{- $hosts := list (printf "mcp-%s" $fullname) (printf "mcp-%s.%s" $fullname $namespace) (printf "mcp-%s.%s.svc" $fullname $namespace) (printf "mcp-%s.%s.svc.%s" $fullname $namespace $domain) }}
+  {{- if and .Values.mcp.ingress.enabled .Values.mcp.ingress.serverName }}
+  {{- $hosts = append $hosts .Values.mcp.ingress.serverName }}
+  {{- end }}
+  MCP_ALLOWED_HOSTS: {{ join "," $hosts | quote }}
+  {{- end }}
+  MCP_ALLOWED_ORIGINS: {{ .Values.mcp.config.allowedOrigins | quote }}
+
+  # Performance Configuration
+  RATE_LIMIT_ENABLED: {{ .Values.mcp.config.rateLimitEnabled | quote }}
+  RATE_LIMIT_TOOLS: {{ .Values.mcp.config.rateLimitTools | quote }}
+  RATE_LIMIT_RPC: {{ .Values.mcp.config.rateLimitRpc | quote }}
+  RATE_LIMIT_WS: {{ .Values.mcp.config.rateLimitWs | quote }}
+  CACHE_ENABLED: {{ .Values.mcp.config.cacheEnabled | quote }}
+
+  # Semantic Search Configuration
+  SEARCH_MODE: {{ .Values.mcp.config.searchMode | quote }}
+  {{- if .Values.mcp.config.searchApiUrl }}
+  SEARCH_API_URL: {{ .Values.mcp.config.searchApiUrl | quote }}
+  {{- end }}
+  SEARCH_TIMEOUT: {{ .Values.mcp.config.searchTimeout | quote }}
+{{- end }}
