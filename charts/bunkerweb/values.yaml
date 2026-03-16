@@ -270,7 +270,7 @@ service:
   # NodePort: Exposes service on each node's IP at a static port
   # ClusterIP: Only accessible within the cluster
   type: LoadBalancer
-  
+
   # Set defined NodePorts if using Service type NodePort, if not set, random ports will be assigned
   # nodePortHttp: 30080
   # nodePortHttps: 30443
@@ -1346,7 +1346,6 @@ api:
     timeoutSeconds: 1
     failureThreshold: 3
 
-
 # =============================================================================
 # BunkerWeb MCP COMPONENT
 # =============================================================================
@@ -1433,7 +1432,7 @@ mcp:
     cacheEnabled: "true"
 
     # Semantic Search Configuration
-    # Released in the future, currently non-functional 
+    # Released in the future, currently non-functional
     searchMode: "disabled"
     searchApiUrl: ""
     searchTimeout: "10.0"
@@ -1554,7 +1553,6 @@ mcp:
   # Termination grace period
   terminationGracePeriodSeconds: 30
 
-
 # =============================================================================
 # DATABASE (MARIADB) COMPONENT
 # =============================================================================
@@ -1668,7 +1666,7 @@ redis:
   tolerations: []
 
   # Use custom Redis configuration file
-  useConfigFile: false
+  useConfigFile: true
 
   # Redis configuration
   config:
