@@ -1,0 +1,101 @@
+{{- if .Values.mcp.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-{{ include "bunkerweb.fullname" . }}
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mcp
+spec:
+  replicas: {{ .Values.mcp.replicas }}
+  selector:
+    matchLabels:
+      {{- include "bunkerweb.selectorLabels" . | nindent 6 }}
+      bunkerweb.io/component: "mcp"
+  template:
+    metadata:
+      labels:
+        {{- include "bunkerweb.labels" . | nindent 8 }}
+        {{- with .Values.mcp.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        bunkerweb.io/component: "mcp"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        {{- with .Values.mcp.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if or (.Values.mcp.imagePullSecrets) (.Values.imagePullSecrets) }}
+      imagePullSecrets:
+      {{- if .Values.mcp.imagePullSecrets }}
+        {{- toYaml .Values.mcp.imagePullSecrets | nindent 6 }}
+      {{- else }}
+        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
+      {{- end }}
+      {{- end }}
+      containers:
+        - name: mcp-bunkerweb
+          image: {{ .Values.mcp.repository }}:{{ .Values.mcp.tag }}
+          imagePullPolicy: {{ .Values.mcp.pullPolicy }}
+          env:
+            - name: WORKERS
+              value: {{ .Values.mcp.config.workers | quote }}
+          envFrom:
+            - configMapRef:
+                name: mcp-{{ include "bunkerweb.fullname" . }}-config
+            {{- if .Values.mcp.secrets.existingSecret }}
+            - secretRef:
+                name: {{ .Values.mcp.secrets.existingSecret }}
+            {{- else if or .Values.mcp.secrets.bunkerwebApiToken .Values.mcp.secrets.bunkerwebBasicUsername }}
+            - secretRef:
+                name: mcp-{{ include "bunkerweb.fullname" . }}-secrets
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          {{- with .Values.mcp.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mcp.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mcp.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mcp.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.mcp.terminationGracePeriodSeconds }}
+      {{- if .Values.mcp.nodeSelector }}
+      {{- with .Values.mcp.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- else if .Values.nodeSelector }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if or (.Values.mcp.tolerations) (.Values.tolerations) }}
+      tolerations:
+      {{- if .Values.mcp.tolerations }}
+        {{- toYaml .Values.mcp.tolerations | nindent 6 }}
+      {{- else }}
+        {{- toYaml .Values.tolerations | nindent 6 }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -13,6 +13,10 @@ This directory contains example configurations for common BunkerWeb deployment s
 - [`high-availability.yaml`](high-availability.yaml) - Production HA setup with multiple replicas
 - [`minimal.yaml`](minimal.yaml) - Production like stack, using external services for DB, Redis & monitoring
 
+### Integrations
+
+- [`mcp-integration.yaml`](mcp-integration.yaml) - MCP server for AI assistants (Claude Code, etc.)
+
 ## Future Examples to come and open to contribution
 
 - [`security-hardened.yaml`](security-hardened.yaml) - Security-focused configuration
@@ -210,6 +214,7 @@ service:
 |----------|-------------------|-------------|----------|
 | **Testing/Staging** | `examples/all-in-one.yaml` | Complete integrated environment | CI/CD pipelines, QA testing |
 | **Production** | `examples/production-external.yaml` | External services + maximum security | Production workloads |
+| **AI Integration** | `examples/mcp-integration.yaml` | MCP server for AI assistants | Claude Code, automation |
 
 ---
 

@@ -28,5 +28,7 @@ rules:
       - tcproutes/status
       - udproutes
       - udproutes/status
+      - grpcroutes
+      - grpcroutes/status
       - referencegrants
     verbs: ["get", "watch", "list", "patch", "update"]

@@ -1,0 +1,27 @@
+{{- if and .Values.mcp.enabled .Values.mcp.serviceMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mcp-{{ include "bunkerweb.fullname" . }}
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mcp
+    {{- with .Values.mcp.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "bunkerweb.selectorLabels" . | nindent 6 }}
+      bunkerweb.io/component: "mcp"
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: {{ .Values.mcp.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.mcp.serviceMonitor.scrapeTimeout }}
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ include "bunkerweb.namespace" . }}
+{{- end }}

@@ -97,6 +97,14 @@ spec:
             {{- end }}
             - name: OVERRIDE_ADMIN_CREDS
               value: "{{ .Values.settings.ui.overrideAdminCreds }}"
+            {{- if .Values.settings.ui.maxContentLength }}
+            - name: UI_MAX_CONTENT_LENGTH
+              value: {{ .Values.settings.ui.maxContentLength | quote }}
+            {{- end }}
+            {{- if .Values.settings.ui.maxRequests }}
+            - name: UI_MAX_REQUESTS
+              value: {{ .Values.settings.ui.maxRequests | quote }}
+            {{- end }}
             {{- if .Values.ui.extraEnvs }}
               {{- toYaml .Values.ui.extraEnvs | nindent 12 }}
             {{- end }}

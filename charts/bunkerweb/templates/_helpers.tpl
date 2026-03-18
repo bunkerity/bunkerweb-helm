@@ -152,6 +152,66 @@ Generate BunkerWeb feature environment variables
 {{- end }}
 
 # =============================================================================
+# NGINX TIMEOUTS
+# =============================================================================
+{{- if and .timeouts .timeouts.clientBodyTimeout (ne .timeouts.clientBodyTimeout "") }}
+- name: CLIENT_BODY_TIMEOUT
+  value: {{ .timeouts.clientBodyTimeout | quote }}
+{{- end }}
+{{- if and .timeouts .timeouts.clientHeaderTimeout (ne .timeouts.clientHeaderTimeout "") }}
+- name: CLIENT_HEADER_TIMEOUT
+  value: {{ .timeouts.clientHeaderTimeout | quote }}
+{{- end }}
+{{- if and .timeouts .timeouts.keepaliveTimeout (ne .timeouts.keepaliveTimeout "") }}
+- name: KEEPALIVE_TIMEOUT
+  value: {{ .timeouts.keepaliveTimeout | quote }}
+{{- end }}
+{{- if and .timeouts .timeouts.sendTimeout (ne .timeouts.sendTimeout "") }}
+- name: SEND_TIMEOUT
+  value: {{ .timeouts.sendTimeout | quote }}
+{{- end }}
+
+# =============================================================================
+# DATABASE CONNECTION POOL
+# =============================================================================
+{{- if and .databasePool .databasePool.databasePoolSize (ne .databasePool.databasePoolSize "") }}
+- name: DATABASE_POOL_SIZE
+  value: {{ .databasePool.databasePoolSize | quote }}
+{{- end }}
+{{- if and .databasePool .databasePool.databasePoolMaxOverflow (ne .databasePool.databasePoolMaxOverflow "") }}
+- name: DATABASE_POOL_MAX_OVERFLOW
+  value: {{ .databasePool.databasePoolMaxOverflow | quote }}
+{{- end }}
+{{- if and .databasePool .databasePool.databasePoolTimeout (ne .databasePool.databasePoolTimeout "") }}
+- name: DATABASE_POOL_TIMEOUT
+  value: {{ .databasePool.databasePoolTimeout | quote }}
+{{- end }}
+{{- if and .databasePool .databasePool.databasePoolRecycle (ne .databasePool.databasePoolRecycle "") }}
+- name: DATABASE_POOL_RECYCLE
+  value: {{ .databasePool.databasePoolRecycle | quote }}
+{{- end }}
+{{- if and .databasePool .databasePool.databasePoolPrePing (ne .databasePool.databasePoolPrePing "") }}
+- name: DATABASE_POOL_PRE_PING
+  value: {{ .databasePool.databasePoolPrePing | quote }}
+{{- end }}
+{{- if and .databasePool .databasePool.databasePoolResetOnReturn (ne .databasePool.databasePoolResetOnReturn "") }}
+- name: DATABASE_POOL_RESET_ON_RETURN
+  value: {{ .databasePool.databasePoolResetOnReturn | quote }}
+{{- end }}
+{{- if and .databasePool .databasePool.databaseRetryTimeout (ne .databasePool.databaseRetryTimeout "") }}
+- name: DATABASE_RETRY_TIMEOUT
+  value: {{ .databasePool.databaseRetryTimeout | quote }}
+{{- end }}
+{{- if and .databasePool .databasePool.databaseRequestRetryAttempts (ne .databasePool.databaseRequestRetryAttempts "") }}
+- name: DATABASE_REQUEST_RETRY_ATTEMPTS
+  value: {{ .databasePool.databaseRequestRetryAttempts | quote }}
+{{- end }}
+{{- if and .databasePool .databasePool.databaseRequestRetryDelay (ne .databasePool.databaseRequestRetryDelay "") }}
+- name: DATABASE_REQUEST_RETRY_DELAY
+  value: {{ .databasePool.databaseRequestRetryDelay | quote }}
+{{- end }}
+
+# =============================================================================
 # MODSECURITY WAF
 # =============================================================================
 {{- if and .modsecurity .modsecurity.useModsecurity (ne .modsecurity.useModsecurity "") }}
@@ -205,6 +265,10 @@ Generate BunkerWeb feature environment variables
 {{- if and .antibot .antibot.antibotIgnoreUri (ne .antibot.antibotIgnoreUri "") }}
 - name: ANTIBOT_IGNORE_URI
   value: {{ .antibot.antibotIgnoreUri | quote }}
+{{- end }}
+{{- if and .antibot .antibot.antibotRecaptchaClassic (ne .antibot.antibotRecaptchaClassic "") }}
+- name: ANTIBOT_RECAPTCHA_CLASSIC
+  value: {{ .antibot.antibotRecaptchaClassic | quote }}
 {{- end }}
 
 # =============================================================================
@@ -349,6 +413,38 @@ Generate BunkerWeb feature environment variables
 - name: USE_LETS_ENCRYPT_WILDCARD
   value: {{ .letsEncrypt.useLetsEncryptWildcard | quote }}
 {{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptServer (ne .letsEncrypt.letsEncryptServer "") }}
+- name: LETS_ENCRYPT_SERVER
+  value: {{ .letsEncrypt.letsEncryptServer | quote }}
+{{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptProfile (ne .letsEncrypt.letsEncryptProfile "") }}
+- name: LETS_ENCRYPT_PROFILE
+  value: {{ .letsEncrypt.letsEncryptProfile | quote }}
+{{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptCustomProfile (ne .letsEncrypt.letsEncryptCustomProfile "") }}
+- name: LETS_ENCRYPT_CUSTOM_PROFILE
+  value: {{ .letsEncrypt.letsEncryptCustomProfile | quote }}
+{{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptZerosslApiKey (ne .letsEncrypt.letsEncryptZerosslApiKey "") }}
+- name: LETS_ENCRYPT_ZEROSSL_API_KEY
+  value: {{ .letsEncrypt.letsEncryptZerosslApiKey | quote }}
+{{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptZerosslApiConnectTimeout (ne .letsEncrypt.letsEncryptZerosslApiConnectTimeout "") }}
+- name: LETS_ENCRYPT_ZEROSSL_API_CONNECT_TIMEOUT
+  value: {{ .letsEncrypt.letsEncryptZerosslApiConnectTimeout | quote }}
+{{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptZerosslApiMaxTime (ne .letsEncrypt.letsEncryptZerosslApiMaxTime "") }}
+- name: LETS_ENCRYPT_ZEROSSL_API_MAX_TIME
+  value: {{ .letsEncrypt.letsEncryptZerosslApiMaxTime | quote }}
+{{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptZerosslApiRetry (ne .letsEncrypt.letsEncryptZerosslApiRetry "") }}
+- name: LETS_ENCRYPT_ZEROSSL_API_RETRY
+  value: {{ .letsEncrypt.letsEncryptZerosslApiRetry | quote }}
+{{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptZerosslApiRetryDelay (ne .letsEncrypt.letsEncryptZerosslApiRetryDelay "") }}
+- name: LETS_ENCRYPT_ZEROSSL_API_RETRY_DELAY
+  value: {{ .letsEncrypt.letsEncryptZerosslApiRetryDelay | quote }}
+{{- end }}
 
 # Custom SSL certificate
 {{- if and .customSsl .customSsl.useCustomSsl (ne .customSsl.useCustomSsl "") }}
@@ -440,6 +536,78 @@ Generate BunkerWeb feature environment variables
 {{- if and .reverseProxy .reverseProxy.reverseProxyReadTimeout (ne .reverseProxy.reverseProxyReadTimeout "") }}
 - name: REVERSE_PROXY_READ_TIMEOUT
   value: {{ .reverseProxy.reverseProxyReadTimeout | quote }}
+{{- end }}
+
+# =============================================================================
+# GRPC REVERSE PROXY
+# =============================================================================
+{{- if and .grpc .grpc.useGrpc (ne .grpc.useGrpc "") }}
+- name: USE_GRPC
+  value: {{ .grpc.useGrpc | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcUrl (ne .grpc.grpcUrl "") }}
+- name: GRPC_URL
+  value: {{ .grpc.grpcUrl | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcHost (ne .grpc.grpcHost "") }}
+- name: GRPC_HOST
+  value: {{ .grpc.grpcHost | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcConnectTimeout (ne .grpc.grpcConnectTimeout "") }}
+- name: GRPC_CONNECT_TIMEOUT
+  value: {{ .grpc.grpcConnectTimeout | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcReadTimeout (ne .grpc.grpcReadTimeout "") }}
+- name: GRPC_READ_TIMEOUT
+  value: {{ .grpc.grpcReadTimeout | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcSendTimeout (ne .grpc.grpcSendTimeout "") }}
+- name: GRPC_SEND_TIMEOUT
+  value: {{ .grpc.grpcSendTimeout | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcCustomHost (ne .grpc.grpcCustomHost "") }}
+- name: GRPC_CUSTOM_HOST
+  value: {{ .grpc.grpcCustomHost | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcHeaders (ne .grpc.grpcHeaders "") }}
+- name: GRPC_HEADERS
+  value: {{ .grpc.grpcHeaders | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcHideHeaders (ne .grpc.grpcHideHeaders "") }}
+- name: GRPC_HIDE_HEADERS
+  value: {{ .grpc.grpcHideHeaders | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcInterceptErrors (ne .grpc.grpcInterceptErrors "") }}
+- name: GRPC_INTERCEPT_ERRORS
+  value: {{ .grpc.grpcInterceptErrors | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcSocketKeepalive (ne .grpc.grpcSocketKeepalive "") }}
+- name: GRPC_SOCKET_KEEPALIVE
+  value: {{ .grpc.grpcSocketKeepalive | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcSslSni (ne .grpc.grpcSslSni "") }}
+- name: GRPC_SSL_SNI
+  value: {{ .grpc.grpcSslSni | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcSslSniName (ne .grpc.grpcSslSniName "") }}
+- name: GRPC_SSL_SNI_NAME
+  value: {{ .grpc.grpcSslSniName | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcNextUpstream (ne .grpc.grpcNextUpstream "") }}
+- name: GRPC_NEXT_UPSTREAM
+  value: {{ .grpc.grpcNextUpstream | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcNextUpstreamTimeout (ne .grpc.grpcNextUpstreamTimeout "") }}
+- name: GRPC_NEXT_UPSTREAM_TIMEOUT
+  value: {{ .grpc.grpcNextUpstreamTimeout | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcNextUpstreamTries (ne .grpc.grpcNextUpstreamTries "") }}
+- name: GRPC_NEXT_UPSTREAM_TRIES
+  value: {{ .grpc.grpcNextUpstreamTries | quote }}
+{{- end }}
+{{- if and .grpc .grpc.grpcIncludes (ne .grpc.grpcIncludes "") }}
+- name: GRPC_INCLUDES
+  value: {{ .grpc.grpcIncludes | quote }}
 {{- end }}
 
 # =============================================================================
@@ -812,6 +980,22 @@ Generate BunkerWeb feature environment variables
 {{- if and .backup .backup.backupDirectory (ne .backup.backupDirectory "") }}
 - name: BACKUP_DIRECTORY
   value: {{ .backup.backupDirectory | quote }}
+{{- end }}
+
+# =============================================================================
+# STREAM/PASSTHROUGH
+# =============================================================================
+{{- if and .stream .stream.listenStream (ne .stream.listenStream "") }}
+- name: LISTEN_STREAM
+  value: {{ .stream.listenStream | quote }}
+{{- end }}
+{{- if and .stream .stream.listenStreamPort (ne .stream.listenStreamPort "") }}
+- name: LISTEN_STREAM_PORT
+  value: {{ .stream.listenStreamPort | quote }}
+{{- end }}
+{{- if and .stream .stream.listenStreamPortSsl (ne .stream.listenStreamPortSsl "") }}
+- name: LISTEN_STREAM_PORT_SSL
+  value: {{ .stream.listenStreamPortSsl | quote }}
 {{- end }}
 {{- end }}
 {{- end }}
