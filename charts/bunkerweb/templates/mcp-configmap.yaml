@@ -12,7 +12,7 @@ data:
   {{- if .Values.mcp.config.bunkerwebBaseUrl }}
   BUNKERWEB_BASE_URL: {{ .Values.mcp.config.bunkerwebBaseUrl | quote }}
   {{- else }}
-  BUNKERWEB_BASE_URL: {{ printf "http://api-%s.%s.svc.%s:5000" (include "bunkerweb.fullname" .) (include "bunkerweb.namespace" .) .Values.settings.kubernetes.domainName | quote }}
+  BUNKERWEB_BASE_URL: {{ printf "http://api-%s.%s.svc.%s:8888" (include "bunkerweb.fullname" .) (include "bunkerweb.namespace" .) .Values.settings.kubernetes.domainName | quote }}
   {{- end }}
   BUNKERWEB_REQUEST_TIMEOUT_SECONDS: {{ .Values.mcp.config.bunkerwebRequestTimeoutSeconds | quote }}
   BUNKERWEB_MAX_RETRIES: {{ .Values.mcp.config.bunkerwebMaxRetries | quote }}
