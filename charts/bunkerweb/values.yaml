@@ -1358,7 +1358,7 @@ mcp:
 
   # Container image configuration
   repository: docker.io/bunkerity/bunkerweb-mcp
-  tag: v0.1.0
+  tag: 0.1.0
   pullPolicy: IfNotPresent
 
   # Number of replicas
