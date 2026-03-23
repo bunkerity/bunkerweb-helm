@@ -44,15 +44,34 @@ spec:
           env:
             - name: WORKERS
               value: {{ .Values.mcp.config.workers | quote }}
+          {{- if .Values.mcp.secrets.existingSecret }}
+            - name: BUNKERWEB_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mcp.secrets.existingSecret }}
+                  key: api-token
+                  optional: true
+            - name: BUNKERWEB_BASIC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mcp.secrets.existingSecret }}
+                  key: admin-username
+                  optional: true
+            - name: BUNKERWEB_BASIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mcp.secrets.existingSecret }}
+                  key: admin-password
+                  optional: true
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: mcp-{{ include "bunkerweb.fullname" . }}-config
-            {{- if .Values.mcp.secrets.existingSecret }}
-            - secretRef:
-                name: {{ .Values.mcp.secrets.existingSecret }}
-            {{- else if or .Values.mcp.secrets.bunkerwebApiToken .Values.mcp.secrets.bunkerwebBasicUsername }}
+            {{- if not .Values.mcp.secrets.existingSecret }}
+            {{- if or .Values.mcp.secrets.bunkerwebApiToken .Values.mcp.secrets.bunkerwebBasicUsername }}
             - secretRef:
                 name: mcp-{{ include "bunkerweb.fullname" . }}-secrets
+            {{- end }}
             {{- end }}
           ports:
             - name: http
