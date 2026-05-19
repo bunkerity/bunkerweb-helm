@@ -69,6 +69,8 @@ spec:
               value: "{{ .Values.settings.kubernetes.ignoreAnnotations }}"
             - name: BUNKERWEB_SERVICE_NAME
               value: "{{ include "bunkerweb.fullname" . }}-external"
+            - name: BUNKERWEB_NAMESPACE
+              value: "{{ include "bunkerweb.namespace" . }}"
             {{- if .Values.controller.extraEnvs }}
             {{- toYaml .Values.controller.extraEnvs | nindent 12 }}
             {{- end }}
