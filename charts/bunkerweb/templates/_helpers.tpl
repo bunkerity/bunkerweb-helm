@@ -150,6 +150,14 @@ Generate BunkerWeb feature environment variables
 - name: DISABLE_DEFAULT_SERVER_STRICT_SNI
   value: {{ .global.disableDefaultServerStrictSni | quote }}
 {{- end }}
+{{- if and .global.maxHeaders (ne .global.maxHeaders "") }}
+- name: MAX_HEADERS
+  value: {{ .global.maxHeaders | quote }}
+{{- end }}
+{{- if and .global.workerShutdownTimeout (ne .global.workerShutdownTimeout "") }}
+- name: WORKER_SHUTDOWN_TIMEOUT
+  value: {{ .global.workerShutdownTimeout | quote }}
+{{- end }}
 
 # =============================================================================
 # NGINX TIMEOUTS
@@ -238,9 +246,17 @@ Generate BunkerWeb feature environment variables
 - name: MODSECURITY_CRS_PLUGINS
   value: {{ .modsecurity.modsecurityCrsPlugins | quote }}
 {{- end }}
+{{- if and .modsecurity .modsecurity.modsecuritySecRequestBodyLimit (ne .modsecurity.modsecuritySecRequestBodyLimit "") }}
+- name: MODSECURITY_SEC_REQUEST_BODY_LIMIT
+  value: {{ .modsecurity.modsecuritySecRequestBodyLimit | quote }}
+{{- end }}
+{{- if and .modsecurity .modsecurity.modsecuritySecRequestBodyLimitAction (ne .modsecurity.modsecuritySecRequestBodyLimitAction "") }}
+- name: MODSECURITY_SEC_REQUEST_BODY_LIMIT_ACTION
+  value: {{ .modsecurity.modsecuritySecRequestBodyLimitAction | quote }}
+{{- end }}
 
 # =============================================================================
-# ANTIBOT PROTECTION  
+# ANTIBOT PROTECTION
 # =============================================================================
 {{- if and .antibot .antibot.useAntibot (ne .antibot.useAntibot "") }}
 - name: USE_ANTIBOT
@@ -269,6 +285,10 @@ Generate BunkerWeb feature environment variables
 {{- if and .antibot .antibot.antibotRecaptchaClassic (ne .antibot.antibotRecaptchaClassic "") }}
 - name: ANTIBOT_RECAPTCHA_CLASSIC
   value: {{ .antibot.antibotRecaptchaClassic | quote }}
+{{- end }}
+{{- if and .antibot .antibot.antibotRdnsGlobal (ne .antibot.antibotRdnsGlobal "") }}
+- name: ANTIBOT_RDNS_GLOBAL
+  value: {{ .antibot.antibotRdnsGlobal | quote }}
 {{- end }}
 
 # =============================================================================
@@ -445,6 +465,10 @@ Generate BunkerWeb feature environment variables
 - name: LETS_ENCRYPT_ZEROSSL_API_RETRY_DELAY
   value: {{ .letsEncrypt.letsEncryptZerosslApiRetryDelay | quote }}
 {{- end }}
+{{- if and .letsEncrypt .letsEncrypt.letsEncryptMaxLogBackups (ne .letsEncrypt.letsEncryptMaxLogBackups "") }}
+- name: LETS_ENCRYPT_MAX_LOG_BACKUPS
+  value: {{ .letsEncrypt.letsEncryptMaxLogBackups | quote }}
+{{- end }}
 
 # Custom SSL certificate
 {{- if and .customSsl .customSsl.useCustomSsl (ne .customSsl.useCustomSsl "") }}
@@ -536,6 +560,18 @@ Generate BunkerWeb feature environment variables
 {{- if and .reverseProxy .reverseProxy.reverseProxyReadTimeout (ne .reverseProxy.reverseProxyReadTimeout "") }}
 - name: REVERSE_PROXY_READ_TIMEOUT
   value: {{ .reverseProxy.reverseProxyReadTimeout | quote }}
+{{- end }}
+{{- if and .reverseProxy .reverseProxy.reverseProxyKeepalive (ne .reverseProxy.reverseProxyKeepalive "") }}
+- name: REVERSE_PROXY_KEEPALIVE
+  value: {{ .reverseProxy.reverseProxyKeepalive | quote }}
+{{- end }}
+{{- if and .reverseProxy .reverseProxy.reverseProxyHttpVersion (ne .reverseProxy.reverseProxyHttpVersion "") }}
+- name: REVERSE_PROXY_HTTP_VERSION
+  value: {{ .reverseProxy.reverseProxyHttpVersion | quote }}
+{{- end }}
+{{- if and .reverseProxy .reverseProxy.reverseProxyModsecurity (ne .reverseProxy.reverseProxyModsecurity "") }}
+- name: REVERSE_PROXY_MODSECURITY
+  value: {{ .reverseProxy.reverseProxyModsecurity | quote }}
 {{- end }}
 
 # =============================================================================
@@ -749,6 +785,10 @@ Generate BunkerWeb feature environment variables
 - name: SESSIONS_CHECK_USER_AGENT
   value: {{ .sessions.sessionsCheckUserAgent | quote }}
 {{- end }}
+{{- if and .sessions .sessions.sessionsDomain (ne .sessions.sessionsDomain "") }}
+- name: SESSIONS_DOMAIN
+  value: {{ .sessions.sessionsDomain | quote }}
+{{- end }}
 
 # =============================================================================
 # METRICS AND MONITORING
@@ -765,9 +805,21 @@ Generate BunkerWeb feature environment variables
 - name: METRICS_MAX_BLOCKED_REQUESTS
   value: {{ .metrics.metricsMaxBlockedRequests | quote }}
 {{- end }}
+{{- if and .metrics .metrics.metricsMaxBlockedRequestsRedis (ne .metrics.metricsMaxBlockedRequestsRedis "") }}
+- name: METRICS_MAX_BLOCKED_REQUESTS_REDIS
+  value: {{ .metrics.metricsMaxBlockedRequestsRedis | quote }}
+{{- end }}
 {{- if and .metrics .metrics.metricsSaveToRedis (ne .metrics.metricsSaveToRedis "") }}
 - name: METRICS_SAVE_TO_REDIS
   value: {{ .metrics.metricsSaveToRedis | quote }}
+{{- end }}
+{{- if and .metrics .metrics.maxLruHistory (ne .metrics.maxLruHistory "") }}
+- name: MAX_LRU_HISTORY
+  value: {{ .metrics.maxLruHistory | quote }}
+{{- end }}
+{{- if and .metrics .metrics.datastoreLruSize (ne .metrics.datastoreLruSize "") }}
+- name: DATASTORE_LRU_SIZE
+  value: {{ .metrics.datastoreLruSize | quote }}
 {{- end }}
 
 # =============================================================================

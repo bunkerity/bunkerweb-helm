@@ -263,7 +263,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Internal service configuration (for inter-pod communication)
@@ -302,7 +302,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # PRO Features configuration
@@ -774,7 +774,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Additional environment variables
@@ -812,7 +812,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Additional environment variables
@@ -872,7 +872,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Additional environment variables

@@ -305,7 +305,7 @@ bunkerweb:
 
   # Container image configuration
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Resource requests and limits
@@ -465,7 +465,7 @@ bunkerweb:
 scheduler:
   # Container image configuration
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Resource requests and limits
@@ -962,7 +962,7 @@ controller:
 
   # Container image configuration
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Resource requests and limits
@@ -1024,7 +1024,7 @@ ui:
 
   # Container image configuration
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Resource requests and limits
@@ -1109,7 +1109,7 @@ api:
 
   # Container image configuration
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.6
+  tag: 1.6.10
   pullPolicy: Always
 
   # Resource requests and limits
