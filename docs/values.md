@@ -513,14 +513,14 @@ Cache and session storage for BunkerWeb
 | `redis.persistence` | Persistent storage configuration | `object` | See nested values |
 | `redis.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
 | `redis.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/redis"` |
-| `redis.tag` | Configuration for tag | `string` | `"7-alpine"` |
+| `redis.tag` | Configuration for tag | `string` | `"8-alpine"` |
 | `redis.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `redis.useConfigFile` | Use custom Redis configuration file | `bool` | `true` |
-| `redis.config.file` | Custom Redis configuration Applied when useConfigFile is true | `string` | `"appendonly yes
-save ""
+| `redis.config.file` | Custom Redis configuration Applied when useConfigFile is true Defaults follow the BunkerWeb 1.6.10 R... | `string` | `"appendonly yes
+save 60 1000
 loglevel verbose
 maxmemory 512mb
-maxmemory-policy allkeys-lru
+maxmemory-policy volatile-lru
 "` |
 | `redis.config.password` | BunkerWeb database password SECURITY: Change this in production or use existingSecret | `string` | `"changeme"` |
 | `redis.persistence.size` | Storage size for database | `string` | `"1Gi"` |

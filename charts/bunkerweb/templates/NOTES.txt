@@ -1,5 +1,36 @@
 BunkerWeb has been successfully deployed!
 
+{{- if and .Values.redis.enabled .Values.redis.useConfigFile }}
+
+================================================================================
+                       UPGRADE NOTICE (chart 1.0.17 / app 1.6.10)
+================================================================================
+
+Redis default eviction policy changed: allkeys-lru -> volatile-lru.
+The bundled redis.conf now also uses `save 60 1000` instead of `save ""`.
+
+Why: BunkerWeb 1.6.10 Redis Best Practices recommend volatile-lru so that
+keys WITH a TTL (rate-limit counters, bad-behavior windows, sessions) are
+evicted first, while keys WITHOUT a TTL (permanent bans) are preserved
+under memory pressure.
+
+Impact: keys without TTL accumulate. Under sustained pressure with
+non-TTL writers, Redis will OOM on writes instead of evicting LRU keys.
+
+If you store non-TTL keys in this Redis instance, override the policy:
+
+   redis:
+     config:
+       file: |
+         appendonly yes
+         save 60 1000
+         loglevel verbose
+         maxmemory 512mb
+         maxmemory-policy allkeys-lru   # previous default
+
+Reference: https://docs.bunkerweb.io/1.6.10/features/#redis-best-practices
+{{- end }}
+
 ================================================================================
                            DEPLOYMENT INFORMATION
 ================================================================================

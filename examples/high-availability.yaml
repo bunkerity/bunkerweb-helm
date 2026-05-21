@@ -1217,7 +1217,7 @@ redis:
 
   # Container image configuration
   repository: docker.io/redis
-  tag: 7-alpine
+  tag: 8-alpine
   pullPolicy: Always
   # Persistent storage configuration
   persistence:
@@ -1239,12 +1239,13 @@ redis:
 
     # Custom Redis configuration
     # Applied when useConfigFile is true
+    # Aligned with BunkerWeb 1.6.10 Redis Best Practices (volatile-lru, lightweight RDB)
     file: |
       appendonly yes
-      save ""
+      save 60 1000
       loglevel verbose
       maxmemory 512mb
-      maxmemory-policy allkeys-lru
+      maxmemory-policy volatile-lru
 
   # Resource requests and limits
   # RECOMMENDED: Uncomment and adjust for production

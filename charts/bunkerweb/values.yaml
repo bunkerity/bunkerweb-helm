@@ -1698,7 +1698,7 @@ redis:
 
   # Container image configuration
   repository: docker.io/redis
-  tag: 7-alpine
+  tag: 8-alpine
   pullPolicy: IfNotPresent
   # Persistent storage configuration
   persistence:
@@ -1735,12 +1735,17 @@ redis:
 
     # Custom Redis configuration
     # Applied when useConfigFile is true
+    # Defaults follow the BunkerWeb 1.6.10 Redis Best Practices, adjusted for K8s:
+    #   - volatile-lru preserves session + timed-ban keys under memory pressure
+    #   - 512mb maxmemory leaves more headroom for cluster-wide aggregation than the AIO default
+    #   - save 60 1000 keeps lightweight RDB snapshots without harming throughput
+    # See https://docs.bunkerweb.io/1.6.10/features/#redis-best-practices
     file: |
       appendonly yes
-      save ""
+      save 60 1000
       loglevel verbose
       maxmemory 512mb
-      maxmemory-policy allkeys-lru
+      maxmemory-policy volatile-lru
 
   # Additional environment variables for Redis container
   # Example: extraEnvs: [{"name": "REDIS_ARGS", "value": "--maxmemory 256mb"}]
