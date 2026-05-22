@@ -76,6 +76,29 @@ settings:
     # Annotations to be ignored by bunkerweb-controller when multiple ingress controllers (comma-separated)
     ignoreAnnotations: ""
 
+    # Verify the Kubernetes API server TLS certificate ("yes" or "no", upstream default "yes")
+    # Set to "no" only for clusters with self-signed CAs that cannot be mounted as a bundle.
+    verifySsl: ""
+
+    # Path inside the controller container to a custom CA bundle for the
+    # Kubernetes API. The bundle MUST be mounted into the container via
+    # controller.volumes + controller.volumeMounts at this exact path, or the
+    # controller will crash on startup (the path is loaded unconditionally,
+    # even when verifySsl is "no"). Leave empty to use the default
+    # service-account CA at /var/run/secrets/kubernetes.io/serviceaccount/ca.crt.
+    sslCaCert: ""
+
+    # Gateway API version when gatewayClass.enabled=true (v1, v1beta1, v1beta2, v1alpha2, v1alpha1)
+    # Empty string falls back to BunkerWeb's default (v1).
+    gatewayApiVersion: ""
+
+    # Use Pod FQDN instead of Pod IP as upstream hostname ("yes" or "no", upstream default "yes")
+    useFqdn: ""
+
+    # Protocol used by the controller when reaching BunkerWeb services ("http" or "https")
+    # Empty string falls back to BunkerWeb's default (http).
+    serviceProtocol: ""
+
   # ----- GENERAL CONFIGURATION -----
   misc:
     # Database connection URI (auto-generated if using internal MariaDB)
@@ -164,19 +187,35 @@ settings:
     # Max requests before Gunicorn worker restart
     maxRequests: ""
 
+    # Idle session lifetime in hours (sliding TTL, refreshed on every request)
+    # Empty string falls back to upstream default (12 hours)
+    sessionLifetimeHours: ""
+    # Absolute session cap in hours regardless of activity
+    # Empty string falls back to upstream default (168 hours / 7 days)
+    sessionAbsoluteHours: ""
+    # Session ID rotation interval in hours (0 disables rotation)
+    # Empty string falls back to upstream default (0)
+    sessionRollingHours: ""
+
   api:
     # Authentication settings
     # https://docs.bunkerweb.io/latest/api/#authentication
     # Choose at least one method of authentication
     # API Bearer Token
     useBearerToken:
-      # If enable, it will use settings.existingSecret
+      # If true, the token is read from settings.existingSecret.
+      # The auth guard only checks that existingSecret is set, NOT that it
+      # contains the "api-token" key — that key MUST exist in the secret or
+      # the API will crash-loop at runtime (render cannot inspect secret data).
       fromExistingSecret: false
       # If not using existingSecret, set the token here
       token: ""
     # Username and Password
     useUserPass:
-      # If enable, it will use settings.existingSecret
+      # If true, credentials are read from settings.existingSecret.
+      # The guard only checks that existingSecret is set, NOT that it contains
+      # the "api-username" and "api-password" keys — both MUST exist in the
+      # secret or the API will crash-loop at runtime.
       fromExistingSecret: false
       # If not using existingSecret, set the credentials here
       apiUsername: ""
@@ -313,7 +352,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.9
+  tag: 1.6.10
   pullPolicy: IfNotPresent
 
   # Resource requests and limits
@@ -486,7 +525,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.9
+  tag: 1.6.10
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -545,6 +584,10 @@ scheduler:
       # Default server protection
       disableDefaultServer: ""
       disableDefaultServerStrictSni: ""
+      # Maximum number of header lines per request (rejected if exceeded)
+      maxHeaders: ""
+      # Timeout for graceful shutdown of old NGINX workers after reloads (e.g. "30s")
+      workerShutdownTimeout: ""
 
     # =============================================================================
     # NGINX TIMEOUTS
@@ -598,6 +641,11 @@ scheduler:
       useModsecurityCrsPlugins: ""
       # List of CRS plugins to install (space-separated)
       modsecurityCrsPlugins: ""
+      # SecRequestBodyLimit (maximum request body size ModSecurity will inspect, bytes)
+      # Empty string falls back to BunkerWeb's default
+      modsecuritySecRequestBodyLimit: ""
+      # SecRequestBodyLimitAction ("Reject" returns HTTP 413, "ProcessPartial" inspects only the prefix)
+      modsecuritySecRequestBodyLimitAction: ""
 
     # =============================================================================
     # ANTIBOT PROTECTION
@@ -617,6 +665,8 @@ scheduler:
       antibotIgnoreUri: ""
       # Use classic reCAPTCHA instead of newer version
       antibotRecaptchaClassic: ""
+      # Only perform reverse DNS antibot checks on public IP addresses ("yes" or "no")
+      antibotRdnsGlobal: ""
 
     # =============================================================================
     # RATE LIMITING
@@ -723,6 +773,8 @@ scheduler:
       letsEncryptZerosslApiRetry: ""
       # ZeroSSL API retry delay (seconds)
       letsEncryptZerosslApiRetryDelay: ""
+      # Maximum number of rotated certbot log files to keep per job
+      letsEncryptMaxLogBackups: ""
 
     # Custom SSL certificate
     customSsl:
@@ -779,6 +831,14 @@ scheduler:
       reverseProxySendTimeout: ""
       # Read timeout
       reverseProxyReadTimeout: ""
+      # Enable keepalive connections with the proxied resource ("yes" or "no")
+      reverseProxyKeepalive: ""
+      # HTTP protocol version used to talk to the upstream ("1.0", "1.1", or "2")
+      # WebSocket upstreams stay on HTTP/1.1 regardless of this setting.
+      reverseProxyHttpVersion: ""
+      # Enable or disable ModSecurity for this reverse proxy location ("yes" or "no")
+      # Set to "no" for endpoints with large uploads.
+      reverseProxyModsecurity: ""
 
     # =============================================================================
     # GRPC REVERSE PROXY
@@ -906,6 +966,9 @@ scheduler:
       sessionsCheckIp: ""
       # Check User-Agent consistency
       sessionsCheckUserAgent: ""
+      # Domain attribute on the session cookie (e.g. "example.com" to share antibot
+      # challenge state across sibling subdomains). Leave empty to scope per-host.
+      sessionsDomain: ""
 
     # =============================================================================
     # METRICS AND MONITORING
@@ -917,8 +980,14 @@ scheduler:
       metricsMemorySize: ""
       # Max blocked requests per worker
       metricsMaxBlockedRequests: ""
+      # Max blocked requests stored in Redis (accepts k/m suffix, e.g. "10k")
+      metricsMaxBlockedRequestsRedis: ""
       # Save metrics to Redis
       metricsSaveToRedis: ""
+      # Caps per-worker LRU event history (accepts k/m suffix, e.g. "1k")
+      maxLruHistory: ""
+      # Slot count for the shared per-worker datastore LRU (accepts k/m suffix)
+      datastoreLruSize: ""
 
     # =============================================================================
     # AUTH BASIC
@@ -1096,7 +1165,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.9
+  tag: 1.6.10
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1136,6 +1205,23 @@ controller:
   # Additional environment variables
   extraEnvs: []
 
+  # Custom volumes for the controller pod (e.g. a CA bundle for the
+  # Kubernetes API when settings.kubernetes.sslCaCert is set)
+  volumes: []
+  # Example:
+  # volumes:
+  #   - name: k8s-ca
+  #     secret:
+  #       secretName: k8s-ca-bundle
+
+  # Where to mount controller.volumes inside the container
+  volumeMounts: []
+  # Example:
+  # volumeMounts:
+  #   - name: k8s-ca
+  #     mountPath: /etc/k8s-ca
+  #     readOnly: true
+
   # Liveness probe configuration
   livenessProbe:
     exec:
@@ -1168,7 +1254,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.9
+  tag: 1.6.10
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1291,12 +1377,17 @@ ui:
 
 api:
   # Enable the external API
-  enabled: true
+  # NOTE: the BunkerWeb API refuses to start without authentication, so when
+  # this is true you MUST configure one of settings.api.useBearerToken,
+  # settings.api.useUserPass, or settings.api.apiAclBootstrapFile (the chart
+  # fails to render otherwise). Auto-enabled when mcp.enabled uses the
+  # internal API (mcp.config.bunkerwebBaseUrl empty).
+  enabled: false
 
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.9
+  tag: 1.6.10
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1639,7 +1730,7 @@ redis:
 
   # Container image configuration
   repository: docker.io/redis
-  tag: 7-alpine
+  tag: 8-alpine
   pullPolicy: IfNotPresent
   # Persistent storage configuration
   persistence:
@@ -1676,12 +1767,17 @@ redis:
 
     # Custom Redis configuration
     # Applied when useConfigFile is true
+    # Defaults follow the BunkerWeb 1.6.10 Redis Best Practices, adjusted for K8s:
+    #   - volatile-lru preserves session + timed-ban keys under memory pressure
+    #   - 512mb maxmemory leaves more headroom for cluster-wide aggregation than the AIO default
+    #   - save 60 1000 keeps lightweight RDB snapshots without harming throughput
+    # See https://docs.bunkerweb.io/1.6.10/features/#redis-best-practices
     file: |
       appendonly yes
-      save ""
+      save 60 1000
       loglevel verbose
       maxmemory 512mb
-      maxmemory-policy allkeys-lru
+      maxmemory-policy volatile-lru
 
   # Additional environment variables for Redis container
   # Example: extraEnvs: [{"name": "REDIS_ARGS", "value": "--maxmemory 256mb"}]

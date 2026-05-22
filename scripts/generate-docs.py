@@ -16,9 +16,8 @@ Usage:
 """
 
 import yaml
-import re
 import os
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 
 def get_yaml_type(value: Any) -> str:
     """Get the YAML type of a value."""
@@ -41,7 +40,12 @@ def get_default_value(value: Any) -> str:
         if value == "":
             return '`""`'
         else:
-            return f'`"{value}"`'
+            # Collapse multi-line values (e.g. redis.config.file) to a single
+            # line so they don't break the markdown table they sit in.
+            single_line = "; ".join(
+                line.strip() for line in value.splitlines() if line.strip()
+            )
+            return f'`"{single_line}"`'
     elif isinstance(value, bool):
         return f"`{str(value).lower()}`"
     elif isinstance(value, (int, float)):
@@ -59,18 +63,46 @@ def get_default_value(value: Any) -> str:
     else:
         return f"`{str(value)}`"
 
-def find_key_line(lines: List[str], key: str, parent_path: str = "") -> int:
-    """Find the line number where a specific key is defined."""
-    # Calculate expected indentation level
+def _indent_of(line: str) -> int:
+    """Number of leading spaces on a line."""
+    return len(line) - len(line.lstrip(' '))
+
+def find_key_line(lines: List[str], key: str, parent_path: str = "",
+                  start: int = 0, end: Optional[int] = None) -> int:
+    """Find the line where a key is defined, scoped to [start, end).
+
+    Scoping to the parent's block prevents binding to a same-named key
+    (e.g. `enabled:`) that appears earlier under a different parent.
+    """
+    if end is None:
+        end = len(lines)
     indent_level = len(parent_path.split('.')) if parent_path else 0
     expected_indent = '  ' * indent_level
-    
     search_pattern = f"{expected_indent}{key}:"
-    
-    for i, line in enumerate(lines):
-        if line.rstrip() == search_pattern or line.rstrip().startswith(search_pattern + " "):
+
+    for i in range(start, min(end, len(lines))):
+        stripped = lines[i].rstrip()
+        if stripped == search_pattern or stripped.startswith(search_pattern + " "):
             return i
     return -1
+
+def find_block_end(lines: List[str], key_line: int, end: int) -> int:
+    """End (exclusive) of the block owned by the key at key_line.
+
+    The block runs until the next content line indented at or below the
+    key's own indentation. Blank and comment lines do not terminate it.
+    """
+    base_indent = _indent_of(lines[key_line])
+    k = key_line + 1
+    while k < end:
+        stripped = lines[k].strip()
+        if stripped == "" or stripped.startswith('#'):
+            k += 1
+            continue
+        if _indent_of(lines[k]) <= base_indent:
+            break
+        k += 1
+    return k
 
 def extract_comments_for_key(lines: List[str], key_line: int) -> Tuple[str, List[str]]:
     """Extract comments associated with a specific key."""
@@ -79,46 +111,62 @@ def extract_comments_for_key(lines: List[str], key_line: int) -> Tuple[str, List
     
     description_lines = []
     examples = []
-    
-    # Look backwards for comments
+
+    # Walk backwards collecting exactly one contiguous comment group.
+    # A blank line BEFORE any comment is skipped (a key may sit one blank
+    # below its comment), but a blank AFTER comments have started ends the
+    # group so we never merge an earlier, unrelated block (e.g. a commented
+    # `resources:` example sitting above `hpa:`). Separator banners also end it.
     j = key_line - 1
+    seen_comment = False
     while j >= 0:
         line = lines[j].strip()
         if line.startswith('#'):
             comment_text = line[1:].strip()
-            # Skip separator lines
+            # Separator lines end the group
             if '=======' in comment_text or '-----' in comment_text:
                 break
             if comment_text.lower().startswith('example'):
                 examples.insert(0, comment_text)
             elif comment_text:  # Non-empty comment
                 description_lines.insert(0, comment_text)
+            seen_comment = True
         elif line == '':
-            # Empty line - continue looking
+            if seen_comment:
+                # Blank after the comment group: stop.
+                break
+            # Leading blank between key and its comment: keep looking.
             j -= 1
             continue
         else:
             # Non-comment, non-empty line - stop looking
             break
         j -= 1
-    
+
     description = ' '.join(description_lines) if description_lines else ""
     return description, examples
 
-def parse_values_recursive(data: Any, lines: List[str], prefix: str = "", level: int = 0) -> Dict[str, Any]:
-    """Recursively parse YAML structure and extract parameters with comments."""
+def parse_values_recursive(data: Any, lines: List[str], prefix: str = "", level: int = 0,
+                           start: int = 0, end: Optional[int] = None) -> Dict[str, Any]:
+    """Recursively parse YAML structure and extract parameters with comments.
+
+    `start`/`end` bound the search to the current parent's block so that keys
+    are resolved within their own section, not by first match in the file.
+    """
+    if end is None:
+        end = len(lines)
     parameters = {}
-    
+
     if isinstance(data, dict):
         for key, value in data.items():
             current_path = f"{prefix}.{key}" if prefix else key
-            
-            # Find the line number for this key
-            key_line = find_key_line(lines, key, prefix)
-            
+
+            # Find the line number for this key, scoped to the parent block
+            key_line = find_key_line(lines, key, prefix, start, end)
+
             # Extract comments for this key
             description, examples = extract_comments_for_key(lines, key_line)
-            
+
             # Store parameter info
             parameters[current_path] = {
                 'description': description or f"Configuration for {key}",
@@ -129,12 +177,18 @@ def parse_values_recursive(data: Any, lines: List[str], prefix: str = "", level:
                 'level': level,
                 'key': key
             }
-            
+
             # Recursively parse nested structures (but not too deep to avoid noise)
             if isinstance(value, dict) and value and level < 3:
-                nested = parse_values_recursive(value, lines, current_path, level + 1)
+                if key_line >= 0:
+                    block_end = find_block_end(lines, key_line, end)
+                    nested = parse_values_recursive(value, lines, current_path, level + 1,
+                                                    key_line + 1, block_end)
+                else:
+                    nested = parse_values_recursive(value, lines, current_path, level + 1,
+                                                    start, end)
                 parameters.update(nested)
-    
+
     return parameters
 
 def parse_values_yaml_enhanced(file_path: str) -> Dict[str, Any]:
