@@ -6,7 +6,7 @@ metadata:
     {{- include "bunkerweb.labels" . | nindent 4 }}
 rules:
   - apiGroups: [""]
-    resources: ["services", "pods", "configmaps", "secrets"]
+    resources: ["nodes", "services", "pods", "configmaps", "secrets"]
     verbs: ["get", "watch", "list"]
   - apiGroups: ["networking.k8s.io"]
     resources: ["ingresses"]
