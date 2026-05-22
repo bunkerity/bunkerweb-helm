@@ -23,7 +23,7 @@ spec:
         - name: mariadb
           image: {{ .Values.mariadb.repository }}:{{ .Values.mariadb.tag }}
           imagePullPolicy: {{ .Values.mariadb.pullPolicy }}
-          {{- with .Values.ui.resources }}
+          {{- with .Values.mariadb.resources }}
           resources:
             {{- toYaml . | nindent 12}}
           {{- end }}

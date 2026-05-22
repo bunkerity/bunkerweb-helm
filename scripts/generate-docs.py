@@ -40,7 +40,12 @@ def get_default_value(value: Any) -> str:
         if value == "":
             return '`""`'
         else:
-            return f'`"{value}"`'
+            # Collapse multi-line values (e.g. redis.config.file) to a single
+            # line so they don't break the markdown table they sit in.
+            single_line = "; ".join(
+                line.strip() for line in value.splitlines() if line.strip()
+            )
+            return f'`"{single_line}"`'
     elif isinstance(value, bool):
         return f"`{str(value).lower()}`"
     elif isinstance(value, (int, float)):
