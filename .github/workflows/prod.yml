@@ -18,7 +18,7 @@ jobs:
         # Need the previous commit to detect chart-version changes.
         fetch-depth: 2
 
-    - uses: azure/setup-helm@fe7b79cd5ee1e45176fcad797de68ecaf3ca4814 # v4.2.0
+    - uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
       id: install
 
     - name: Install yq
