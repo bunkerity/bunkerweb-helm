@@ -80,8 +80,12 @@ settings:
     # Set to "no" only for clusters with self-signed CAs that cannot be mounted as a bundle.
     verifySsl: ""
 
-    # Path inside the controller container to a custom CA bundle for the Kubernetes API
-    # Mount the bundle via controller.extraVolumes / controller.extraVolumeMounts.
+    # Path inside the controller container to a custom CA bundle for the
+    # Kubernetes API. The bundle MUST be mounted into the container via
+    # controller.volumes + controller.volumeMounts at this exact path, or the
+    # controller will crash on startup (the path is loaded unconditionally,
+    # even when verifySsl is "no"). Leave empty to use the default
+    # service-account CA at /var/run/secrets/kubernetes.io/serviceaccount/ca.crt.
     sslCaCert: ""
 
     # Gateway API version when gatewayClass.enabled=true (v1, v1beta1, v1beta2, v1alpha2, v1alpha1)
@@ -1194,6 +1198,23 @@ controller:
 
   # Additional environment variables
   extraEnvs: []
+
+  # Custom volumes for the controller pod (e.g. a CA bundle for the
+  # Kubernetes API when settings.kubernetes.sslCaCert is set)
+  volumes: []
+  # Example:
+  # volumes:
+  #   - name: k8s-ca
+  #     secret:
+  #       secretName: k8s-ca-bundle
+
+  # Where to mount controller.volumes inside the container
+  volumeMounts: []
+  # Example:
+  # volumeMounts:
+  #   - name: k8s-ca
+  #     mountPath: /etc/k8s-ca
+  #     readOnly: true
 
   # Liveness probe configuration
   livenessProbe:

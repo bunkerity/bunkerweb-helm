@@ -451,6 +451,8 @@ Kubernetes controller for automatic Ingress management
 | `controller.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
 | `controller.tag` | Configuration for tag | `string` | `"1.6.10"` |
 | `controller.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
+| `controller.volumeMounts` | volumes: - name: shared-data persistentVolumeClaim: claimName: shared-pvc Custom volume mounts confi... | `list` | `[]` |
+| `controller.volumes` | Custom volumes configuration Allows mounting additional volumes to the BunkerWeb container | `list` | `[]` |
 | `controller.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
 | `controller.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
 | `controller.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
@@ -795,7 +797,7 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | `settings.kubernetes.ingressClass` | Ingress class name that BunkerWeb will handle Must match the IngressClass resource name | `string` | `""` |
 | `settings.kubernetes.namespaces` | Comma-separated list of namespaces to monitor for Ingress resources Empty string means all namespace... | `string` | `""` |
 | `settings.kubernetes.serviceProtocol` | Protocol used by the controller when reaching BunkerWeb services ("http" or "https") Empty string fa... | `string` | `""` |
-| `settings.kubernetes.sslCaCert` | Path inside the controller container to a custom CA bundle for the Kubernetes API Mount the bundle v... | `string` | `""` |
+| `settings.kubernetes.sslCaCert` | Path inside the controller container to a custom CA bundle for the Kubernetes API. The bundle MUST b... | `string` | `""` |
 | `settings.kubernetes.useFqdn` | Use Pod FQDN instead of Pod IP as upstream hostname ("yes" or "no", upstream default "yes") | `string` | `""` |
 | `settings.kubernetes.verifySsl` | Verify the Kubernetes API server TLS certificate ("yes" or "no", upstream default "yes") Set to "no"... | `string` | `""` |
 | `settings.misc.apiWhitelistIp` | IP ranges allowed to access BunkerWeb API (space-separated CIDR blocks) Includes common Kubernetes a... | `string` | `"127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"` |

@@ -1,4 +1,7 @@
 {{- if .Values.controller.enabled -}}
+{{- if and .Values.settings.kubernetes.sslCaCert (not .Values.controller.volumeMounts) }}
+{{- fail (printf "settings.kubernetes.sslCaCert is set to %q but controller.volumeMounts is empty. The CA bundle must be mounted into the controller container at that path (BunkerWeb loads it unconditionally, even when verifySsl=no). Add controller.volumes + controller.volumeMounts, or unset sslCaCert to use the default service-account CA." .Values.settings.kubernetes.sslCaCert) }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -98,6 +101,10 @@ spec:
             - name: LOG_SYSLOG_ADDRESS
               value: "{{ include "bunkerweb.syslogAddress" . }}"
             {{- end }}
+          {{- with .Values.controller.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
     {{- if .Values.controller.nodeSelector }}
       {{- with .Values.controller.nodeSelector }}
       nodeSelector:
@@ -125,4 +132,8 @@ spec:
         {{- toYaml .Values.imagePullSecrets | nindent 6 }}
       {{- end }}
     {{- end }}
+      {{- with .Values.controller.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
