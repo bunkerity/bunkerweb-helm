@@ -92,9 +92,9 @@ settings:
 
   # ----- KUBERNETES INTEGRATION -----
   kubernetes:
-    # Comma-separated list of namespaces to monitor for Ingress resources
+    # Space-separated list of namespaces to monitor for Ingress resources
     # Empty string means all namespaces (requires cluster-wide permissions)
-    # Example: "default,production,staging"
+    # Example: "default production staging"
     namespaces: ""
 
     # Ingress class name that BunkerWeb will handle
