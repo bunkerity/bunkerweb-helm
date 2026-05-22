@@ -7,7 +7,7 @@ Comprehensive reference for all configuration values available in the BunkerWeb 
 
 ## Table of Contents
 
-- [Global Settings](#global settings) - These settings apply to all components unless overridden Global image pull secrets for private registries
+- [Global Settings](#global settings) - Global image pull secrets for private registries
 - [bunkerweb](#bunkerweb) - Main reverse proxy and WAF component
 - [ui](#ui) - Web interface for BunkerWeb management and monitoring
 - [scheduler](#scheduler) - Manages BunkerWeb configuration and coordination
@@ -28,12 +28,12 @@ Comprehensive reference for all configuration values available in the BunkerWeb 
 
 ## Global Settings
 
-These settings apply to all components unless overridden Global image pull secrets for private registries
+Global image pull secrets for private registries
 
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `fullnameOverride` | Override the full resource name (default: release-chart) | `string` | `""` |
-| `imagePullSecrets` | These settings apply to all components unless overridden Global image pull secrets for private regis... | `list` | `[]` |
+| `imagePullSecrets` | Global image pull secrets for private registries | `list` | `[]` |
 | `nameOverride` | Override the chart name (default: chart name) | `string` | `""` |
 | `namespaceOverride` | Override the namespace (default: release namespace) | `string` | `""` |
 | `nodeSelector` | Node selector for all pods (can be overridden per component) | `object` | `{}` |
@@ -51,15 +51,15 @@ Main reverse proxy and WAF component
 | `bunkerweb` | Main reverse proxy and WAF component | `object` | See nested values |
 | `bunkerweb.affinity` | Pod affinity rules | `object` | `{}` |
 | `bunkerweb.enableInstance` | Pod annotations for Kubernetes integration (required) This enables BunkerWeb to be managed by the co... | `bool` | `true` |
-| `bunkerweb.enabled` | Enable external service creation | `bool` | `true` |
+| `bunkerweb.enabled` | Enable BunkerWeb component, should always be true except for sidecar use cases | `bool` | `true` |
 | `bunkerweb.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `bunkerweb.hostPorts` | Use host ports for direct traffic (only for DaemonSet) Allows binding to ports 80/443 on each node | `bool` | `true` |
-| `bunkerweb.hpa` | Resource requests and limits RECOMMENDED: Uncomment and adjust for production resources: requests: c... | `object` | See nested values |
+| `bunkerweb.hpa` | Horizontal Pod Autoscaler (HPA) configuration Make sure to set resources.requests for CPU and/or mem... | `object` | See nested values |
 | `bunkerweb.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
 | `bunkerweb.kind` | Deployment type: "DaemonSet" or "Deployment" or "StatefulSet" DaemonSet: Runs one pod per node (reco... | `string` | `"Deployment"` |
 | `bunkerweb.livenessProbe` | Liveness probe configuration | `object` | See nested values |
 | `bunkerweb.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
-| `bunkerweb.pdb` | volumeMounts: - name: shared-data mountPath: /var/lib/bunkerweb/shared # PodDisruptionBudget for def... | `object` | See nested values |
+| `bunkerweb.pdb` | # PodDisruptionBudget for default backend # bunkerweb Pod Disruption Budget configuration # ref: htt... | `object` | See nested values |
 | `bunkerweb.podAnnotations` | Additional pod annotations | `object` | `{}` |
 | `bunkerweb.podAntiAffinityPreset` | Anti-affinity preset: "soft" or "hard" soft: Prefers not to schedule pods on same node hard: Never s... | `string` | `"soft"` |
 | `bunkerweb.podLabels` | Additional pod labels | `object` | `{}` |
@@ -71,7 +71,7 @@ Main reverse proxy and WAF component
 | `bunkerweb.service` | Internal service configuration (for inter-pod communication) | `object` | See nested values |
 | `bunkerweb.tag` | Configuration for tag | `string` | `"1.6.10"` |
 | `bunkerweb.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `bunkerweb.volumeMounts` | volumes: - name: shared-data persistentVolumeClaim: claimName: shared-pvc Custom volume mounts confi... | `list` | `[]` |
+| `bunkerweb.volumeMounts` | Custom volume mounts configuration Defines where to mount the custom volumes in the container | `list` | `[]` |
 | `bunkerweb.volumes` | Custom volumes configuration Allows mounting additional volumes to the BunkerWeb container | `list` | `[]` |
 | `bunkerweb.hpa.behavior` | HPA behavior configuration Controls the scaling speed and stabilization | `object` | See nested values |
 | `bunkerweb.hpa.cpu` | CPU-based scaling configuration | `object` | See nested values |
@@ -101,9 +101,9 @@ Main reverse proxy and WAF component
 | `bunkerweb.service.headless` | Use headless service (clusterIP: None) for service discovery If false, creates a ClusterIP service w... | `bool` | `true` |
 | `bunkerweb.hpa.behavior.scaleDown` | Configuration for scaleDown | `object` | See nested values |
 | `bunkerweb.hpa.behavior.scaleUp` | Configuration for scaleUp | `object` | See nested values |
-| `bunkerweb.hpa.cpu.enabled` | Enable HTTP routes for UI access | `bool` | `true` |
+| `bunkerweb.hpa.cpu.enabled` | Configuration for enabled | `bool` | `true` |
 | `bunkerweb.hpa.cpu.targetAverageUtilization` | Configuration for targetAverageUtilization | `int` | `90` |
-| `bunkerweb.hpa.memory.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
+| `bunkerweb.hpa.memory.enabled` | Configuration for enabled | `bool` | `false` |
 | `bunkerweb.hpa.memory.targetAverageUtilization` | Configuration for targetAverageUtilization | `int` | `90` |
 | `bunkerweb.livenessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck.sh']` |
 | `bunkerweb.readinessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck.sh', 'ok']` |
@@ -118,7 +118,7 @@ Web interface for BunkerWeb management and monitoring
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `ui` | Web interface for BunkerWeb management and monitoring | `object` | See nested values |
-| `ui.enabled` | Enable external service creation | `bool` | `true` |
+| `ui.enabled` | Enable the web UI | `bool` | `true` |
 | `ui.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `ui.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
 | `ui.livenessProbe` | Liveness probe configuration | `object` | See nested values |
@@ -128,8 +128,8 @@ Web interface for BunkerWeb management and monitoring
 | `ui.podLabels` | Additional pod labels | `object` | `{}` |
 | `ui.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
 | `ui.readinessProbe` | Readiness probe configuration | `object` | See nested values |
-| `ui.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-ui"` |
-| `ui.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
+| `ui.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb-ui | `string` | `"docker.io/bunkerity/bunkerweb-ui"` |
+| `ui.securityContext` | Security context for UI container | `object` | See nested values |
 | `ui.tag` | Configuration for tag | `string` | `"1.6.10"` |
 | `ui.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `ui.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
@@ -137,7 +137,7 @@ Web interface for BunkerWeb management and monitoring
 | `ui.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
 | `ui.livenessProbe.periodSeconds` | Configuration for periodSeconds | `int` | `5` |
 | `ui.livenessProbe.timeoutSeconds` | Configuration for timeoutSeconds | `int` | `1` |
-| `ui.logs.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
+| `ui.logs.enabled` | Enable log collection sidecar ONLY WORKING FROM BunkerWeb version 1.6.7 and later | `bool` | `false` |
 | `ui.logs.logrotate` | Log rotation and cleanup configuration Periodically rotates UI logs and removes old log files | `object` | See nested values |
 | `ui.logs.persistence` | Persistent storage for logs | `object` | See nested values |
 | `ui.logs.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
@@ -155,7 +155,7 @@ Web interface for BunkerWeb management and monitoring
 | `ui.securityContext.runAsGroup` | Configuration for runAsGroup | `int` | `101` |
 | `ui.securityContext.runAsUser` | Configuration for runAsUser | `int` | `101` |
 | `ui.livenessProbe.exec.command` | Configuration for command | `list` | `['/usr/share/bunkerweb/helpers/healthcheck-ui.sh']` |
-| `ui.logs.logrotate.enabled` | Enable HTTP routes for UI access | `bool` | `true` |
+| `ui.logs.logrotate.enabled` | Enable periodic log rotation for UI logs | `bool` | `true` |
 | `ui.logs.logrotate.files` | Log file patterns to rotate (required when logrotate.enabled=true). This list is matched against log... | `list` | `['bw-autoconf.log', 'bw-scheduler.log', 'bw-ui-access.log', 'bw-ui.log']` |
 | `ui.logs.logrotate.rotate` | Number of days to keep UI log files Log files older than this value will be automatically removed | `int` | `2` |
 | `ui.logs.logrotate.schedule` | Cron schedule for the log rotation job Default: daily at 00:00 | `string` | `"0 0 * * *"` |
@@ -173,7 +173,7 @@ Manages BunkerWeb configuration and coordination
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `scheduler` | Manages BunkerWeb configuration and coordination | `object` | See nested values |
-| `scheduler.extraEnvs` | Additional environment variables | `list` | `[]` |
+| `scheduler.extraEnvs` | Additional environment variables for advanced configuration These will be merged with the feature co... | `list` | `[]` |
 | `scheduler.features` | BunkerWeb feature configuration These settings control the behavior of BunkerWeb security features T... | `object` | See nested values |
 | `scheduler.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
 | `scheduler.livenessProbe` | Liveness probe configuration | `object` | See nested values |
@@ -182,8 +182,8 @@ Manages BunkerWeb configuration and coordination
 | `scheduler.podLabels` | Additional pod labels | `object` | `{}` |
 | `scheduler.proLicenseKey` | PRO Features configuration BunkerWeb PRO license key for advanced features | `string` | `""` |
 | `scheduler.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `scheduler.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-scheduler"` |
-| `scheduler.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
+| `scheduler.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb-scheduler | `string` | `"docker.io/bunkerity/bunkerweb-scheduler"` |
+| `scheduler.securityContext` | Security context for scheduler container | `object` | See nested values |
 | `scheduler.tag` | Configuration for tag | `string` | `"1.6.10"` |
 | `scheduler.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `scheduler.usePrometheusExporter` | Enable Prometheus metrics exporter and creates a service for it Requires BunkerWeb PRO license | `bool` | `false` |
@@ -211,7 +211,7 @@ Manages BunkerWeb configuration and coordination
 | `scheduler.features.metrics` | Configuration for metrics | `object` | See nested values |
 | `scheduler.features.modsecurity` | Configuration for modsecurity | `object` | See nested values |
 | `scheduler.features.php` | Configuration for php | `object` | See nested values |
-| `scheduler.features.rateLimit` | Rate limiting configuration for API access https://docs.bunkerweb.io/latest/api/#rate-limiting | `object` | See nested values |
+| `scheduler.features.rateLimit` | Configuration for rateLimit | `object` | See nested values |
 | `scheduler.features.realIp` | Configuration for realIp | `object` | See nested values |
 | `scheduler.features.redirect` | Configuration for redirect | `object` | See nested values |
 | `scheduler.features.reverseProxy` | Configuration for reverseProxy | `object` | See nested values |
@@ -222,7 +222,7 @@ Manages BunkerWeb configuration and coordination
 | `scheduler.features.ssl` | Configuration for ssl | `object` | See nested values |
 | `scheduler.features.stream` | Configuration for stream | `object` | See nested values |
 | `scheduler.features.timeouts` | Configuration for timeouts | `object` | See nested values |
-| `scheduler.features.whitelist` | Whitelist configuration for API access | `object` | See nested values |
+| `scheduler.features.whitelist` | Configuration for whitelist | `object` | See nested values |
 | `scheduler.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
 | `scheduler.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
 | `scheduler.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `180` |
@@ -438,7 +438,7 @@ Kubernetes controller for automatic Ingress management
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `controller` | Kubernetes controller for automatic Ingress management | `object` | See nested values |
-| `controller.enabled` | Enable external service creation | `bool` | `true` |
+| `controller.enabled` | Enable the controller (required for Ingress integration) | `bool` | `true` |
 | `controller.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `controller.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
 | `controller.livenessProbe` | Liveness probe configuration | `object` | See nested values |
@@ -447,12 +447,12 @@ Kubernetes controller for automatic Ingress management
 | `controller.podLabels` | Additional pod labels | `object` | `{}` |
 | `controller.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
 | `controller.readinessProbe` | Readiness probe configuration | `object` | See nested values |
-| `controller.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-autoconf"` |
-| `controller.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
+| `controller.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb-autoconf | `string` | `"docker.io/bunkerity/bunkerweb-autoconf"` |
+| `controller.securityContext` | Security context for controller container | `object` | See nested values |
 | `controller.tag` | Configuration for tag | `string` | `"1.6.10"` |
 | `controller.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
-| `controller.volumeMounts` | volumes: - name: shared-data persistentVolumeClaim: claimName: shared-pvc Custom volume mounts confi... | `list` | `[]` |
-| `controller.volumes` | Custom volumes configuration Allows mounting additional volumes to the BunkerWeb container | `list` | `[]` |
+| `controller.volumeMounts` | Where to mount controller.volumes inside the container | `list` | `[]` |
+| `controller.volumes` | Custom volumes for the controller pod (e.g. a CA bundle for the Kubernetes API when settings.kuberne... | `list` | `[]` |
 | `controller.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
 | `controller.livenessProbe.failureThreshold` | Configuration for failureThreshold | `int` | `3` |
 | `controller.livenessProbe.initialDelaySeconds` | Configuration for initialDelaySeconds | `int` | `30` |
@@ -481,14 +481,14 @@ Database backend for BunkerWeb configuration and logs
 |-----------|-------------|------|---------|
 | `mariadb` | Database backend for BunkerWeb configuration and logs | `object` | See nested values |
 | `mariadb.args` | Additional arguments for MariaDB | `list` | `['--max-allowed-packet=67108864']` |
-| `mariadb.config` | Configuration for config | `object` | See nested values |
-| `mariadb.enabled` | Enable external service creation | `bool` | `true` |
-| `mariadb.extraEnvs` | Additional environment variables | `list` | `[]` |
+| `mariadb.config` | Database configuration | `object` | See nested values |
+| `mariadb.enabled` | Enable internal MariaDB instance Set to false to use external database | `bool` | `true` |
+| `mariadb.extraEnvs` | Additional environment variables for MariaDB container | `list` | `[]` |
 | `mariadb.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
 | `mariadb.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
 | `mariadb.persistence` | Persistent storage configuration | `object` | See nested values |
 | `mariadb.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `mariadb.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/mariadb"` |
+| `mariadb.repository` | Container image configuration | `string` | `"docker.io/mariadb"` |
 | `mariadb.tag` | Configuration for tag | `string` | `"11"` |
 | `mariadb.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `mariadb.config.database` | BunkerWeb database name | `string` | `"db"` |
@@ -507,14 +507,14 @@ Cache and session storage for BunkerWeb
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `redis` | Cache and session storage for BunkerWeb | `object` | See nested values |
-| `redis.config` | Configuration for config | `object` | See nested values |
-| `redis.enabled` | Enable external service creation | `bool` | `true` |
-| `redis.extraEnvs` | Additional environment variables | `list` | `[]` |
+| `redis.config` | Redis configuration | `object` | See nested values |
+| `redis.enabled` | Enable internal Redis instance Set to false to use external Redis | `bool` | `true` |
+| `redis.extraEnvs` | Additional environment variables for Redis container | `list` | `[]` |
 | `redis.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
 | `redis.nodeSelector` | Node selector (overrides global setting) | `object` | `{}` |
 | `redis.persistence` | Persistent storage configuration | `object` | See nested values |
 | `redis.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `redis.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/redis"` |
+| `redis.repository` | Container image configuration | `string` | `"docker.io/redis"` |
 | `redis.tag` | Configuration for tag | `string` | `"8-alpine"` |
 | `redis.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `redis.useConfigFile` | Use custom Redis configuration file | `bool` | `true` |
@@ -524,9 +524,9 @@ loglevel verbose
 maxmemory 512mb
 maxmemory-policy volatile-lru
 "` |
-| `redis.config.password` | BunkerWeb database password SECURITY: Change this in production or use existingSecret | `string` | `"changeme"` |
-| `redis.persistence.size` | Storage size for database | `string` | `"1Gi"` |
-| `redis.persistence.storageClass` | Storage class for database persistence Leave empty for default storage class | `string` | `""` |
+| `redis.config.password` | Redis authentication password SECURITY: Change this in production or use existingSecret | `string` | `"changeme"` |
+| `redis.persistence.size` | Storage size for Redis data | `string` | `"1Gi"` |
+| `redis.persistence.storageClass` | Storage class for Redis persistence Leave empty for default storage class | `string` | `""` |
 
 ---
 
@@ -539,32 +539,32 @@ Dashboards and visualization
 | `grafana` | Dashboards and visualization | `object` | See nested values |
 | `grafana.adminPassword` | Admin password (leave empty to generate random) SECURITY: Set a strong password or use existingSecre... | `string` | `""` |
 | `grafana.adminUser` | Admin user configuration | `string` | `"admin"` |
-| `grafana.enabled` | Enable external service creation | `bool` | `false` |
-| `grafana.existingSecret` | Specify the name of an existing secret containing sensitive parameters. When using this, the followi... | `string` | `""` |
-| `grafana.extraEnvs` | Additional environment variables | `list` | `[]` |
-| `grafana.ingress` | Configuration for ingress | `object` | See nested values |
+| `grafana.enabled` | Enable Grafana for dashboards | `bool` | `false` |
+| `grafana.existingSecret` | Use existing secret for admin password Secret should contain 'admin-password' key existingSecret: "g... | `string` | `""` |
+| `grafana.extraEnvs` | Additional environment variables (missing from values.yaml) | `list` | `[]` |
+| `grafana.ingress` | Ingress configuration for external access | `object` | See nested values |
 | `grafana.persistence` | Persistent storage configuration | `object` | See nested values |
 | `grafana.podAnnotations` | Additional pod annotations | `object` | `{}` |
 | `grafana.podLabels` | Additional pod labels | `object` | `{}` |
-| `grafana.prometheusDatasource` | Additional annotations for the PVC annotations: {} Prometheus data source configuration Automaticall... | `object` | See nested values |
+| `grafana.prometheusDatasource` | Prometheus data source configuration Automatically configured when Prometheus is enabled | `object` | See nested values |
 | `grafana.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `grafana.replicas` | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int` | `1` |
-| `grafana.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/grafana/grafana"` |
-| `grafana.securityContext` | Security context for BunkerWeb container | `object` | `{}` |
-| `grafana.service` | Internal service configuration (for inter-pod communication) | `object` | See nested values |
+| `grafana.replicas` | Number of Grafana replicas | `int` | `1` |
+| `grafana.repository` | Container image configuration | `string` | `"docker.io/grafana/grafana"` |
+| `grafana.securityContext` | Security context for Grafana | `object` | `{}` |
+| `grafana.service` | Service configuration | `object` | See nested values |
 | `grafana.tag` | Configuration for tag | `string` | `"latest"` |
-| `grafana.ingress.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
+| `grafana.ingress.enabled` | Configuration for enabled | `bool` | `false` |
 | `grafana.persistence.accessModes` | Access modes for the persistent volume | `list` | `['ReadWriteOnce']` |
-| `grafana.persistence.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
-| `grafana.persistence.size` | Storage size for database | `string` | `"10Gi"` |
-| `grafana.persistence.storageClass` | Storage class for database persistence Leave empty for default storage class | `string` | `""` |
+| `grafana.persistence.enabled` | Configuration for enabled | `bool` | `false` |
+| `grafana.persistence.size` | Configuration for size | `string` | `"10Gi"` |
+| `grafana.persistence.storageClass` | Storage class for dashboard persistence | `string` | `""` |
 | `grafana.prometheusDatasource.access` | Configuration for access | `string` | `"proxy"` |
 | `grafana.prometheusDatasource.isDefault` | Configuration for isDefault | `bool` | `true` |
 | `grafana.prometheusDatasource.name` | Configuration for name | `string` | `"Prometheus"` |
-| `grafana.prometheusDatasource.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"prometheus"` |
+| `grafana.prometheusDatasource.type` | Configuration for type | `string` | `"prometheus"` |
 | `grafana.prometheusDatasource.url` | Configuration for url | `string` | `"http://prometheus-{{ include "bunkerweb.fullname" . }}.{{ include "bunkerweb.namespace" . }}.svc:9090"` |
-| `grafana.service.port` | Service port | `int` | `3000` |
-| `grafana.service.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"ClusterIP"` |
+| `grafana.service.port` | Configuration for port | `int` | `3000` |
+| `grafana.service.type` | Configuration for type | `string` | `"ClusterIP"` |
 
 ---
 
@@ -575,19 +575,19 @@ Metrics collection and storage
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `prometheus` | Metrics collection and storage | `object` | See nested values |
-| `prometheus.enabled` | Enable external service creation | `bool` | `false` |
+| `prometheus.enabled` | Enable Prometheus for metrics collection Requires BunkerWeb PRO for advanced metrics | `bool` | `false` |
 | `prometheus.persistence` | Persistent storage configuration | `object` | See nested values |
 | `prometheus.podAnnotations` | Additional pod annotations | `object` | `{}` |
 | `prometheus.podLabels` | Additional pod labels | `object` | `{}` |
 | `prometheus.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `prometheus.replicas` | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int` | `1` |
-| `prometheus.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/prom/prometheus"` |
-| `prometheus.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
+| `prometheus.replicas` | Number of Prometheus replicas | `int` | `1` |
+| `prometheus.repository` | Container image configuration | `string` | `"docker.io/prom/prometheus"` |
+| `prometheus.securityContext` | Security context for Prometheus | `object` | See nested values |
 | `prometheus.tag` | Configuration for tag | `string` | `"v3.3.1"` |
 | `prometheus.persistence.accessModes` | Access modes for the persistent volume | `list` | `['ReadWriteOnce']` |
-| `prometheus.persistence.enabled` | Enable HPA for bunkerweb component | `bool` | `true` |
-| `prometheus.persistence.size` | Storage size for database | `string` | `"8Gi"` |
-| `prometheus.persistence.storageClass` | Storage class for database persistence Leave empty for default storage class | `string` | `""` |
+| `prometheus.persistence.enabled` | Enable persistent storage | `bool` | `true` |
+| `prometheus.persistence.size` | Storage size for metrics data | `string` | `"8Gi"` |
+| `prometheus.persistence.storageClass` | Storage class for metrics persistence | `string` | `""` |
 | `prometheus.securityContext.fsGroup` | Configuration for fsGroup | `int` | `65534` |
 
 ---
@@ -599,7 +599,7 @@ External API for BunkerWeb that exposes REST interface for automation tools
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `api` | External API for BunkerWeb that exposes REST interface for automation tools | `object` | See nested values |
-| `api.enabled` | Enable external service creation | `bool` | `false` |
+| `api.enabled` | Enable the external API NOTE: the BunkerWeb API refuses to start without authentication, so when thi... | `bool` | `false` |
 | `api.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `api.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
 | `api.livenessProbe` | Liveness probe configuration | `object` | See nested values |
@@ -607,8 +607,8 @@ External API for BunkerWeb that exposes REST interface for automation tools
 | `api.podAnnotations` | Additional pod annotations | `object` | `{}` |
 | `api.podLabels` | Additional pod labels | `object` | `{}` |
 | `api.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `api.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-api"` |
-| `api.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
+| `api.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb-api | `string` | `"docker.io/bunkerity/bunkerweb-api"` |
+| `api.securityContext` | Security context for API container | `object` | See nested values |
 | `api.tag` | Configuration for tag | `string` | `"1.6.10"` |
 | `api.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `api.livenessProbe.exec` | Configuration for exec | `object` | See nested values |
@@ -633,7 +633,7 @@ Kubernetes GatewayClass resource for BunkerWeb
 |-----------|-------------|------|---------|
 | `gatewayClass` | Kubernetes GatewayClass resource for BunkerWeb | `object` | See nested values |
 | `gatewayClass.controller` | Controller identifier for this GatewayClass | `string` | `"bunkerweb.io/gateway-controller"` |
-| `gatewayClass.enabled` | Enable external service creation | `bool` | `false` |
+| `gatewayClass.enabled` | Create GatewayClass resource Requires Kubernetes Gateway API CRDs to be installed in the cluster: ht... | `bool` | `false` |
 | `gatewayClass.name` | GatewayClass name (used in gateway resources) | `string` | `"bunkerweb"` |
 
 ---
@@ -645,9 +645,9 @@ Kubernetes IngressClass resource for BunkerWeb
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `ingressClass` | Kubernetes IngressClass resource for BunkerWeb | `object` | See nested values |
-| `ingressClass.controller` | Controller identifier for this GatewayClass | `string` | `"bunkerweb.io/ingress-controller"` |
-| `ingressClass.enabled` | Enable external service creation | `bool` | `true` |
-| `ingressClass.name` | GatewayClass name (used in gateway resources) | `string` | `"bunkerweb"` |
+| `ingressClass.controller` | Controller identifier for this IngressClass | `string` | `"bunkerweb.io/ingress-controller"` |
+| `ingressClass.enabled` | Create IngressClass resource | `bool` | `true` |
+| `ingressClass.name` | IngressClass name (used in Ingress resources) | `string` | `"bunkerweb"` |
 
 ---
 
@@ -659,7 +659,7 @@ Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API compone
 |-----------|-------------|------|---------|
 | `mcp` | Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API component to be enabled | `object` | See nested values |
 | `mcp.config` | Configuration for config | `object` | See nested values |
-| `mcp.enabled` | Enable external service creation | `bool` | `false` |
+| `mcp.enabled` | Enable the BunkerWeb MCP server | `bool` | `false` |
 | `mcp.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `mcp.httpRoutes` | Alternative to Ingress for Kubernetes Gateway API | `object` | See nested values |
 | `mcp.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
@@ -668,14 +668,14 @@ Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API compone
 | `mcp.podAnnotations` | Additional pod annotations | `object` | `{}` |
 | `mcp.podLabels` | Additional pod labels | `object` | `{}` |
 | `mcp.pullPolicy` | Configuration for pullPolicy | `string` | `"IfNotPresent"` |
-| `mcp.replicas` | Number of replicas (for Deployment & StatefulSet kind) Minimum 2 for high availability and PodDisrup... | `int` | `1` |
-| `mcp.repository` | Container image configuration Also available at ghcr.io/bunkerity/bunkerweb | `string` | `"docker.io/bunkerity/bunkerweb-mcp"` |
+| `mcp.replicas` | Number of replicas | `int` | `1` |
+| `mcp.repository` | Container image configuration | `string` | `"docker.io/bunkerity/bunkerweb-mcp"` |
 | `mcp.secrets` | Configuration for secrets | `object` | See nested values |
-| `mcp.securityContext` | Security context for BunkerWeb container | `object` | See nested values |
-| `mcp.service` | Internal service configuration (for inter-pod communication) | `object` | See nested values |
+| `mcp.securityContext` | Security context for MCP container | `object` | See nested values |
+| `mcp.service` | Configuration for service | `object` | See nested values |
 | `mcp.serviceMonitor` | Configuration for serviceMonitor | `object` | See nested values |
 | `mcp.tag` | Configuration for tag | `string` | `"0.1.0"` |
-| `mcp.terminationGracePeriodSeconds` | readinessProbe: httpGet: path: /ready port: http initialDelaySeconds: 5 periodSeconds: 10 timeoutSec... | `int` | `30` |
+| `mcp.terminationGracePeriodSeconds` | Termination grace period | `int` | `30` |
 | `mcp.tolerations` | Tolerations (overrides global setting) | `list` | `[]` |
 | `mcp.config.allowedHosts` | Allowed hosts (auto-configured based on service names if empty) | `string` | `""` |
 | `mcp.config.allowedOrigins` | Allowed origins for CORS | `string` | `""` |
@@ -695,14 +695,14 @@ Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API compone
 | `mcp.config.searchMode` | Semantic Search Configuration Released in the future, currently non-functional | `string` | `"disabled"` |
 | `mcp.config.searchTimeout` | Configuration for searchTimeout | `string` | `"10.0"` |
 | `mcp.config.workers` | Number of workers for the MCP server | `string` | `"4"` |
-| `mcp.httpRoutes.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
+| `mcp.httpRoutes.enabled` | Enable HTTPRoute for external access WARNING: The MCP server has no built-in authentication for the ... | `bool` | `false` |
 | `mcp.httpRoutes.extraAnnotations` | Additional annotations for the HTTPRoute resource SECURITY: Configure whitelist to restrict access t... | `mixed` | `None` |
 | `mcp.httpRoutes.gatewayClassName` | GatewayClass name to use | `string` | `""` |
 | `mcp.httpRoutes.serverName` | Domain name for MCP access | `string` | `""` |
 | `mcp.httpRoutes.serverPath` | Path for MCP access | `string` | `"/"` |
 | `mcp.httpRoutes.tlsSecretName` | Whitelist configuration (RECOMMENDED for MCP security) bunkerweb.io/USE_WHITELIST: "yes" bunkerweb.i... | `string` | `""` |
-| `mcp.ingress.annotations` | Additional service annotations | `object` | See nested values |
-| `mcp.ingress.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
+| `mcp.ingress.annotations` | Additional annotations for the Ingress resource SECURITY: Configure whitelist to restrict access to ... | `object` | See nested values |
+| `mcp.ingress.enabled` | Enable ingress for external access WARNING: The MCP server has no built-in authentication for the /m... | `bool` | `false` |
 | `mcp.ingress.ingressClassName` | IngressClass name to use | `string` | `"bunkerweb"` |
 | `mcp.ingress.serverName` | Domain name for MCP access | `string` | `""` |
 | `mcp.ingress.serverPath` | Path for MCP access | `string` | `"/"` |
@@ -719,7 +719,7 @@ Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API compone
 | `mcp.service.annotations` | Additional service annotations | `object` | `{}` |
 | `mcp.service.port` | Service port | `int` | `8080` |
 | `mcp.service.type` | Service type: ClusterIP, NodePort, or LoadBalancer | `string` | `"ClusterIP"` |
-| `mcp.serviceMonitor.enabled` | Enable HPA for bunkerweb component | `bool` | `false` |
+| `mcp.serviceMonitor.enabled` | Enable ServiceMonitor for Prometheus Operator | `bool` | `false` |
 | `mcp.serviceMonitor.interval` | Scrape interval | `string` | `"30s"` |
 | `mcp.serviceMonitor.labels` | Additional labels for ServiceMonitor | `object` | `{}` |
 | `mcp.serviceMonitor.scrapeTimeout` | Scrape timeout | `string` | `"10s"` |
@@ -727,7 +727,7 @@ Model Context Protocol (MCP) server for BunkerWeb Requires BunkerWeb API compone
 | `mcp.ingress.annotations.bunkerweb.io/REVERSE_PROXY_HOST` | Configuration for bunkerweb.io/REVERSE_PROXY_HOST | `string` | `"http://mcp-bunkerweb.bunkerweb.svc.cluster.local:8080"` |
 | `mcp.ingress.annotations.bunkerweb.io/REVERSE_PROXY_URL` | Configuration for bunkerweb.io/REVERSE_PROXY_URL | `string` | `"/"` |
 | `mcp.ingress.annotations.bunkerweb.io/USE_REVERSE_PROXY` | Configuration for bunkerweb.io/USE_REVERSE_PROXY | `string` | `"yes"` |
-| `mcp.ingress.tls.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
+| `mcp.ingress.tls.enabled` | Configuration for enabled | `bool` | `false` |
 | `mcp.ingress.tls.secretName` | Secret name containing TLS certificate | `string` | `""` |
 | `mcp.securityContext.capabilities.drop` | Configuration for drop | `list` | `['ALL']` |
 
@@ -741,7 +741,7 @@ Network policies for micro-segmentation
 |-----------|-------------|------|---------|
 | `networkPolicy` | Network policies for micro-segmentation | `object` | See nested values |
 | `networkPolicy.egress` | Egress traffic configuration | `object` | See nested values |
-| `networkPolicy.enabled` | Enable external service creation | `bool` | `false` |
+| `networkPolicy.enabled` | Enable network policies for enhanced security Requires a CNI that supports NetworkPolicies (e.g., Ca... | `bool` | `false` |
 | `networkPolicy.egress.allowDatabaseVNet` | Allow access to database virtual network | `bool` | `true` |
 | `networkPolicy.egress.allowInternet` | Allow internet access for updates and external APIs | `bool` | `true` |
 | `networkPolicy.egress.allowSameNamespace` | Allow traffic to pods in the same namespace | `bool` | `true` |
@@ -760,7 +760,7 @@ External service for BunkerWeb (LoadBalancer/NodePort)
 | `service` | External service for BunkerWeb (LoadBalancer/NodePort) | `object` | See nested values |
 | `service.annotations` | Additional service annotations | `object` | `{}` |
 | `service.enabled` | Enable external service creation | `bool` | `true` |
-| `service.externalTrafficPolicy` | Set defined NodePorts if using Service type NodePort, if not set, random ports will be assigned node... | `string` | `"Local"` |
+| `service.externalTrafficPolicy` | External traffic policy: Local or Cluster Local: Preserves client IP but may cause uneven distributi... | `string` | `"Local"` |
 | `service.type` | Service type: LoadBalancer, NodePort, or ClusterIP LoadBalancer: Exposes service externally using cl... | `string` | `"LoadBalancer"` |
 
 ---
@@ -781,8 +781,8 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | `settings.api.apiAclBootstrapFile` | OR/AND ConfigMap name that includes ACL based JSON File https://docs.bunkerweb.io/latest/api/#permis... | `string` | `""` |
 | `settings.api.docsUrl` | URL for API documentation, set to an empty value to disable | `string` | `"/docs"` |
 | `settings.api.forwardedAllowIps` | Forwarded allow IPs for correct client IP detection | `string` | `"*"` |
-| `settings.api.httpRoutes` | if using new Gateway API integration instead of ingress resources HTTP routes configuration for UI a... | `object` | See nested values |
-| `settings.api.ingress` | Ingress configuration for UI access | `object` | See nested values |
+| `settings.api.httpRoutes` | if using new Gateway API integration instead of ingress resources HTTP routes configuration for API ... | `object` | See nested values |
+| `settings.api.ingress` | Ingress configuration for API access | `object` | See nested values |
 | `settings.api.maxRequests` | Max requests before Gunicorn worker restart | `string` | `""` |
 | `settings.api.openApiUrl` | URL for OpenAPI specification, set to an empty value to disable | `string` | `"/openapi.json"` |
 | `settings.api.rateLimit` | Rate limiting configuration for API access https://docs.bunkerweb.io/latest/api/#rate-limiting | `object` | See nested values |
@@ -820,27 +820,27 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | `settings.ui.sessionRollingHours` | Session ID rotation interval in hours (0 disables rotation) Empty string falls back to upstream defa... | `string` | `""` |
 | `settings.ui.totpSecrets` | TOTP secrets for two-factor authentication | `string` | `""` |
 | `settings.ui.wizard` | Enable the setup wizard on first launch | `bool` | `true` |
-| `settings.api.httpRoutes.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `settings.api.httpRoutes.extraAnnotations` | Additional annotations for the httpRoute resource | `object` | `{}` |
+| `settings.api.httpRoutes.enabled` | Enable HTTP routes for API access | `bool` | `false` |
+| `settings.api.httpRoutes.extraAnnotations` | Additional annotations for the Ingress resource | `object` | `{}` |
 | `settings.api.httpRoutes.gatewayClassName` | GatewayClass name to use | `string` | `""` |
-| `settings.api.httpRoutes.serverName` | Domain name for UI access | `string` | `""` |
-| `settings.api.httpRoutes.serverPath` | Path for UI access | `string` | `"/admin"` |
+| `settings.api.httpRoutes.serverName` | Domain name for API access | `string` | `""` |
+| `settings.api.httpRoutes.serverPath` | Path for API access | `string` | `"/admin"` |
 | `settings.api.httpRoutes.tlsSecretName` | Secret name containing TLS certificate Leave empty to disable HTTPS | `string` | `""` |
-| `settings.api.ingress.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `settings.api.ingress.extraAnnotations` | Additional annotations for the httpRoute resource | `object` | `{}` |
+| `settings.api.ingress.enabled` | Set to true to create an Ingress resource for the API | `bool` | `false` |
+| `settings.api.ingress.extraAnnotations` | Additional annotations for the Ingress resource | `object` | `{}` |
 | `settings.api.ingress.ingressClassName` | IngressClass name to use | `string` | `""` |
-| `settings.api.ingress.serverName` | Domain name for UI access | `string` | `""` |
-| `settings.api.ingress.serverPath` | Path for UI access | `string` | `"/"` |
+| `settings.api.ingress.serverName` | Domain name for API access | `string` | `""` |
+| `settings.api.ingress.serverPath` | Path for API access (usually "/") | `string` | `"/"` |
 | `settings.api.ingress.tlsSecretName` | Secret name containing TLS certificate Leave empty to disable HTTPS | `string` | `""` |
 | `settings.api.rateLimit.defaults` | Rate limit per period, Supported formats: "[10/seconde]", "[100/minute]", "[1000/day]" https://limit... | `list` | `['100/minute']` |
-| `settings.api.rateLimit.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
+| `settings.api.rateLimit.enabled` | Enable request rate limiting | `bool` | `false` |
 | `settings.api.rateLimit.strategy` | Strategy: "fixed-window" or "moving-window" or "sliding-window" https://limits.readthedocs.io/en/sta... | `string` | `"fixed-window"` |
-| `settings.api.useBearerToken.fromExistingSecret` | If enable, it will use settings.existingSecret | `bool` | `false` |
+| `settings.api.useBearerToken.fromExistingSecret` | If true, the token is read from settings.existingSecret. The auth guard only checks that existingSec... | `bool` | `false` |
 | `settings.api.useBearerToken.token` | If not using existingSecret, set the token here | `string` | `""` |
 | `settings.api.useUserPass.apiPassword` | Configuration for apiPassword | `string` | `""` |
 | `settings.api.useUserPass.apiUsername` | If not using existingSecret, set the credentials here | `string` | `""` |
-| `settings.api.useUserPass.fromExistingSecret` | If enable, it will use settings.existingSecret | `bool` | `false` |
-| `settings.api.whitelist.enabled` | Enable HTTP routes for UI access | `bool` | `true` |
+| `settings.api.useUserPass.fromExistingSecret` | If true, credentials are read from settings.existingSecret. The guard only checks that existingSecre... | `bool` | `false` |
+| `settings.api.whitelist.enabled` | Enable API whitelist functionality | `bool` | `true` |
 | `settings.api.whitelist.whitelistIps` | space-separated list of IPs/CIDR allowed to access the API | `string` | `"10.0.0.0/8 127.0.0.1/32 127.0.0.0/8"` |
 | `settings.ui.httpRoutes.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
 | `settings.ui.httpRoutes.extraAnnotations` | Additional annotations for the httpRoute resource | `object` | `{}` |
@@ -848,11 +848,11 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | `settings.ui.httpRoutes.serverName` | Domain name for UI access | `string` | `""` |
 | `settings.ui.httpRoutes.serverPath` | Path for UI access | `string` | `"/"` |
 | `settings.ui.httpRoutes.tlsSecretName` | Secret name containing TLS certificate Leave empty to disable HTTPS | `string` | `""` |
-| `settings.ui.ingress.enabled` | Enable HTTP routes for UI access | `bool` | `false` |
-| `settings.ui.ingress.extraAnnotations` | Additional annotations for the httpRoute resource | `object` | `{}` |
+| `settings.ui.ingress.enabled` | Set to true to create an Ingress resource for the UI | `bool` | `false` |
+| `settings.ui.ingress.extraAnnotations` | Additional annotations for the Ingress resource | `object` | `{}` |
 | `settings.ui.ingress.ingressClassName` | IngressClass name to use | `string` | `""` |
 | `settings.ui.ingress.serverName` | Domain name for UI access | `string` | `""` |
-| `settings.ui.ingress.serverPath` | Path for UI access | `string` | `"/"` |
+| `settings.ui.ingress.serverPath` | Path for UI access (usually "/") | `string` | `"/"` |
 | `settings.ui.ingress.tlsSecretName` | Secret name containing TLS certificate Leave empty to disable HTTPS | `string` | `""` |
 
 ---
