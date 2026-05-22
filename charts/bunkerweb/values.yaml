@@ -1371,7 +1371,12 @@ ui:
 
 api:
   # Enable the external API
-  enabled: true
+  # NOTE: the BunkerWeb API refuses to start without authentication, so when
+  # this is true you MUST configure one of settings.api.useBearerToken,
+  # settings.api.useUserPass, or settings.api.apiAclBootstrapFile (the chart
+  # fails to render otherwise). Auto-enabled when mcp.enabled uses the
+  # internal API (mcp.config.bunkerwebBaseUrl empty).
+  enabled: false
 
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api

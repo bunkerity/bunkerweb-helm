@@ -1,4 +1,7 @@
-{{- if .Values.api.enabled -}}
+{{- if eq (include "bunkerweb.apiEnabled" .) "true" -}}
+{{- if ne (include "bunkerweb.apiAuthConfigured" .) "true" }}
+{{- fail "The external API is enabled (api.enabled=true, or mcp.enabled uses the internal API) but no authentication is configured. The BunkerWeb API refuses to start without auth and will CrashLoopBackOff. Set one of: settings.api.useBearerToken.token (or .fromExistingSecret), settings.api.useUserPass.apiUsername+apiPassword (or .fromExistingSecret), or settings.api.apiAclBootstrapFile. Otherwise set api.enabled=false." }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

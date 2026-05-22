@@ -131,6 +131,30 @@ REDIS settings
 {{- end }}
 
 {{/*
+Whether the external API component must run.
+True when the API is explicitly enabled, or when MCP is enabled and points at
+the internal API (mcp.config.bunkerwebBaseUrl empty) — MCP depends on it.
+*/}}
+{{- define "bunkerweb.apiEnabled" -}}
+{{- if or .Values.api.enabled (and .Values.mcp.enabled (empty .Values.mcp.config.bunkerwebBaseUrl)) -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Whether any API authentication method is configured.
+*/}}
+{{- define "bunkerweb.apiAuthConfigured" -}}
+{{- $s := .Values.settings.api -}}
+{{- $hasToken := or (and $s.useBearerToken.fromExistingSecret (not (empty .Values.settings.existingSecret))) (and (not $s.useBearerToken.fromExistingSecret) (not (empty $s.useBearerToken.token))) -}}
+{{- $hasUserPass := or (and $s.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret))) (and (not $s.useUserPass.fromExistingSecret) (not (empty $s.useUserPass.apiUsername)) (not (empty $s.useUserPass.apiPassword))) -}}
+{{- $hasAcl := not (empty $s.apiAclBootstrapFile) -}}
+{{- if or $hasToken $hasUserPass $hasAcl -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
 Generate BunkerWeb feature environment variables
 */}}
 {{- define "bunkerweb.featureEnvs" -}}

@@ -599,7 +599,7 @@ External API for BunkerWeb that exposes REST interface for automation tools
 | Parameter | Description | Type | Default |
 |-----------|-------------|------|---------|
 | `api` | External API for BunkerWeb that exposes REST interface for automation tools | `object` | See nested values |
-| `api.enabled` | Enable external service creation | `bool` | `true` |
+| `api.enabled` | Enable external service creation | `bool` | `false` |
 | `api.extraEnvs` | Additional environment variables | `list` | `[]` |
 | `api.imagePullSecrets` | Image pull secrets (overrides global setting) | `list` | `[]` |
 | `api.livenessProbe` | Liveness probe configuration | `object` | See nested values |

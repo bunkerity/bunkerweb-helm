@@ -1,4 +1,4 @@
-{{- if .Values.api.enabled -}}
+{{- if eq (include "bunkerweb.apiEnabled" .) "true" -}}
 apiVersion: v1
 kind: Service
 metadata:

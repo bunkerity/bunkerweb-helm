@@ -245,6 +245,7 @@ test_bunkerweb_specific() {
     log_info "  Testing API component"
     if helm template test "$CHART_PATH" \
         --set api.enabled=true \
+        --set-string settings.api.useBearerToken.token=test-token \
         --dry-run > /dev/null 2>&1; then
         log_success "    ✓ API component enabled works"
     else
@@ -254,6 +255,8 @@ test_bunkerweb_specific() {
     
     log_info "  Testing API ingress configuration"
     if helm template test "$CHART_PATH" \
+        --set api.enabled=true \
+        --set-string settings.api.useBearerToken.token=test-token \
         --set settings.api.ingress.enabled=true \
         --set settings.api.ingress.serverName=api.test.example.com \
         --dry-run > /dev/null 2>&1; then
@@ -262,7 +265,27 @@ test_bunkerweb_specific() {
         log_error "    ✗ API ingress configuration failed"
         return 1
     fi
-    
+
+    log_info "  Testing API auth guard (enabled without auth must fail)"
+    if helm template test "$CHART_PATH" \
+        --set api.enabled=true \
+        --dry-run > /dev/null 2>&1; then
+        log_error "    ✗ API enabled without auth should have failed to render"
+        return 1
+    else
+        log_success "    ✓ API auth guard correctly blocks unauthenticated API"
+    fi
+
+    log_info "  Testing MCP auto-enables API (must require auth)"
+    if helm template test "$CHART_PATH" \
+        --set mcp.enabled=true \
+        --dry-run > /dev/null 2>&1; then
+        log_error "    ✗ MCP enabled without API auth should have failed to render"
+        return 1
+    else
+        log_success "    ✓ MCP auto-enables API and enforces the auth guard"
+    fi
+
     log_info "  Testing API disabled"
     local output
     if output=$(helm template test "$CHART_PATH" --set api.enabled=false --dry-run 2>&1); then
