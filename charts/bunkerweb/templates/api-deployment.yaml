@@ -125,7 +125,7 @@ spec:
           - name: api-acl-bootstrap
             mountPath: /var/lib/bunkerweb/api_acl_bootstrap.json
           {{- end }}
-      {{- if .Values.settings.api.apiAclBootstrapFile }}        
+      {{- if .Values.settings.api.apiAclBootstrapFile }}
       volumes:
       - name: api-acl-bootstrap
         configMap:

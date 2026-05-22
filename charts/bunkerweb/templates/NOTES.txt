@@ -1,9 +1,9 @@
 BunkerWeb has been successfully deployed!
 
-{{- if ne (include "bunkerweb.apiEnabled" .) "true" }}
+{{- if and .Release.IsUpgrade (ne (include "bunkerweb.apiEnabled" .) "true") }}
 
 ================================================================================
-                       NOTICE (chart 1.0.19)
+                       UPGRADE NOTICE (chart 1.0.19)
 ================================================================================
 
 The external API is now DISABLED by default (was enabled in <= 1.0.18, where
@@ -12,7 +12,7 @@ default-on API, set api.enabled=true AND configure authentication
 (settings.api.useBearerToken / useUserPass / apiAclBootstrapFile).
 {{- end }}
 
-{{- if and .Values.redis.enabled .Values.redis.useConfigFile }}
+{{- if and .Release.IsUpgrade .Values.redis.enabled .Values.redis.useConfigFile }}
 
 ================================================================================
                        UPGRADE NOTICE (chart 1.0.17 / app 1.6.10)

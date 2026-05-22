@@ -203,13 +203,19 @@ settings:
     # Choose at least one method of authentication
     # API Bearer Token
     useBearerToken:
-      # If enable, it will use settings.existingSecret
+      # If true, the token is read from settings.existingSecret.
+      # The auth guard only checks that existingSecret is set, NOT that it
+      # contains the "api-token" key — that key MUST exist in the secret or
+      # the API will crash-loop at runtime (render cannot inspect secret data).
       fromExistingSecret: false
       # If not using existingSecret, set the token here
       token: ""
     # Username and Password
     useUserPass:
-      # If enable, it will use settings.existingSecret
+      # If true, credentials are read from settings.existingSecret.
+      # The guard only checks that existingSecret is set, NOT that it contains
+      # the "api-username" and "api-password" keys — both MUST exist in the
+      # secret or the API will crash-loop at runtime.
       fromExistingSecret: false
       # If not using existingSecret, set the credentials here
       apiUsername: ""
