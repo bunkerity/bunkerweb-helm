@@ -8,18 +8,110 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        # Need the previous commit to detect chart-version changes.
+        fetch-depth: 2
 
-    - uses: azure/setup-helm@v4.2.0
+    - uses: azure/setup-helm@fe7b79cd5ee1e45176fcad797de68ecaf3ca4814 # v4.2.0
       id: install
-    
+
+    - name: Install yq
+      env:
+        # Pinned: yq output drives the release tag and notes, so it must be deterministic.
+        YQ_VERSION: v4.44.6
+      run: |
+        sudo wget -qO /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+        sudo chmod +x /usr/local/bin/yq
+
+    - name: Read chart version
+      id: chart
+      run: |
+        echo "version=$(yq '.version' charts/bunkerweb/Chart.yaml)" >> "$GITHUB_OUTPUT"
+        echo "appVersion=$(yq '.appVersion' charts/bunkerweb/Chart.yaml)" >> "$GITHUB_OUTPUT"
+
+    - name: Detect chart version change
+      id: gate
+      env:
+        VERSION: ${{ steps.chart.outputs.version }}
+      run: |
+        if git rev-parse HEAD^ >/dev/null 2>&1; then
+          prev=$(git show HEAD^:charts/bunkerweb/Chart.yaml 2>/dev/null | yq '.version' - || echo "")
+        else
+          prev=""
+        fi
+        if [ "$prev" = "$VERSION" ]; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "::notice::Chart version unchanged ($VERSION); skipping GitHub release."
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Package chart
       run: |
         cd ./charts
         helm package ./bunkerweb/
+
+    - name: Extract changelog
+      if: steps.gate.outputs.changed == 'true'
+      env:
+        VERSION: ${{ steps.chart.outputs.version }}
+      run: |
+        # Match the exact header format "## vX.Y.Z - DATE" so a partial version
+        # cannot prefix-match a longer one (e.g. 1.0.1 vs 1.0.10).
+        start_line=$(grep -n "^## v${VERSION} -" CHANGELOG.md | head -1 | cut -d: -f1)
+
+        if [ -z "$start_line" ]; then
+          echo "::warning::No CHANGELOG.md section found for v${VERSION}"
+          content="See CHANGELOG.md."
+        else
+          # Find the next version header after this one
+          end_line=$(awk -v start="$start_line" 'NR > start && /^## v/ {print NR; exit}' CHANGELOG.md)
+          if [ -z "$end_line" ]; then
+            content=$(awk -v start="$start_line" 'NR > start' CHANGELOG.md | grep -v '^#' | sed '/^$/d')
+          else
+            content=$(awk -v start="$start_line" -v end="$end_line" 'NR > start && NR < end' CHANGELOG.md | grep -v '^#' | sed '/^$/d')
+          fi
+          # Guard against a matched-but-empty section silently dropping the notes.
+          if [ -z "$content" ]; then
+            echo "::warning::CHANGELOG.md section for v${VERSION} is empty"
+            content="See CHANGELOG.md."
+          fi
+        fi
+
+        {
+          echo "DECODED_CHANGELOG<<EOF"
+          echo "$content"
+          echo "EOF"
+        } >> "$GITHUB_ENV"
+
+    - name: Create draft release
+      if: steps.gate.outputs.changed == 'true'
+      uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+      with:
+        name: v${{ steps.chart.outputs.version }}
+        tag_name: v${{ steps.chart.outputs.version }}
+        draft: true
+        body: |
+          BunkerWeb Helm chart `v${{ steps.chart.outputs.version }}` (app version `${{ steps.chart.outputs.appVersion }}`).
+
+          ```bash
+          helm repo add bunkerweb https://repo.bunkerweb.io/charts
+          helm repo update
+          helm install bunkerweb bunkerweb/bunkerweb --version ${{ steps.chart.outputs.version }}
+          ```
+
+          Documentation: https://docs.bunkerweb.io/
+
+          Changelog:
+          ${{ env.DECODED_CHANGELOG }}
+        files: |
+          charts/*.tgz
 
     - name: Upload files via SSH
       env:

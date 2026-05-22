@@ -1,0 +1,15 @@
+version: 2
+
+updates:
+  # GitHub Actions used by the dev/prod workflows (kept SHA-pinned).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "Europe/Paris"
+    assignees:
+      - "TheophileDiot"
+    commit-message:
+      prefix: "deps/gha"
+    target-branch: "dev"
