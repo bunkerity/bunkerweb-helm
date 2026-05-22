@@ -1,0 +1,245 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-GB"
+tone_instructions: "Be direct, technical, and actionable. Cite exact lines. Prefer concrete guidance over vague suggestions. Use British English."
+early_access: false
+
+knowledge_base:
+  opt_out: false
+  web_search:
+    enabled: false
+  code_guidelines:
+    enabled: true
+
+code_generation:
+  docstrings:
+    language: "en-GB"
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  high_level_summary_instructions: |
+    Summarise the PR by chart component (`bunkerweb`, `scheduler`, `controller`, `ui`, `api`, `mcp`, `mariadb`, `redis`, `prometheus`, `grafana`) and by area (`charts/bunkerweb/templates`, `charts/bunkerweb/values.yaml`, `charts/bunkerweb/Chart.yaml`, `scripts`, `examples`, `docs`, `.github`).
+    Always call out: security impact (RBAC, securityContext, NetworkPolicy, secret handling), user-visible behaviour or default changes in `values.yaml`, chart `version` and `appVersion` bumps in `Chart.yaml`, changes to the `bunkerweb.featureEnvs`/`databaseUri`/`redisEnv` helpers in `_helpers.tpl`, template-rendering impact across the three deployment kinds (Deployment/DaemonSet/StatefulSet), and whether `docs/values.md` and `examples/` were kept in sync.
+    Keep the summary terse, technical, and suitable for maintainers reviewing a Helm chart for a security-critical WAF.
+  review_status: true
+  review_details: true
+  collapse_walkthrough: false
+  changed_files_summary: true
+  sequence_diagrams: false
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: false
+  suggested_reviewers: false
+  enable_prompt_for_ai_agents: true
+  # Fun features — keep CodeRabbit cheerful
+  poem: true
+  in_progress_fortune: true
+  commit_status: true
+  fail_commit_status: false
+  abort_on_close: true
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 8
+    base_branches:
+      - "dev"
+      - "main"
+    ignore_title_keywords:
+      - "WIP"
+      - "[WIP]"
+      - "RFC"
+      - "DO NOT REVIEW"
+    ignore_usernames:
+      - "dependabot[bot]"
+      - "TheophileDiot"
+
+  slop_detection:
+    enabled: true
+    label: "needs-review"
+
+  pre_merge_checks:
+    title:
+      mode: "warning"
+      requirements: |
+        Use Conventional Commits or the "<component>: description" format already used in bunkerweb-helm history.
+        Examples: "api/redis: scope upgrade notices to upgrades", "controller: add volume support for sslCaCert", "fix(ui): escape next param", "docs: fix generate-docs.py bindings".
+        Keep titles under ~70 characters; put detail in the description.
+    description:
+      mode: "warning"
+    issue_assessment:
+      mode: "off"
+    docstrings:
+      mode: "off"
+
+  finishing_touches:
+    # Auto-generated tests risk false confidence on a WAF chart; contributors validate manually.
+    unit_tests:
+      enabled: false
+
+  path_filters:
+    - "**"
+    - "!LICENSE"
+    # Vendored Grafana dashboards imported from grafana.com (IDs 20755, 15141) — large, upstream
+    - "!charts/bunkerweb/files/grafana/*.json"
+    - "!**/node_modules/**"
+    - "!**/.venv/**"
+    - "!**/venv/**"
+    - "!**/.pytest_cache/**"
+    - "!**/__pycache__/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/*.min.js"
+    - "!**/*.svg"
+    - "!**/*.drawio"
+    - "!**/*.patch*"
+    - "!**/*.tgz"
+    - "!.claude/**"
+    - "!.gemini/**"
+    # Editor metadata and OS junk
+    - "!**/.idea/**"
+    - "!**/.vscode/**"
+    - "!**/.DS_Store"
+    - "!**/Thumbs.db"
+
+  path_instructions:
+    - path: "charts/bunkerweb/templates/**/*.yaml"
+      instructions: |
+        These are Helm v3 Go-templated Kubernetes manifests (mixing `{{- ... -}}` actions with K8s YAML). Apply rules to the RENDERED Kubernetes intent, not to the Go template control blocks:
+          - Every component is gated by `.Values.<component>.enabled` (or `eq .Values.bunkerweb.kind "<Kind>"`). Preserve that guard; do not render workloads unconditionally.
+          - Pod/container `securityContext` should prefer `runAsNonRoot: true`, `allowPrivilegeEscalation: false`, dropped capabilities, `seccompProfile: RuntimeDefault`, and a read-only root filesystem where the component tolerates it.
+          - Declare resource `requests`/`limits` and sensible `livenessProbe`/`readinessProbe` where the component supports them.
+          - Pin images to explicit tags or digests; never `:latest`. Image tag should track the chart `appVersion` for BunkerWeb components.
+          - Sensitive values (database URI, Redis password, admin creds, API keys) must be injected via `secretKeyRef` and honour the `existingSecret` pattern — never rendered as plaintext env values.
+          - Use `nindent`/`indent` correctly so helper output stays valid YAML; do not break `toYaml | nindent` blocks.
+          - RBAC (`clusterrole.yaml`) must stay least-privilege; flag new `*` verbs/resources or cluster-wide grants without justification.
+          - `NetworkPolicy` changes must not silently widen ingress/egress beyond the components that need it.
+
+    - path: "charts/bunkerweb/templates/_helpers.tpl"
+      instructions: |
+        `_helpers.tpl` holds the chart's named templates, including `bunkerweb.databaseUri`, `bunkerweb.featureEnvs`, `bunkerweb.redisEnv`, and `bunkerweb.syslogAddress`:
+          - `featureEnvs` maps the large `settings.scheduler.features` block in `values.yaml` to BunkerWeb env vars. Any new feature added to `values.yaml` must have a matching mapping here, and vice versa — flag drift.
+          - Preserve determinism: the same values must render the same output.
+          - User-supplied settings interpolated into env vars or connection strings must be quoted/escaped so they cannot break out of the rendered manifest or smuggle extra directives.
+          - Connection-string helpers must keep credentials sourced from secrets, not inlined.
+
+    - path: "charts/bunkerweb/values.yaml"
+      instructions: |
+        `values.yaml` is the chart's public configuration schema and the source for generated docs:
+          - Keep key paths and naming consistent with the existing structure (`settings`, `service`, `bunkerweb`, `scheduler`, `controller`, `ui`, `api`, `mariadb`, `redis`, `prometheus`, `grafana`, `ingressClass`, `gatewayClass`, `networkPolicy`).
+          - Defaults must be production-safe: keep the shipped defaults (notably `api.enabled: false` and `networkPolicy.enabled: false`) unless a change is justified. Note `controller.enabled` and `ui.enabled` ship as `true` by default — preserve that posture rather than assuming components are off. Do not flip secure defaults without justification.
+          - Secrets must default to empty and support the `existingSecret` pattern rather than carrying real credentials.
+          - Every new key needs a short explanatory comment; when a new BunkerWeb feature is added under `scheduler.features`, update the `bunkerweb.featureEnvs` helper AND regenerate `docs/values.md` via `python3 scripts/generate-docs.py` in the same PR.
+          - Image repository/tag fields should not default to `latest`.
+
+    - path: "charts/bunkerweb/Chart.yaml"
+      instructions: |
+        Versioning rules for the chart:
+          - Bump `version` (chart SemVer) whenever templates, `values.yaml`, or chart behaviour change.
+          - `appVersion` tracks the deployed BunkerWeb release and should match the default image tags rendered by the templates.
+          - Flag PRs that change templates or values without a corresponding chart `version` bump.
+
+    - path: "charts/bunkerweb/templates/NOTES.txt"
+      instructions: |
+        `NOTES.txt` is rendered and shown to the user after `helm install`/`upgrade`:
+          - Keep instructions accurate against the current templates and values (service names, ports, secret names, enabled-component conditionals).
+          - Do not print secret values; show how to retrieve them via `kubectl get secret ... -o jsonpath` instead.
+
+    - path: "examples/**/*.yaml"
+      instructions: |
+        Example values files demonstrate real-world overrides and must stay valid against `values.yaml`:
+          - Keys must exist in `charts/bunkerweb/values.yaml`; flag typos and stale/removed keys.
+          - Never commit real domains, credentials, API keys, or tokens — use obvious placeholders (`www.example.com`, `changeme`).
+          - Keep examples consistent with current secure defaults and the `existingSecret` pattern.
+
+    - path: "scripts/*.py"
+      instructions: |
+        `scripts/generate-docs.py` derives `docs/values.md` from `values.yaml`:
+          - Use snake_case, catch specific exceptions (no bare `except:`), and open files with an explicit `utf-8` encoding inside `with` blocks.
+          - Keep generation deterministic and idempotent so docs diffs are stable.
+          - If a `values.yaml` structural change isn't reflected here, the generated docs will drift — call that out.
+
+    - path: "scripts/*.sh"
+      instructions: |
+        `scripts/validate-chart.sh` runs `helm lint` plus template-rendering scenarios:
+          - Use `set -euo pipefail` for Bash; quote variables and command substitutions; prefer `${var}`.
+          - Handle failures explicitly and use `mktemp`/`trap` for any temporary files.
+          - New rendering scenarios should cover the deployment kinds and component toggles they touch (DaemonSet, StatefulSet, HPA, controller, api, ui, mcp).
+          - Avoid `eval` and never pipe a remote download straight into a shell.
+
+    - path: ".github/workflows/**/*.yml"
+      instructions: &github_actions_instructions |
+        GitHub Actions workflows (`dev.yml`, `prod.yml`) validate, package, and SSH-upload the chart to the dev/prod Helm repos:
+          - Pin third-party actions by commit SHA, not floating tags.
+          - Declare an explicit minimal top-level `permissions:` block.
+          - SSH keys, known-hosts, and repo credentials must come from secrets; never echo them and never disable host-key checking carelessly.
+          - Do not interpolate `${{ github.event.* }}` values directly inside `run:` scripts; assign them via `env:` first to reduce script-injection risk.
+          - Be careful with `pull_request_target`: never combine untrusted PR code with deploy secrets.
+          - Use `concurrency` to cancel superseded PR jobs, but avoid cancelling release/upload jobs that must finish.
+
+    - path: ".github/workflows/**/*.yaml"
+      instructions: *github_actions_instructions
+
+    - path: "**/*.md"
+      instructions: |
+        Documentation should be concise, accurate, and written in British English:
+          - Keep a sensible heading hierarchy and prefer concrete instructions and accurate examples.
+          - `docs/values.md` is generated from `values.yaml` via `scripts/generate-docs.py`; regenerate rather than hand-editing generated tables.
+          - Check that Helm commands, value paths, and component references still match the chart.
+          - When a PR changes defaults, values schema, or security posture, require the matching doc update in the same PR.
+
+    - path: "docs/values.md"
+      instructions: |
+        `docs/values.md` is auto-generated from `charts/bunkerweb/values.yaml` via `scripts/generate-docs.py`. Do not hand-edit it; update `values.yaml` and regenerate with `python3 scripts/generate-docs.py` so the source and the rendered tables stay in sync.
+
+  tools:
+    github-checks:
+      enabled: true
+      timeout_ms: 120000
+    languagetool:
+      enabled: true
+      level: "default"
+    gitleaks:
+      enabled: true
+    shellcheck:
+      enabled: true
+    actionlint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    osvScanner:
+      enabled: true
+    dotenvLint:
+      enabled: true
+    # Disabled: Helm templates are Go-templated YAML these tools cannot parse per-file
+    # (syntax-error noise); `helm lint` in validate-chart.sh covers template validity.
+    yamllint:
+      enabled: false
+    checkov:
+      enabled: false
+    # Not applicable to this repository.
+    luacheck:
+      enabled: false
+    hadolint:
+      enabled: false
+    htmlhint:
+      enabled: false
+    flake8:
+      enabled: false
+    ruff:
+      enabled: false
+    eslint:
+      enabled: false
+    stylelint:
+      enabled: false
+    semgrep:
+      enabled: false
+    biome:
+      enabled: false
+
+chat:
+  auto_reply: true
