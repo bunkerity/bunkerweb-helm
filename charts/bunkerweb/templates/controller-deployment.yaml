@@ -1,4 +1,7 @@
 {{- if .Values.controller.enabled -}}
+{{- if and .Values.settings.kubernetes.sslCaCert (not .Values.controller.volumeMounts) }}
+{{- fail (printf "settings.kubernetes.sslCaCert is set to %q but controller.volumeMounts is empty. The CA bundle must be mounted into the controller container at that path (BunkerWeb loads it unconditionally, even when verifySsl=no). Add controller.volumes + controller.volumeMounts, or unset sslCaCert to use the default service-account CA." .Values.settings.kubernetes.sslCaCert) }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -67,6 +70,26 @@ spec:
               value: "{{ .Values.settings.kubernetes.domainName }}"
             - name: KUBERNETES_IGNORE_ANNOTATIONS
               value: "{{ .Values.settings.kubernetes.ignoreAnnotations }}"
+            {{- if .Values.settings.kubernetes.verifySsl }}
+            - name: KUBERNETES_VERIFY_SSL
+              value: "{{ .Values.settings.kubernetes.verifySsl }}"
+            {{- end }}
+            {{- if .Values.settings.kubernetes.sslCaCert }}
+            - name: KUBERNETES_SSL_CA_CERT
+              value: "{{ .Values.settings.kubernetes.sslCaCert }}"
+            {{- end }}
+            {{- if and .Values.gatewayClass.enabled .Values.settings.kubernetes.gatewayApiVersion }}
+            - name: KUBERNETES_GATEWAY_API_VERSION
+              value: "{{ .Values.settings.kubernetes.gatewayApiVersion }}"
+            {{- end }}
+            {{- if .Values.settings.kubernetes.useFqdn }}
+            - name: USE_KUBERNETES_FQDN
+              value: "{{ .Values.settings.kubernetes.useFqdn }}"
+            {{- end }}
+            {{- if .Values.settings.kubernetes.serviceProtocol }}
+            - name: KUBERNETES_SERVICE_PROTOCOL
+              value: "{{ .Values.settings.kubernetes.serviceProtocol }}"
+            {{- end }}
             - name: BUNKERWEB_SERVICE_NAME
               value: "{{ include "bunkerweb.fullname" . }}-external"
             {{- if .Values.controller.extraEnvs }}
@@ -78,6 +101,10 @@ spec:
             - name: LOG_SYSLOG_ADDRESS
               value: "{{ include "bunkerweb.syslogAddress" . }}"
             {{- end }}
+          {{- with .Values.controller.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
     {{- if .Values.controller.nodeSelector }}
       {{- with .Values.controller.nodeSelector }}
       nodeSelector:
@@ -105,4 +132,8 @@ spec:
         {{- toYaml .Values.imagePullSecrets | nindent 6 }}
       {{- end }}
     {{- end }}
+      {{- with .Values.controller.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}

@@ -1,7 +1,7 @@
 # BunkerWeb Kubernetes Helm Chart
 
-![Version](https://img.shields.io/badge/version-1.0.2-blue)
-![AppVersion](https://img.shields.io/badge/app%20version-1.6.4-green)
+![Version](https://img.shields.io/badge/version-1.0.19-blue)
+![AppVersion](https://img.shields.io/badge/app%20version-1.6.10-green)
 
 Official [Helm chart](https://helm.sh/docs/) to deploy [BunkerWeb](https://www.bunkerweb.io/?utm_campaign=self&utm_source=github) on Kubernetes - A next-generation, open-source **web application firewall (WAF)** and reverse proxy.
 
