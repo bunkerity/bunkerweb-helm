@@ -12,8 +12,6 @@ default-on API, set api.enabled=true AND configure authentication
 (settings.api.useBearerToken / useUserPass / apiAclBootstrapFile).
 {{- end }}
 
-{{- if and .Release.IsUpgrade .Values.redis.enabled .Values.redis.useConfigFile }}
-
 ================================================================================
                            DEPLOYMENT INFORMATION
 ================================================================================
