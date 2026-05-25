@@ -297,7 +297,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: Always
 
   # Resource requests and limits
@@ -470,7 +470,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: Always
 
   # Image pull secrets (overrides global setting)
@@ -976,7 +976,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: Always
 
   # Image pull secrets (overrides global setting)
@@ -1048,7 +1048,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: Always
 
   # Image pull secrets (overrides global setting)
@@ -1142,7 +1142,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: Always
 
   # Image pull secrets (overrides global setting)

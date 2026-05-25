@@ -11,6 +11,10 @@ or `[CI]`.
 > `vX.Y.Z` git tag. Entries before `v0.0.5` are folded into an initial-development note because
 > those `0.0.x` numbers were reused across the `1.6.0-rc` rollbacks.
 
+## v1.0.21 - 2026/05/25
+
+App version: `1.6.11`.
+
 ## v1.0.20 - 2026/05/22
 
 App version: `1.6.10`.
