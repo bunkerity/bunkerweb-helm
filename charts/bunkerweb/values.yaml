@@ -352,7 +352,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: IfNotPresent
 
   # Resource requests and limits
@@ -525,7 +525,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1165,7 +1165,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1254,7 +1254,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1387,7 +1387,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.10
+  tag: 1.6.11
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1767,11 +1767,11 @@ redis:
 
     # Custom Redis configuration
     # Applied when useConfigFile is true
-    # Defaults follow the BunkerWeb 1.6.10 Redis Best Practices, adjusted for K8s:
+    # Defaults follow the BunkerWeb Redis Best Practices, adjusted for K8s:
     #   - volatile-lru preserves session + timed-ban keys under memory pressure
     #   - 512mb maxmemory leaves more headroom for cluster-wide aggregation than the AIO default
     #   - save 60 1000 keeps lightweight RDB snapshots without harming throughput
-    # See https://docs.bunkerweb.io/1.6.10/features/#redis-best-practices
+    # See https://docs.bunkerweb.io/latest/features/#redis-best-practices
     file: |
       appendonly yes
       save 60 1000
