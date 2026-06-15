@@ -84,6 +84,9 @@ DATABASE_URI setting
 REDIS settings
 */}}
 {{- define "bunkerweb.redisEnv" -}}
+{{- if and .Values.redis.enabled .Values.settings.redis.redisSentinelHosts }}
+{{- fail "settings.redis.redisSentinelHosts requires redis.enabled=false (use an external Redis/Sentinel cluster, not the bundled Redis)." }}
+{{- end }}
 {{- if eq .Values.settings.redis.useRedis "yes" }}
 - name: USE_REDIS
   value: "yes"
@@ -107,8 +110,10 @@ REDIS settings
   value: "{{ .Values.redis.config.password }}"
   {{- end }}
 {{- else }}
+{{- if or .Values.settings.redis.redisHost (not .Values.settings.redis.redisSentinelHosts) }}
 - name: REDIS_HOST
   value: "{{ .Values.settings.redis.redisHost }}"
+{{- end }}
 - name: REDIS_USERNAME
     {{- if not (empty .Values.settings.existingSecret) }}
   valueFrom:
@@ -127,6 +132,56 @@ REDIS settings
     {{- else }}
   value: "{{ .Values.settings.redis.redisPassword }}"
     {{- end }}
+{{- end }}
+{{- /* Optional connection knobs (only emitted when set) */}}
+{{- if .Values.settings.redis.redisPort }}
+- name: REDIS_PORT
+  value: "{{ .Values.settings.redis.redisPort }}"
+{{- end }}
+{{- if .Values.settings.redis.redisDatabase }}
+- name: REDIS_DATABASE
+  value: "{{ .Values.settings.redis.redisDatabase }}"
+{{- end }}
+{{- if .Values.settings.redis.redisSsl }}
+- name: REDIS_SSL
+  value: "{{ .Values.settings.redis.redisSsl }}"
+{{- end }}
+{{- if .Values.settings.redis.redisSslVerify }}
+- name: REDIS_SSL_VERIFY
+  value: "{{ .Values.settings.redis.redisSslVerify }}"
+{{- end }}
+{{- if .Values.settings.redis.redisTimeout }}
+- name: REDIS_TIMEOUT
+  value: "{{ .Values.settings.redis.redisTimeout }}"
+{{- end }}
+{{- /* Redis Sentinel (high availability). When set, the master is resolved via the Sentinels. */}}
+{{- if .Values.settings.redis.redisSentinelHosts }}
+- name: REDIS_SENTINEL_HOSTS
+  value: "{{ .Values.settings.redis.redisSentinelHosts }}"
+{{- if .Values.settings.redis.redisSentinelMaster }}
+- name: REDIS_SENTINEL_MASTER
+  value: "{{ .Values.settings.redis.redisSentinelMaster }}"
+{{- end }}
+- name: REDIS_SENTINEL_USERNAME
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: redis-sentinel-username
+      optional: true
+  {{- else }}
+  value: "{{ .Values.settings.redis.redisSentinelUsername }}"
+  {{- end }}
+- name: REDIS_SENTINEL_PASSWORD
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: redis-sentinel-password
+      optional: true
+  {{- else }}
+  value: "{{ .Values.settings.redis.redisSentinelPassword }}"
+  {{- end }}
 {{- end }}
 {{- end }}
 

@@ -13,6 +13,10 @@ This directory contains example configurations for common BunkerWeb deployment s
 - [`high-availability.yaml`](high-availability.yaml) - Production HA setup with multiple replicas
 - [`minimal.yaml`](minimal.yaml) - Production like stack, using external services for DB, Redis & monitoring
 
+### High Availability
+
+- [`redis-sentinel.yaml`](redis-sentinel.yaml) - External Redis Sentinel (HA) for caching/persistence
+
 ### Integrations
 
 - [`mcp-integration.yaml`](mcp-integration.yaml) - MCP server for AI assistants (Claude Code, etc.)

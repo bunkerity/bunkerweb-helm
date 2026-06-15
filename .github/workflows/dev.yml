@@ -41,24 +41,16 @@ jobs:
       uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
       id: install
     
-    - name: Package chart
+    - name: Package chart and push it
+      env:
+        REPO_BEARER_TOKEN: ${{ secrets.REPO_BEARER_TOKEN }}
       run: |
         cd ./charts
-        helm package ./bunkerweb/
-
-    - name: Upload files via SSH
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SSH_HOST: ${{ secrets.SSH_HOST }}
-        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-      run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -t ed25519,rsa,ecdsa $SSH_HOST >> ~/.ssh/known_hosts
-        cd charts
-        scp *.tgz $SSH_USERNAME@$SSH_HOST:/var/www/html/charts-dev
-        scp $SSH_USERNAME@$SSH_HOST:/var/www/html/charts-dev/* .
-        helm repo index . --url https://repo.bunkerweb.io/charts-dev
-        scp *.tgz $SSH_USERNAME@$SSH_HOST:/var/www/html/charts-dev
-        scp index.yaml $SSH_USERNAME@$SSH_HOST:/var/www/html/charts-dev
+        out_dir="$(mktemp -d)"
+        helm package ./bunkerweb/ --destination "$out_dir"
+        chart_file="$(find "$out_dir" -maxdepth 1 -type f -name '*.tgz' -print -quit)"
+        curl --fail-with-body --show-error --silent --request POST \
+          --header "Authorization: Bearer ${REPO_BEARER_TOKEN}" \
+          --form "env=dev" \
+          --form "chart=@${chart_file};type=application/gzip" \
+          "https://repo.bunkerweb.io/api/chart"

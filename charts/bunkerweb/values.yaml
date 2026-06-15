@@ -47,6 +47,8 @@ settings:
   #   - database-uri      : Database connection string
   #   - redis-username    : Redis username (if authentication enabled)
   #   - redis-password    : Redis password
+  #   - redis-sentinel-username : Redis Sentinel username (if Sentinel auth enabled)
+  #   - redis-sentinel-password : Redis Sentinel password (if Sentinel auth enabled)
   #   - admin-username    : UI admin username
   #   - admin-password    : UI admin password
   #   - flask-secret      : Flask session secret
@@ -119,12 +121,40 @@ settings:
     # Recommended for production environments
     useRedis: "yes"
 
-    # Redis hostname (auto-configured if using internal Redis)
+    # Redis hostname (auto-configured if using internal Redis).
+    # Leave empty when using Sentinel: the master is resolved through the Sentinels.
     redisHost: ""
+
+    # Redis port (upstream default 6379 when left empty)
+    redisPort: ""
+
+    # Redis database number, 0-15 (upstream default 0 when left empty)
+    redisDatabase: ""
 
     # Redis authentication (leave empty if not using auth)
     redisUsername: ""
     redisPassword: ""
+
+    # Enable SSL/TLS to the Redis server ("yes"/"no", leave empty for upstream default)
+    redisSsl: ""
+    # Verify the Redis server SSL certificate ("yes"/"no", leave empty for upstream default)
+    redisSslVerify: ""
+
+    # Connection timeout in milliseconds (upstream default 1000 when left empty)
+    redisTimeout: ""
+
+    # ----- REDIS SENTINEL (high availability) -----
+    # When redisSentinelHosts is set, BunkerWeb resolves the master through the
+    # Sentinels and redisHost is NOT required. Requires redis.enabled: false
+    # (use an external Redis/Sentinel cluster, not the bundled Redis).
+    # Space-separated list of Sentinel hosts: "host:port host:port ..."
+    redisSentinelHosts: ""
+    # Name of the monitored master (e.g. "mymaster")
+    redisSentinelMaster: ""
+    # Sentinel username (only if your Sentinels require auth)
+    redisSentinelUsername: ""
+    # Sentinel password (only if your Sentinels require auth)
+    redisSentinelPassword: ""
 
   # ----- WEB UI CONFIGURATION -----
   ui:
