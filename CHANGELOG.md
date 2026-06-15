@@ -11,9 +11,15 @@ or `[CI]`.
 > `vX.Y.Z` git tag. Entries before `v0.0.5` are folded into an initial-development note because
 > those `0.0.x` numbers were reused across the `1.6.0-rc` rollbacks.
 
-## v1.0.21 - 2026/05/25
+## v1.0.21 - 2026/06/15
 
 App version: `1.6.11`.
+
+- [DEPS] upgrade to BunkerWeb 1.6.11.
+- [FEATURE] `redis`: native Redis Sentinel support. New `settings.redis` keys `redisSentinelHosts`, `redisSentinelMaster`, `redisSentinelUsername`, `redisSentinelPassword`, plus `redisPort`, `redisDatabase`, `redisSsl`, `redisSslVerify`, and `redisTimeout`. These previously required `extraEnvs`, and on Kubernetes had to be set on `scheduler.extraEnvs` specifically (the scheduler is what configures the BunkerWeb instances) — a common source of confusion (reported via [bunkerity/bunkerweb#3639](https://github.com/bunkerity/bunkerweb/issues/3639)). `REDIS_HOST` is now omitted automatically when Sentinel hosts are set.
+- [FEATURE] `existingSecret`: support the new `redis-sentinel-username` and `redis-sentinel-password` keys for Sentinel authentication.
+- [DOCS] document Redis Sentinel configuration and the new `settings.redis` keys, and add a Redis Sentinel example (`examples/redis-sentinel.yaml`).
+- [CI] add Dependabot configuration for GitHub Actions and pin workflow actions to commit SHAs.
 
 ## v1.0.20 - 2026/05/22
 

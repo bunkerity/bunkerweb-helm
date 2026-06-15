@@ -1,0 +1,28 @@
+# External Redis Sentinel (high availability).
+# Disable the bundled Redis and point BunkerWeb at your Sentinel cluster;
+# the master is resolved through the Sentinels (no redisHost needed).
+redis:
+  # Sentinel requires an EXTERNAL Redis — the chart fails to render if this is true.
+  enabled: false
+
+settings:
+  redis:
+    # Enable Redis usage in BunkerWeb
+    useRedis: "yes"
+
+    # Space-separated list of Sentinel hosts: "host:port host:port ..."
+    redisSentinelHosts: "sentinel-0.redis.svc.cluster.local:26379 sentinel-1.redis.svc.cluster.local:26379 sentinel-2.redis.svc.cluster.local:26379"
+
+    # Name of the monitored master configured in your Sentinels
+    redisSentinelMaster: "mymaster"
+
+    # Sentinel authentication — only if your Sentinels require it.
+    # Alternatively, set these via settings.existingSecret keys
+    # redis-sentinel-username / redis-sentinel-password.
+    redisSentinelUsername: ""
+    redisSentinelPassword: ""
+
+    # Optional Redis data-plane auth / TLS (leave empty for upstream defaults)
+    redisUsername: ""
+    redisPassword: ""
+    redisSsl: ""
