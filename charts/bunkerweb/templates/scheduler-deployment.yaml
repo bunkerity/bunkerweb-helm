@@ -86,7 +86,14 @@ spec:
             - name: USE_MONITORING
               value: "yes"
             {{- end }}
-            {{- if .Values.scheduler.proLicenseKey }}
+            {{- if not (empty .Values.settings.existingSecret) }}
+            - name: PRO_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.settings.existingSecret }}
+                  key: pro-license-key
+                  optional: true
+            {{- else if .Values.scheduler.proLicenseKey }}
             - name: PRO_LICENSE_KEY
               value: {{ .Values.scheduler.proLicenseKey | quote }}
             {{- end }}
