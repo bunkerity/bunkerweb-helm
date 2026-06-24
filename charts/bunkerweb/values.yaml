@@ -529,6 +529,18 @@ bunkerweb:
   #   - name: shared-data
   #     mountPath: /var/lib/bunkerweb/shared
 
+  # Custom init containers for the BunkerWeb pod
+  # Runs before the BunkerWeb container (e.g. to prepare a shared volume)
+  initContainers: []
+  # Example:
+  # initContainers:
+  #   - name: init-config
+  #     image: busybox:latest
+  #     command: ["sh", "-c", "echo preparing"]
+  #     volumeMounts:
+  #       - name: shared-data
+  #         mountPath: /var/lib/bunkerweb/shared
+
   ## PodDisruptionBudget for default backend
   ## bunkerweb Pod Disruption Budget configuration
   ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
@@ -1173,6 +1185,38 @@ scheduler:
   # These will be merged with the feature configuration above
   extraEnvs: []
 
+  # Custom init containers for the scheduler pod
+  # Runs before the scheduler container; commonly used to install custom
+  # plugins (see https://docs.bunkerweb.io/latest/plugins/#manual)
+  initContainers: []
+  # Example:
+  # initContainers:
+  #   - name: bunkerweb-scheduler-init
+  #     image: alpine/git
+  #     command: ["/bin/sh", "-c"]
+  #     args:
+  #       - git clone https://github.com/bunkerity/bunkerweb-plugins /data/plugins && chown -R 101:101 /data/plugins
+  #     volumeMounts:
+  #       - mountPath: /data/plugins
+  #         name: vol-plugins
+
+  # Custom volumes for the scheduler pod
+  # Used together with scheduler.volumeMounts (e.g. a PVC holding custom plugins)
+  volumes: []
+  # Example:
+  # volumes:
+  #   - name: vol-plugins
+  #     persistentVolumeClaim:
+  #       claimName: pvc-bunkerweb-plugins
+
+  # Custom volume mounts for the scheduler container
+  # Where to mount scheduler.volumes inside the container (e.g. /data/plugins)
+  volumeMounts: []
+  # Example:
+  # volumeMounts:
+  #   - mountPath: /data/plugins
+  #     name: vol-plugins
+
   # Liveness probe configuration
   livenessProbe:
     exec:
@@ -1251,6 +1295,18 @@ controller:
   #   - name: k8s-ca
   #     mountPath: /etc/k8s-ca
   #     readOnly: true
+
+  # Custom init containers for the controller pod
+  # Runs before the controller container
+  initContainers: []
+  # Example:
+  # initContainers:
+  #   - name: init-config
+  #     image: busybox:latest
+  #     command: ["sh", "-c", "echo preparing"]
+  #     volumeMounts:
+  #       - name: k8s-ca
+  #         mountPath: /etc/k8s-ca
 
   # Liveness probe configuration
   livenessProbe:

@@ -23,6 +23,10 @@ spec:
         bunkerweb.io/component: "scheduler"
     spec:
       serviceAccountName: {{ include "bunkerweb.fullname" . }}
+      {{- with .Values.scheduler.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: bunkerweb-scheduler
           image: {{ .Values.scheduler.repository }}:{{ .Values.scheduler.tag }}
@@ -104,6 +108,10 @@ spec:
             - name: LOG_SYSLOG_ADDRESS
               value: "{{ include "bunkerweb.syslogAddress" . }}"
             {{- end }}
+          {{- with .Values.scheduler.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
     {{- if .Values.scheduler.nodeSelector }}
       {{- with .Values.scheduler.nodeSelector }}
       nodeSelector:
@@ -133,5 +141,9 @@ spec:
     {{- end }}
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.scheduler.volumes }}
+      volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}

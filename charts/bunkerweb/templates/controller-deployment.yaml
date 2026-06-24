@@ -27,6 +27,10 @@ spec:
         bunkerweb.io/component: "controller"
     spec:
       serviceAccountName: {{ include "bunkerweb.fullname" . }}
+      {{- with .Values.controller.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: bunkerweb-controller
           image: {{ .Values.controller.repository }}:{{ .Values.controller.tag }}
