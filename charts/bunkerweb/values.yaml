@@ -58,7 +58,7 @@ settings:
   #   - api-token         : API Bearer token
   #   - api-username      : API username, also require api-password
   #   - api-password      : API password, also require api-username
-  # The pro-licence-key is optional for non-PRO deployments
+  # The pro-license-key is optional for non-PRO deployments
   existingSecret: ""
 
   # ----- KUBERNETES INTEGRATION -----
