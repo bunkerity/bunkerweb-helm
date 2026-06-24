@@ -299,7 +299,50 @@ test_bunkerweb_specific() {
         log_error "    ✗ Failed to generate templates with API disabled"
         return 1
     fi
-    
+
+    # Test scheduler custom-plugin volumes/volumeMounts/initContainers (issue #87)
+    log_info "  Testing scheduler initContainers/volumes/volumeMounts (custom plugins)"
+    if output=$(helm template test "$CHART_PATH" \
+        --set-json 'scheduler.initContainers=[{"name":"bunkerweb-scheduler-init","image":"alpine/git","command":["/bin/sh","-c"],"args":["git clone https://github.com/bunkerity/bunkerweb-plugins /data/plugins && chown -R 101:101 /data/plugins"],"volumeMounts":[{"mountPath":"/data/plugins","name":"vol-plugins"}]}]' \
+        --set-json 'scheduler.volumes=[{"name":"vol-plugins","persistentVolumeClaim":{"claimName":"pvc-bunkerweb-plugins"}}]' \
+        --set-json 'scheduler.volumeMounts=[{"mountPath":"/data/plugins","name":"vol-plugins"}]' \
+        --dry-run 2>&1); then
+        scheduler_doc=$(echo "$output" | awk '/^# Source: bunkerweb\/templates\/scheduler-deployment.yaml/{f=1} /^---/{f=0} f')
+        if [[ $(echo "$scheduler_doc" | grep -cF "bunkerweb-scheduler-init" || true) -gt 0 ]] \
+            && [[ $(echo "$scheduler_doc" | grep -cF "initContainers:" || true) -gt 0 ]] \
+            && [[ $(echo "$scheduler_doc" | grep -cF "pvc-bunkerweb-plugins" || true) -gt 0 ]] \
+            && [[ $(echo "$scheduler_doc" | grep -cF "/data/plugins" || true) -gt 0 ]]; then
+            log_success "    ✓ Scheduler custom-plugin volumes/initContainers render correctly"
+        else
+            log_error "    ✗ Scheduler volumes/initContainers did not render as expected"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render scheduler volumes/initContainers"
+        echo "$output" | sed 's/^/      /'
+        return 1
+    fi
+
+    # Test parity: initContainers on bunkerweb and controller
+    log_info "  Testing bunkerweb/controller initContainers parity"
+    if output=$(helm template test "$CHART_PATH" \
+        --set controller.enabled=true \
+        --set-json 'bunkerweb.initContainers=[{"name":"bw-init","image":"busybox"}]' \
+        --set-json 'controller.initContainers=[{"name":"ctrl-init","image":"busybox"}]' \
+        --dry-run 2>&1); then
+        if [[ $(echo "$output" | grep -cF "bw-init" || true) -gt 0 ]] \
+            && [[ $(echo "$output" | grep -cF "ctrl-init" || true) -gt 0 ]]; then
+            log_success "    ✓ bunkerweb/controller initContainers render correctly"
+        else
+            log_error "    ✗ bunkerweb/controller initContainers did not render"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render bunkerweb/controller initContainers"
+        echo "$output" | sed 's/^/      /'
+        return 1
+    fi
+
     # Test syslogAddress helper
     log_info "  Testing syslogAddress helper with default value"
     if output=$(helm template test "$CHART_PATH" \

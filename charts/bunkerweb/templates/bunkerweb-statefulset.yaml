@@ -53,6 +53,10 @@ spec:
                 matchLabels:
                   bunkerweb.io/component: "bunkerweb"
       {{- end }}
+      {{- with .Values.bunkerweb.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: bunkerweb
           image: {{ .Values.bunkerweb.repository }}:{{ .Values.bunkerweb.tag }}
