@@ -98,6 +98,11 @@ spec:
               value: "{{ include "bunkerweb.fullname" . }}-external"
             - name: BUNKERWEB_NAMESPACE
               value: "{{ include "bunkerweb.namespace" . }}"
+            {{- /* Guard on emptiness, not truthiness: 0 is a valid value that disables the worker. */}}
+            {{- if ne (toString .Values.controller.settingsRecheckInterval) "" }}
+            - name: AUTOCONF_SETTINGS_RECHECK_INTERVAL
+              value: {{ .Values.controller.settingsRecheckInterval | quote }}
+            {{- end }}
             {{- if .Values.controller.extraEnvs }}
             {{- toYaml .Values.controller.extraEnvs | nindent 12 }}
             {{- end }}

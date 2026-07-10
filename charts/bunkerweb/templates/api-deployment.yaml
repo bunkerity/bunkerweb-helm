@@ -111,6 +111,10 @@ spec:
             - name: API_MAX_REQUESTS
               value: {{ .Values.settings.api.maxRequests | quote }}
             {{- end }}
+            {{- if .Values.settings.api.allowedHosts }}
+            - name: API_ALLOWED_HOSTS
+              value: {{ .Values.settings.api.allowedHosts | quote }}
+            {{- end }}
             {{- if .Values.ui.logs.enabled }}
             - name: LOG_TYPES
               value: "stderr syslog"

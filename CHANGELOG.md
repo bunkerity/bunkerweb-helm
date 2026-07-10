@@ -11,6 +11,25 @@ or `[CI]`.
 > `vX.Y.Z` git tag. Entries before `v0.0.5` are folded into an initial-development note because
 > those `0.0.x` numbers were reused across the `1.6.0-rc` rollbacks.
 
+## v1.0.23 - 2026/07/10
+
+App version: `1.6.12`.
+
+- [DEPS] upgrade to BunkerWeb 1.6.12.
+- [SECURITY] `api`: new `settings.api.allowedHosts` (`API_ALLOWED_HOSTS`) — an opt-in `Host` header allowlist (space- or comma-separated, wildcards like `*.example.com`). Empty disables the check.
+- [SECURITY] `ui`: new `settings.ui.allowedHosts` (`UI_ALLOWED_HOSTS`) — the same opt-in `Host` header allowlist for the web UI.
+- [FEATURE] `scheduler.features.reverseProxy`: verify the upstream HTTPS certificate with the new `reverseProxySslVerify`, `reverseProxySslVerifyDepth` and `reverseProxySslTrustedCertificate` keys ([bunkerity/bunkerweb#574](https://github.com/bunkerity/bunkerweb/issues/574)). The CA must exist on the scheduler pod — mount it via `scheduler.volumes` / `scheduler.volumeMounts`. To supply it inline instead, set `REVERSE_PROXY_SSL_TRUSTED_CERTIFICATE_DATA` and `REVERSE_PROXY_SSL_TRUSTED_CERTIFICATE_PRIORITY=data` via `scheduler.extraEnvs`.
+- [FEATURE] `scheduler`: new `scheduler.maxWorkers` (`SCHEDULER_MAX_WORKERS`) caps the job-executor thread pool to bound database pool pressure on shared MariaDB/MySQL/PostgreSQL.
+- [FEATURE] `controller`: new `controller.settingsRecheckInterval` (`AUTOCONF_SETTINGS_RECHECK_INTERVAL`) re-applies service labels when the set of valid settings changes (a PRO license installing PRO plugins, an external plugin being added). Defaults to upstream's `300`s; `0` disables.
+- [DOCS] `MTLS_URL` (new in BunkerWeb 1.6.12) is reachable via `scheduler.extraEnvs`; the chart does not expose the `mtls` plugin.
+- [DOCS] `ANTIBOT_IGNORE_URI` patterns now match the full request URI including the query string (upstream behavior change in 1.6.12).
+
+## v1.0.22 - 2026/07/10
+
+App version: `1.6.11`.
+
+- [FEATURE] `scheduler`: expose `volumes`, `volumeMounts` and `initContainers` so custom plugins can be mounted. (#87)
+
 ## v1.0.21 - 2026/06/15
 
 App version: `1.6.11`.
