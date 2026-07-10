@@ -652,6 +652,19 @@ Generate BunkerWeb feature environment variables
 - name: REVERSE_PROXY_MODSECURITY
   value: {{ .reverseProxy.reverseProxyModsecurity | quote }}
 {{- end }}
+{{- if and .reverseProxy .reverseProxy.reverseProxySslVerify (ne .reverseProxy.reverseProxySslVerify "") }}
+- name: REVERSE_PROXY_SSL_VERIFY
+  value: {{ .reverseProxy.reverseProxySslVerify | quote }}
+{{- end }}
+{{- /* toString: this value is numeric, and `ne <int> ""` is a template error. */}}
+{{- if and .reverseProxy .reverseProxy.reverseProxySslVerifyDepth (ne (toString .reverseProxy.reverseProxySslVerifyDepth) "") }}
+- name: REVERSE_PROXY_SSL_VERIFY_DEPTH
+  value: {{ .reverseProxy.reverseProxySslVerifyDepth | quote }}
+{{- end }}
+{{- if and .reverseProxy .reverseProxy.reverseProxySslTrustedCertificate (ne .reverseProxy.reverseProxySslTrustedCertificate "") }}
+- name: REVERSE_PROXY_SSL_TRUSTED_CERTIFICATE
+  value: {{ .reverseProxy.reverseProxySslTrustedCertificate | quote }}
+{{- end }}
 
 # =============================================================================
 # GRPC REVERSE PROXY

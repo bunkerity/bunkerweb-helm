@@ -117,6 +117,10 @@ spec:
             - name: SESSION_ROLLING_HOURS
               value: {{ .Values.settings.ui.sessionRollingHours | quote }}
             {{- end }}
+            {{- if .Values.settings.ui.allowedHosts }}
+            - name: UI_ALLOWED_HOSTS
+              value: {{ .Values.settings.ui.allowedHosts | quote }}
+            {{- end }}
             {{- if .Values.ui.extraEnvs }}
               {{- toYaml .Values.ui.extraEnvs | nindent 12 }}
             {{- end }}

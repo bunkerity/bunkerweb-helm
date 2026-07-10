@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.0.17, app version 1.6.10. Helm 3, API v2.
+BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.0.23, app version 1.6.12. Helm 3, API v2.
 
 ## Repository Layout
 
 - `charts/bunkerweb/` — the Helm chart (Chart.yaml, values.yaml, templates/)
 - `scripts/` — `validate-chart.sh` (chart validation + lint + template rendering tests), `generate-docs.py` (auto-generate docs from values.yaml)
 - `examples/` — example values files (all-in-one, minimal, high-availability, logging, secrets)
-- `docs/` — user documentation (`values.md` is the comprehensive guide, `values-reference.md` is auto-generated)
+- `docs/` — user documentation (`values.md` is auto-generated from values.yaml by `generate-docs.py` — never hand-edit it; `README.md` is hand-maintained)
 
 ## Common Commands
 

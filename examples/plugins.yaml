@@ -1,0 +1,61 @@
+# =============================================================================
+# BunkerWeb Helm Chart Values
+# =============================================================================
+# This file contains all configurable values for the BunkerWeb Helm chart.
+# For more information about BunkerWeb configuration, visit:
+# https://docs.bunkerweb.io/
+#
+# =============================================================================
+# CUSTOM PLUGINS EXAMPLE
+# =============================================================================
+# This file shows how to install custom BunkerWeb plugins on Kubernetes by
+# mounting a volume in the Scheduler and using an init container to populate it,
+# following the official manual install procedure:
+# https://docs.bunkerweb.io/latest/plugins/#manual
+#
+# It demonstrates:
+# - An init container (alpine/git) that clones plugins into /data/plugins
+# - A PersistentVolumeClaim mounted at /data/plugins on the Scheduler container
+#
+# IMPORTANT: This chart does NOT create the PersistentVolumeClaim for you.
+# You must create `pvc-bunkerweb-plugins` (in the chart's namespace) before
+# installing/upgrading, for example:
+#
+#   apiVersion: v1
+#   kind: PersistentVolumeClaim
+#   metadata:
+#     name: pvc-bunkerweb-plugins
+#   spec:
+#     accessModes:
+#       - ReadWriteOnce
+#     resources:
+#       requests:
+#         storage: 64Mi
+#
+# The Scheduler runs as UID/GID 101, which is why the init container chowns the
+# cloned files to 101:101 so the Scheduler can read them.
+# =============================================================================
+
+scheduler:
+  # Init container that installs the plugins into the shared volume before the
+  # Scheduler starts. Runs as root so it can write to the PVC and chown the files.
+  initContainers:
+    - name: bunkerweb-scheduler-init
+      image: alpine/git
+      command: ["/bin/sh", "-c"]
+      args:
+        - git clone https://github.com/bunkerity/bunkerweb-plugins /data/plugins && chown -R 101:101 /data/plugins
+      volumeMounts:
+        - mountPath: /data/plugins
+          name: vol-plugins
+
+  # Shared volume backed by a user-provided PVC (see note above).
+  volumes:
+    - name: vol-plugins
+      persistentVolumeClaim:
+        claimName: pvc-bunkerweb-plugins
+
+  # Mount the plugins volume where BunkerWeb expects custom plugins.
+  volumeMounts:
+    - mountPath: /data/plugins
+      name: vol-plugins
