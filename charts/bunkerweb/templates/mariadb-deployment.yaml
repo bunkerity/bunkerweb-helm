@@ -64,31 +64,6 @@ spec:
         - name: vol-db
           persistentVolumeClaim:
             claimName: mariadb-{{ include "bunkerweb.fullname" . }}
-    {{- if .Values.mariadb.nodeSelector }}
-      {{- with .Values.mariadb.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- else if .Values.nodeSelector }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.mariadb.tolerations) (.Values.tolerations) }}
-      tolerations:
-      {{- if .Values.mariadb.tolerations }}
-        {{- toYaml .Values.mariadb.tolerations | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.tolerations | nindent 6 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.mariadb.imagePullSecrets) (.Values.imagePullSecrets) }}
-      imagePullSecrets:
-      {{- if .Values.mariadb.imagePullSecrets }}
-        {{- toYaml .Values.mariadb.imagePullSecrets | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
-      {{- end }}
-    {{- end }}
+    {{- include "bunkerweb.podNodeTolerations" (dict "comp" .Values.mariadb "root" .Values) }}
+    {{- include "bunkerweb.podImagePullSecrets" (dict "comp" .Values.mariadb "root" .Values) }}
 {{- end }}

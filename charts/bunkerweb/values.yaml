@@ -59,6 +59,17 @@ settings:
   #   - api-token         : API Bearer token
   #   - api-username      : API username, also require api-password
   #   - api-password      : API password, also require api-username
+  #   Optional feature secrets (like pro-license-key, omit if the feature is unused):
+  #   - zerossl-api-key   : Let's Encrypt ZeroSSL API key (LETS_ENCRYPT_ZEROSSL_API_KEY)
+  #   - custom-ssl-key    : Custom SSL private key (CUSTOM_SSL_KEY)
+  #   - sessions-secret   : Sessions secret (SESSIONS_SECRET)
+  #   - auth-basic-password : HTTP basic auth password (AUTH_BASIC_PASSWORD)
+  #   - darkvisitors-token : robots.txt DarkVisitors token (ROBOTSTXT_DARKVISITORS_TOKEN)
+  #   - crowdsec-api-key  : CrowdSec API key (CROWDSEC_API_KEY)
+  # The pro-license-key is optional (non-Pro deployments may omit it). When
+  # existingSecret is set, it takes precedence over scheduler.proLicenseKey.
+  # The optional feature secrets above are likewise sourced from the secret
+  # (as optional keys) and take precedence over their plain values.yaml equivalents.
   existingSecret: ""
 
   # ----- KUBERNETES INTEGRATION -----
@@ -600,9 +611,6 @@ scheduler:
   #     cpu: "500m"
   #     memory: "512Mi"
 
-  # Additional pod annotations
-  podAnnotations: {}
-
   # Additional pod labels
   podLabels: {}
 
@@ -617,6 +625,7 @@ scheduler:
 
   # PRO Features configuration
   # BunkerWeb PRO license key for advanced features
+  # Ignored when settings.existingSecret is set (uses the secret key pro-license-key instead)
   proLicenseKey: ""
   # Enable Prometheus metrics exporter and creates a service for it
   # Requires BunkerWeb PRO license
@@ -830,6 +839,7 @@ scheduler:
       # Custom certificate profile (overrides letsEncryptProfile)
       letsEncryptCustomProfile: ""
       # ZeroSSL API key (optional, falls back to email)
+      # Ignored when settings.existingSecret is set (uses the secret key zerossl-api-key instead)
       letsEncryptZerosslApiKey: ""
       # ZeroSSL API connection timeout (seconds)
       letsEncryptZerosslApiConnectTimeout: ""
@@ -851,6 +861,7 @@ scheduler:
       # Certificate file path
       customSslCert: ""
       # Private key file path
+      # Ignored when settings.existingSecret is set (uses the secret key custom-ssl-key instead)
       customSslKey: ""
 
     # =============================================================================
@@ -1032,6 +1043,7 @@ scheduler:
     # =============================================================================
     sessions:
       # Session secret key (leave empty to auto-generate)
+      # Ignored when settings.existingSecret is set (uses the secret key sessions-secret instead)
       sessionsSecret: ""
       # Session cookie name
       sessionsName: ""
@@ -1079,6 +1091,7 @@ scheduler:
       # Username (multiple values supported with suffix _1, _2, etc.)
       authBasicUser: ""
       # Password (multiple values supported with suffix _1, _2, etc.)
+      # Ignored when settings.existingSecret is set (uses the secret key auth-basic-password instead)
       authBasicPassword: ""
       # Authentication prompt text
       authBasicText: ""
@@ -1121,6 +1134,7 @@ scheduler:
       # Enable robots.txt generation
       useRobotsTxt: ""
       # DarkVisitors API token
+      # Ignored when settings.existingSecret is set (uses the secret key darkvisitors-token instead)
       robotsTxtDarkvisitorsToken: ""
       # Community lists to include
       robotsTxtCommunityLists: ""
@@ -1151,6 +1165,7 @@ scheduler:
       # CrowdSec Local API URL
       crowdSecApi: ""
       # CrowdSec API key
+      # Ignored when settings.existingSecret is set (uses the secret key crowdsec-api-key instead)
       crowdSecApiKey: ""
       # Operation mode: "live" or "stream"
       crowdSecMode: ""
@@ -1298,9 +1313,6 @@ controller:
   #     cpu: "250m"
   #     memory: "256Mi"
 
-  # Additional pod annotations
-  podAnnotations: {}
-
   # Additional pod labels
   podLabels: {}
 
@@ -1403,9 +1415,6 @@ ui:
   #   limits:
   #     cpu: "250m"
   #     memory: "512Mi"
-
-  # Additional pod annotations
-  podAnnotations: {}
 
   # Additional pod labels
   podLabels: {}
@@ -1537,9 +1546,6 @@ api:
   #     cpu: "250m"
   #     memory: "512Mi"
 
-  # Additional pod annotations
-  podAnnotations: {}
-
   # Additional pod labels
   podLabels: {}
 
@@ -1617,9 +1623,6 @@ mcp:
       drop:
         - ALL
 
-  # Additional environment variables
-  extraEnvs: []
-
   # ----- MCP SERVER CONFIGURATION -----
   config:
     # Number of workers for the MCP server
@@ -1650,20 +1653,16 @@ mcp:
     rateLimitWs: "500/minute"
     cacheEnabled: "true"
 
-    # Semantic Search Configuration
-    # Released in the future, currently non-functional
-    searchMode: "disabled"
-    searchApiUrl: ""
-    searchTimeout: "10.0"
-
   # ----- SECRETS CONFIGURATION -----
   secrets:
     # Use existing secret for sensitive data
-    # If set, the following keys should be present:
-    #   - BUNKERWEB_API_TOKEN: Bearer token for BunkerWeb API
+    # If set, the following keys are read via secretKeyRef (all optional):
+    #   - api-token: Bearer token for BunkerWeb API
     # OR:
-    #   - BUNKERWEB_BASIC_USERNAME: Basic auth username
-    #   - BUNKERWEB_BASIC_PASSWORD: Basic auth password
+    #   - admin-username: Basic auth username
+    #   - admin-password: Basic auth password
+    # Optional:
+    #   - websocket-token: WebSocket authentication token
     existingSecret: ""
 
     # BunkerWeb API Bearer Token (if not using existingSecret)
@@ -1970,9 +1969,6 @@ prometheus:
   # Number of Prometheus replicas
   replicas: 1
 
-  # Additional pod annotations
-  podAnnotations: {}
-
   # Additional pod labels
   podLabels: {}
 
@@ -2056,15 +2052,6 @@ grafana:
 
     # Additional annotations for the PVC
     # annotations: {}
-
-  # Prometheus data source configuration
-  # Automatically configured when Prometheus is enabled
-  prometheusDatasource:
-    name: Prometheus
-    type: prometheus
-    url: 'http://prometheus-{{ include "bunkerweb.fullname" . }}.{{ include "bunkerweb.namespace" . }}.svc:9090'
-    access: proxy
-    isDefault: true
 
   # Additional pod annotations
   podAnnotations: {}

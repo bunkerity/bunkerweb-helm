@@ -61,7 +61,7 @@ spec:
               {{- if not (empty .Values.settings.existingSecret) }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.settings.existingSecret }}
+                  name: "{{ .Values.settings.existingSecret }}"
                   key: database-uri
               {{- else }}
               value: "{{ include "bunkerweb.databaseUri" . }}"
@@ -106,43 +106,13 @@ spec:
             {{- if .Values.controller.extraEnvs }}
             {{- toYaml .Values.controller.extraEnvs | nindent 12 }}
             {{- end }}
-            {{- if .Values.ui.logs.enabled }}
-            - name: LOG_TYPES
-              value: "stderr syslog"
-            - name: LOG_SYSLOG_ADDRESS
-              value: "{{ include "bunkerweb.syslogAddress" . }}"
-            {{- end }}
+            {{- include "bunkerweb.logEnvs" . }}
           {{- with .Values.controller.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-    {{- if .Values.controller.nodeSelector }}
-      {{- with .Values.controller.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- else if .Values.nodeSelector }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.controller.tolerations) (.Values.tolerations) }}
-      tolerations:
-      {{- if .Values.controller.tolerations }}
-        {{- toYaml .Values.controller.tolerations | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.tolerations | nindent 6 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.controller.imagePullSecrets) (.Values.imagePullSecrets) }}
-      imagePullSecrets:
-      {{- if .Values.controller.imagePullSecrets }}
-        {{- toYaml .Values.controller.imagePullSecrets | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
-      {{- end }}
-    {{- end }}
+    {{- include "bunkerweb.podNodeTolerations" (dict "comp" .Values.controller "root" .Values) }}
+    {{- include "bunkerweb.podImagePullSecrets" (dict "comp" .Values.controller "root" .Values) }}
       {{- with .Values.controller.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}

@@ -5,8 +5,7 @@
 ```
 docs/
 ├── README.md              # This file
-├── values.md              # User Guide documentation
-└── values-reference.md    # Technical reference
+└── values.md              # User guide + technical reference (generated)
 ```
 
 ## Generating Documentation

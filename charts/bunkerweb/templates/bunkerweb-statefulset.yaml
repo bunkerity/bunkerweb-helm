@@ -79,22 +79,7 @@ spec:
               name: metrics
             {{- end }}
           env:
-            # Mandatory for k8s integration
-            - name: KUBERNETES_MODE
-              value: "yes"
-            # DNS resolver
-            - name: DNS_RESOLVERS
-              value: "{{ .Values.settings.misc.dnsResolvers }}"
-            # Internal subnet(s) + localhost
-            - name: API_WHITELIST_IP
-              value: "{{ .Values.settings.misc.apiWhitelistIp }}"
-            {{- include "bunkerweb.redisEnv" . | nindent 12 }}
-            {{- if .Values.ui.logs.enabled }}
-            - name: ACCESS_LOG_1
-              value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb_access"
-            - name: ERROR_LOG_1
-              value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb"
-            {{- end }}
+            {{- include "bunkerweb.commonEnv" . | nindent 12 }}
           {{- if .Values.bunkerweb.extraEnvs }}
             {{- toYaml .Values.bunkerweb.extraEnvs | nindent 12 }}
           {{- end }}

@@ -8,7 +8,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: {{ .Values.bunkerweb.hpa.targetKind | default "Deployment" }}
-    {{- if and .Values.bunkerweb.hpa.nameOverride (ne .Values.bunkerweb.hpa.nameOverride "") }}
+    {{- if .Values.bunkerweb.hpa.nameOverride }}
     name: {{ .Values.bunkerweb.hpa.nameOverride }}
     {{- else }}
     name: {{ include "bunkerweb.fullname" . }}

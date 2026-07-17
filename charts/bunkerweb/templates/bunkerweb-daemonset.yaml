@@ -63,22 +63,7 @@ spec:
               name: metrics
             {{- end }}
           env:
-            # Mandatory for k8s integration
-            - name: KUBERNETES_MODE
-              value: "yes"
-            # DNS resolver
-            - name: DNS_RESOLVERS
-              value: "{{ .Values.settings.misc.dnsResolvers }}"
-            # Internal subnet(s) + localhost
-            - name: API_WHITELIST_IP
-              value: "{{ .Values.settings.misc.apiWhitelistIp }}"
-            {{- include "bunkerweb.redisEnv" . | nindent 12 }}
-            {{- if .Values.ui.logs.enabled }}
-            - name: ACCESS_LOG_1
-              value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb_access"
-            - name: ERROR_LOG_1
-              value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb"
-            {{- end }}
+            {{- include "bunkerweb.commonEnv" . | nindent 12 }}
           {{- if .Values.bunkerweb.extraEnvs }}
             {{- toYaml .Values.bunkerweb.extraEnvs | nindent 12 }}
           {{- end }}
@@ -94,33 +79,8 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-    {{- if .Values.bunkerweb.nodeSelector }}
-      {{- with .Values.bunkerweb.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- else if .Values.nodeSelector }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.bunkerweb.tolerations) (.Values.tolerations) }}
-      tolerations:
-      {{- if .Values.bunkerweb.tolerations }}
-        {{- toYaml .Values.bunkerweb.tolerations | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.tolerations | nindent 6 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.bunkerweb.imagePullSecrets) (.Values.imagePullSecrets) }}
-      imagePullSecrets:
-      {{- if .Values.bunkerweb.imagePullSecrets }}
-        {{- toYaml .Values.bunkerweb.imagePullSecrets | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
-      {{- end }}
-    {{- end }}
+    {{- include "bunkerweb.podNodeTolerations" (dict "comp" .Values.bunkerweb "root" .Values) }}
+    {{- include "bunkerweb.podImagePullSecrets" (dict "comp" .Values.bunkerweb "root" .Values) }}
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
