@@ -588,6 +588,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "REDIRECT_FROM" "value" .redirect.redirectFrom) }}
 {{- include "bunkerweb.envVar" (dict "name" "REDIRECT_TO" "value" .redirect.redirectTo) }}
 {{- include "bunkerweb.envVar" (dict "name" "REDIRECT_TO_REQUEST_URI" "value" .redirect.redirectToRequestUri) }}
+{{- include "bunkerweb.envVar" (dict "name" "REDIRECT_TO_STATUS_CODE" "value" .redirect.redirectToStatusCode) }}
 
 # =============================================================================
 # ERROR PAGES
@@ -632,6 +633,7 @@ Generate BunkerWeb feature environment variables
 # =============================================================================
 {{- include "bunkerweb.envVar" (dict "name" "REMOTE_PHP" "value" (and .php .php.remotePhp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "REMOTE_PHP_PORT" "value" (and .php .php.remotePhpPort)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REMOTE_PHP_PATH" "value" (and .php .php.remotephpPath)) }}
 {{- include "bunkerweb.envVar" (dict "name" "LOCAL_PHP" "value" (and .php .php.localPhp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "LOCAL_PHP_PATH" "value" (and .php .php.localPhpPath)) }}
 

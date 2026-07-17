@@ -11,6 +11,16 @@ or `[CI]`.
 > `vX.Y.Z` git tag. Entries before `v0.0.5` are folded into an initial-development note because
 > those `0.0.x` numbers were reused across the `1.6.0-rc` rollbacks.
 
+## v1.0.25 - 2026/07/17
+
+App version: `1.6.13` (unchanged).
+
+- [FEATURE] `scheduler`: when `settings.existingSecret` is set, the PRO license key and the optional feature secrets are now sourced from it (keys `pro-license-key`, `zerossl-api-key`, `custom-ssl-key`, `sessions-secret`, `auth-basic-password`, `darkvisitors-token`, `crowdsec-api-key`; all optional, taking precedence over their plain values.yaml equivalents). (#84 for the PRO license key, thanks @anthosz)
+- [BUGFIX] `scheduler.features`: `redirect.redirectToStatusCode` and `php.remotephpPath` now render their env vars (`REDIRECT_TO_STATUS_CODE`, `REMOTE_PHP_PATH`) — in all earlier chart versions both were silently ignored due to template guard bugs.
+- [CI] internal template refactor (`_helpers.tpl` consolidation) and streamlined dev/prod release workflows.
+- [CI] GitHub Actions bumps: `actions/checkout` 7.0.0, `azure/setup-helm` 5.0.1, `softprops/action-gh-release` 3.0.2.
+- [DOCS] `values.yaml`: note that the `pro-license-key` key in `existingSecret` is optional for non-PRO deployments.
+
 ## v1.0.24 - 2026/07/17
 
 App version: `1.6.13`.

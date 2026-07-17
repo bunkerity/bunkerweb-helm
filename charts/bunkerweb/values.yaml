@@ -1106,6 +1106,8 @@ scheduler:
       redirectTo: ""
       # Preserve request URI
       redirectToRequestUri: ""
+      # HTTP status code for redirect
+      redirectToStatusCode: ""
 
     # =============================================================================
     # ERROR PAGES
@@ -1178,6 +1180,8 @@ scheduler:
       remotePhp: ""
       # Remote PHP-FPM port
       remotePhpPort: ""
+      # Remote PHP-FPM path
+      remotephpPath: ""
       # Local PHP-FPM socket
       localPhp: ""
       # Local PHP-FPM path
