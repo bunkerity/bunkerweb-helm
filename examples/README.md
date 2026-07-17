@@ -8,7 +8,7 @@ This directory contains example configurations for common BunkerWeb deployment s
 
 ### Basic Configurations
 
-- [`bunkerweb-settings-secret.yaml`](bunkerweb-settings-secret.yaml) - Secret with all sensitive variables example
+- [`bunkerweb-secret.yaml`](bunkerweb-secret.yaml) - Secret with all sensitive variables example
 - [`all-in-one.yaml`](all-in-one.yaml) - Full stack configuration for testing
 - [`high-availability.yaml`](high-availability.yaml) - Production HA setup with multiple replicas
 - [`minimal.yaml`](minimal.yaml) - Production like stack, using external services for DB, Redis & monitoring
@@ -20,12 +20,6 @@ This directory contains example configurations for common BunkerWeb deployment s
 ### Integrations
 
 - [`mcp-integration.yaml`](mcp-integration.yaml) - MCP server for AI assistants (Claude Code, etc.)
-
-## Future Examples to come and open to contribution
-
-- [`security-hardened.yaml`](security-hardened.yaml) - Security-focused configuration
-- [`multi-tenant.yaml`](multi-tenant.yaml) - Multi-tenant setup with namespace isolation
-- [`edge-deployment.yaml`](edge-deployment.yaml) - Edge/CDN-style deployment
 
 ## Available Configurations
 
@@ -141,7 +135,7 @@ kubectl rollout status deployment/bunkerweb
 ### Validate Configuration
 ```bash
 # Dry-run validation
-helm template test ./charts/bunkerweb -f examples/all-in-one-test.yaml --dry-run
+helm template test ./charts/bunkerweb -f examples/all-in-one.yaml --dry-run
 
 # Check for syntax errors
 helm lint ./charts/bunkerweb
@@ -217,7 +211,6 @@ service:
 | Scenario | Configuration File | Description | Best For |
 |----------|-------------------|-------------|----------|
 | **Testing/Staging** | `examples/all-in-one.yaml` | Complete integrated environment | CI/CD pipelines, QA testing |
-| **Production** | `examples/production-external.yaml` | External services + maximum security | Production workloads |
 | **AI Integration** | `examples/mcp-integration.yaml` | MCP server for AI assistants | Claude Code, automation |
 
 ---

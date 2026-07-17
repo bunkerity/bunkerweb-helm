@@ -111,13 +111,4 @@ jobs:
     - name: Package chart and push it
       env:
         REPO_BEARER_TOKEN: ${{ secrets.REPO_BEARER_TOKEN }}
-      run: |
-        cd ./charts
-        out_dir="$(mktemp -d)"
-        helm package ./bunkerweb/ --destination "$out_dir"
-        chart_file="$(find "$out_dir" -maxdepth 1 -type f -name '*.tgz' -print -quit)"
-        curl --fail-with-body --show-error --silent --request POST \
-          --header "Authorization: Bearer ${REPO_BEARER_TOKEN}" \
-          --form "env=prod" \
-          --form "chart=@${chart_file};type=application/gzip" \
-          "https://repo.bunkerweb.io/api/chart"
+      run: ./scripts/publish-chart.sh prod

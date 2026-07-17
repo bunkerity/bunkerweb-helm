@@ -29,14 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- if or (.Values.mcp.imagePullSecrets) (.Values.imagePullSecrets) }}
-      imagePullSecrets:
-      {{- if .Values.mcp.imagePullSecrets }}
-        {{- toYaml .Values.mcp.imagePullSecrets | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
-      {{- end }}
-      {{- end }}
+      {{- include "bunkerweb.podImagePullSecrets" (dict "comp" .Values.mcp "root" .Values) }}
       containers:
         - name: mcp-bunkerweb
           image: {{ .Values.mcp.repository }}:{{ .Values.mcp.tag }}
@@ -48,20 +41,26 @@ spec:
             - name: BUNKERWEB_API_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mcp.secrets.existingSecret }}
+                  name: "{{ .Values.mcp.secrets.existingSecret }}"
                   key: api-token
                   optional: true
             - name: BUNKERWEB_BASIC_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mcp.secrets.existingSecret }}
+                  name: "{{ .Values.mcp.secrets.existingSecret }}"
                   key: admin-username
                   optional: true
             - name: BUNKERWEB_BASIC_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mcp.secrets.existingSecret }}
+                  name: "{{ .Values.mcp.secrets.existingSecret }}"
                   key: admin-password
+                  optional: true
+            - name: BUNKERWEB_WEBSOCKET_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.mcp.secrets.existingSecret }}"
+                  key: websocket-token
                   optional: true
           {{- end }}
           envFrom:
@@ -94,25 +93,7 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
       terminationGracePeriodSeconds: {{ .Values.mcp.terminationGracePeriodSeconds }}
-      {{- if .Values.mcp.nodeSelector }}
-      {{- with .Values.mcp.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- else if .Values.nodeSelector }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- end }}
-      {{- if or (.Values.mcp.tolerations) (.Values.tolerations) }}
-      tolerations:
-      {{- if .Values.mcp.tolerations }}
-        {{- toYaml .Values.mcp.tolerations | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.tolerations | nindent 6 }}
-      {{- end }}
-      {{- end }}
+      {{- include "bunkerweb.podNodeTolerations" (dict "comp" .Values.mcp "root" .Values) }}
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}

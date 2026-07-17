@@ -51,7 +51,7 @@ spec:
               {{- if not (empty .Values.settings.existingSecret) }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.settings.existingSecret }}
+                  name: "{{ .Values.settings.existingSecret }}"
                   key: database-uri
               {{- else }}
               value: "{{ include "bunkerweb.databaseUri" . }}"
@@ -78,7 +78,7 @@ spec:
             {{- end }}
             {{- if .Values.settings.ui.wizard }}
             - name: UI_HOST
-              value: "{{ include "bunkerweb.uiHost" . }}"
+              value: "{{ printf "http://ui-%s.%s.svc.%s:7000" (include "bunkerweb.fullname" .) (include "bunkerweb.namespace" .) .Values.settings.kubernetes.domainName }}"
             {{- end }}
             {{- if .Values.scheduler.usePrometheusExporter }}
             - name: USE_PROMETHEUS_EXPORTER
@@ -90,7 +90,7 @@ spec:
             - name: PRO_LICENSE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.settings.existingSecret }}
+                  name: "{{ .Values.settings.existingSecret }}"
                   key: pro-license-key
                   optional: true
             {{- else if .Values.scheduler.proLicenseKey }}
@@ -106,43 +106,13 @@ spec:
             {{- if .Values.scheduler.extraEnvs }}
               {{- toYaml .Values.scheduler.extraEnvs | nindent 12 }}
             {{- end }}
-            {{- if .Values.ui.logs.enabled }}
-            - name: LOG_TYPES
-              value: "stderr syslog"
-            - name: LOG_SYSLOG_ADDRESS
-              value: "{{ include "bunkerweb.syslogAddress" . }}"
-            {{- end }}
+            {{- include "bunkerweb.logEnvs" . }}
           {{- with .Values.scheduler.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-    {{- if .Values.scheduler.nodeSelector }}
-      {{- with .Values.scheduler.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- else if .Values.nodeSelector }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.scheduler.tolerations) (.Values.tolerations) }}
-      tolerations:
-      {{- if .Values.scheduler.tolerations }}
-        {{- toYaml .Values.scheduler.tolerations | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.tolerations | nindent 6 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.scheduler.imagePullSecrets) (.Values.imagePullSecrets) }}
-      imagePullSecrets:
-      {{- if .Values.scheduler.imagePullSecrets }}
-        {{- toYaml .Values.scheduler.imagePullSecrets | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
-      {{- end }}
-    {{- end }}
+    {{- include "bunkerweb.podNodeTolerations" (dict "comp" .Values.scheduler "root" .Values) }}
+    {{- include "bunkerweb.podImagePullSecrets" (dict "comp" .Values.scheduler "root" .Values) }}
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}

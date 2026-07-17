@@ -48,7 +48,7 @@ spec:
               {{- if not (empty .Values.settings.existingSecret) }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.settings.existingSecret }}
+                  name: "{{ .Values.settings.existingSecret }}"
                   key: database-uri
               {{- else }}
               value: "{{ include "bunkerweb.databaseUri" . }}"
@@ -89,12 +89,7 @@ spec:
               {{- else }}
               value: "{{ .Values.settings.ui.flaskSecret }}"
               {{- end }}
-            {{- if .Values.ui.logs.enabled }}
-            - name: LOG_TYPES
-              value: "stderr syslog"
-            - name: LOG_SYSLOG_ADDRESS
-              value: "{{ include "bunkerweb.syslogAddress" . }}"
-            {{- end }}
+            {{- include "bunkerweb.logEnvs" . }}
             - name: OVERRIDE_ADMIN_CREDS
               value: "{{ .Values.settings.ui.overrideAdminCreds }}"
             {{- if .Values.settings.ui.maxContentLength }}
@@ -169,33 +164,8 @@ spec:
         configMap:
           name: ui-{{ include "bunkerweb.fullname" . }}
       {{- end }}
-    {{- if .Values.ui.nodeSelector }}
-      {{- with .Values.ui.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- else if .Values.nodeSelector }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.ui.tolerations) (.Values.tolerations) }}
-      tolerations:
-      {{- if .Values.ui.tolerations }}
-        {{- toYaml .Values.ui.tolerations | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.tolerations | nindent 6 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.ui.imagePullSecrets) (.Values.imagePullSecrets) }}
-      imagePullSecrets:
-      {{- if .Values.ui.imagePullSecrets }}
-        {{- toYaml .Values.ui.imagePullSecrets | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
-      {{- end }}
-    {{- end }}
+    {{- include "bunkerweb.podNodeTolerations" (dict "comp" .Values.ui "root" .Values) }}
+    {{- include "bunkerweb.podImagePullSecrets" (dict "comp" .Values.ui "root" .Values) }}
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}

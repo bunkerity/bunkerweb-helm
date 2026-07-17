@@ -22,7 +22,10 @@ data:
     #requirepass your-redis-password-here
     
     {{- if not (empty .Values.settings.existingSecret) }}
-    requirepass {{ .Values.settings.existingSecret }}
+    # requirepass is injected at runtime by the deployment via
+    # --requirepass "$(REDIS_PASSWORD)" (sourced from the existing secret's
+    # redis-password key). A ConfigMap cannot dereference a Secret, so it is
+    # intentionally omitted here.
     {{- else }}
     requirepass {{ .Values.redis.config.password }}
     {{- end }}

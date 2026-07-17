@@ -44,11 +44,4 @@ data:
   RATE_LIMIT_RPC: {{ .Values.mcp.config.rateLimitRpc | quote }}
   RATE_LIMIT_WS: {{ .Values.mcp.config.rateLimitWs | quote }}
   CACHE_ENABLED: {{ .Values.mcp.config.cacheEnabled | quote }}
-
-  # Semantic Search Configuration
-  SEARCH_MODE: {{ .Values.mcp.config.searchMode | quote }}
-  {{- if .Values.mcp.config.searchApiUrl }}
-  SEARCH_API_URL: {{ .Values.mcp.config.searchApiUrl | quote }}
-  {{- end }}
-  SEARCH_TIMEOUT: {{ .Values.mcp.config.searchTimeout | quote }}
 {{- end }}

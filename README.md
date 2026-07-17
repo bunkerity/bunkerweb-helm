@@ -68,142 +68,26 @@ helm install mybunkerweb bunkerweb/bunkerweb -n bunkerweb --create-namespace
 For detailed configuration options, see our comprehensive documentation:
 
 **[Values Guide](docs/values.md)** - Complete user guide  
-**[Values Reference](docs/values-reference.md)** - Quick technical reference  
+**[Values Reference](docs/values.md)** - Quick technical reference  
 **[values.yaml](charts/bunkerweb/values.yaml)** - Source configuration file
-
-### Security Settings
-
-```yaml
-settings:
-  misc:
-    # Custom DNS resolvers
-    dnsResolvers: "1.1.1.1 8.8.8.8"
-    # API whitelist for internal access
-    apiWhitelistIp: "127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
-```
-
-### Kubernetes Integration
 
 **Controller selection**: The controller runs as either a `GatewayController` or an `IngressController`, never both. If both are configured, `GatewayController` takes priority.
 
-```yaml
-settings:
-  kubernetes:
-    # Namespaces to monitor (empty = all)
-    namespaces: "default,production"
-    # Custom ingress class
-    ingressClass: "bunkerweb"
-    # Cluster domain
-    domainName: "cluster.local"
-```
+### Configuration Topics
 
-### High Availability Setup
+| Topic | Example | Reference |
+|-------|---------|-----------|
+| Security settings | [`examples/all-in-one.yaml`](examples/all-in-one.yaml) | [docs/values.md#settings](docs/values.md#settings) |
+| Kubernetes integration | [`examples/all-in-one.yaml`](examples/all-in-one.yaml) | [docs/values.md#settings](docs/values.md#settings) |
+| High availability | [`examples/high-availability.yaml`](examples/high-availability.yaml) | [docs/values.md#bunkerweb](docs/values.md#bunkerweb), [#service](docs/values.md#service) |
+| MCP server | [`examples/mcp-integration.yaml`](examples/mcp-integration.yaml) | [docs/values.md#mcp](docs/values.md#mcp) |
+| Secret management | [`examples/bunkerweb-secret.yaml`](examples/bunkerweb-secret.yaml) | [docs/values.md#settings](docs/values.md#settings) |
+| Persistence | [`examples/high-availability.yaml`](examples/high-availability.yaml) | [docs/values.md#mariadb](docs/values.md#mariadb), [#redis](docs/values.md#redis), [#grafana](docs/values.md#grafana), [#prometheus](docs/values.md#prometheus), [#ui](docs/values.md#ui) |
+| Monitoring | [`examples/all-in-one.yaml`](examples/all-in-one.yaml) | [docs/values.md#prometheus](docs/values.md#prometheus), [#grafana](docs/values.md#grafana) |
 
-```yaml
-bunkerweb:
-  kind: DaemonSet  # or "Deployment"
-  replicas: 3      # Only for Deployment mode
-  pdb:
-    create: true
-    minAvailable: 1
-
-service:
-  type: LoadBalancer
-  externalTrafficPolicy: Local
-```
-
-### MCP Server (AI Assistant Integration)
-
-The MCP (Model Context Protocol) server enables AI assistants like Claude Code to manage BunkerWeb configuration.
-
-```yaml
-mcp:
-  enabled: true
-  # API credentials (must match settings.api configuration)
-  secrets:
-    bunkerwebApiToken: "your-api-token"
-
-  # Expose via Ingress (legacy)
-  ingress:
-    enabled: true
-    serverName: "mcp.example.com"
-    annotations:
-      bunkerweb.io/USE_WHITELIST: "yes"
-      bunkerweb.io/WHITELIST_IP: "YOUR_IP/32"
-
-  # Or expose via Gateway API (modern)
-  httpRoutes:
-    enabled: true
-    serverName: "mcp.example.com"
-    extraAnnotations:
-      bunkerweb.io/USE_WHITELIST: "yes"
-      bunkerweb.io/WHITELIST_IP: "YOUR_IP/32"
-```
-
-> **Security Warning**: The MCP server has no built-in authentication for the `/mcp` endpoint. Always use IP whitelisting or network policies to restrict access.
-
-### Secret Management
-
-```yaml
-settings:
-  # Use existing secret for sensitive values
-  existingSecret: "bunkerweb-secrets"
-  # Or configure inline (less secure)
-  ui:
-    adminUsername: "admin"
-    adminPassword: "secure-password"
-```
-
-## Persistence
-
-### Storage Requirements
-
-| Component | Default Size | Purpose |
-|-----------|-------------|---------|
-| MariaDB | 5Gi | Configuration and logs |
-| Redis | 1Gi | Cache and banned IPs |
-| UI Logs | 5Gi | Access and error logs |
-| Prometheus | 8Gi | Metrics storage |
-| Grafana | 5Gi | Dashboards and config |
-
-### Custom Storage Classes
-
-```yaml
-mariadb:
-  persistence:
-    storageClass: "fast-ssd"
-    size: 20Gi
-
-redis:
-  persistence:
-    storageClass: "standard"
-    size: 5Gi
-```
+> **Security note**: The MCP server has no built-in authentication for the `/mcp` endpoint. Always use IP whitelisting or network policies to restrict access.
 
 ## Monitoring and Observability
-
-### Enable Monitoring Stack
-
-```yaml
-scheduler:
-  proLicenceKey: your-bunkerweb-licence-key
-  usePrometheusExporter: true
-
-prometheus:
-  enabled: true
-  persistence:
-    enabled: true
-    size: 20Gi
-
-grafana:
-  enabled: true
-  adminUser: admin
-  adminPassword: "your-secure-password"
-  ingress:
-    enabled: true
-    hosts:
-      - host: grafana.example.com
-```
 
 ### Custom Dashboards
 
@@ -264,6 +148,11 @@ helm upgrade mybunkerweb bunkerweb/bunkerweb
 # Upgrade with new values
 helm upgrade mybunkerweb bunkerweb/bunkerweb -f new-values.yaml
 ```
+
+### Version-specific notes
+
+- **> 1.0.24**: When `settings.existingSecret` is set, the BunkerWeb Pro license should be provided via the secret's `pro-license-key` key (a plain `scheduler.proLicenseKey` value is ignored). The same now applies to the optional feature secrets (`zerossl-api-key`, `custom-ssl-key`, `sessions-secret`, `auth-basic-password`, `darkvisitors-token`, `crowdsec-api-key`).
+  - **Upgrade note:** these secret keys are `optional`, and when `settings.existingSecret` is set it takes precedence over the matching plaintext values (`scheduler.features.sessions.sessionsSecret`, `scheduler.features.authBasic.authBasicPassword`, etc.). If you previously combined `settings.existingSecret` (for the database/Redis) with **plaintext** feature values, those plaintext values are now ignored — add the corresponding keys to your existing secret, or the feature will lose its credential silently.
 
 ## Uninstallation
 

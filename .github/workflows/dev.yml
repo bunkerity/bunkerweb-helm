@@ -19,12 +19,7 @@ jobs:
 
     - name: Set up Helm
       uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
-      
-    - name: Install yq
-      run: |
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        sudo chmod +x /usr/local/bin/yq
-      
+
     - name: Run Chart Validation
       run: ./scripts/validate-chart.sh
       
@@ -44,13 +39,4 @@ jobs:
     - name: Package chart and push it
       env:
         REPO_BEARER_TOKEN: ${{ secrets.REPO_BEARER_TOKEN }}
-      run: |
-        cd ./charts
-        out_dir="$(mktemp -d)"
-        helm package ./bunkerweb/ --destination "$out_dir"
-        chart_file="$(find "$out_dir" -maxdepth 1 -type f -name '*.tgz' -print -quit)"
-        curl --fail-with-body --show-error --silent --request POST \
-          --header "Authorization: Bearer ${REPO_BEARER_TOKEN}" \
-          --form "env=dev" \
-          --form "chart=@${chart_file};type=application/gzip" \
-          "https://repo.bunkerweb.io/api/chart"
+      run: ./scripts/publish-chart.sh dev

@@ -1,4 +1,4 @@
-{{- if eq (include "bunkerweb.apiEnabled" .) "true" -}}
+{{- if include "bunkerweb.apiEnabled" . -}}
 {{- if ne (include "bunkerweb.apiAuthConfigured" .) "true" }}
 {{- fail "The external API is enabled (api.enabled=true, or mcp.enabled uses the internal API) but no authentication is configured. The BunkerWeb API refuses to start without auth and will CrashLoopBackOff. Set one of: settings.api.useBearerToken.token (or .fromExistingSecret), settings.api.useUserPass.apiUsername+apiPassword (or .fromExistingSecret), or settings.api.apiAclBootstrapFile. Otherwise set api.enabled=false." }}
 {{- end }}
@@ -47,7 +47,7 @@ spec:
               {{- if not (empty .Values.settings.existingSecret) }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.settings.existingSecret }}
+                  name: "{{ .Values.settings.existingSecret }}"
                   key: database-uri
               {{- else }}
               value: "{{ include "bunkerweb.databaseUri" . }}"
@@ -115,12 +115,7 @@ spec:
             - name: API_ALLOWED_HOSTS
               value: {{ .Values.settings.api.allowedHosts | quote }}
             {{- end }}
-            {{- if .Values.ui.logs.enabled }}
-            - name: LOG_TYPES
-              value: "stderr syslog"
-            - name: LOG_SYSLOG_ADDRESS
-              value: "{{ include "bunkerweb.syslogAddress" . }}"
-            {{- end }}
+            {{- include "bunkerweb.logEnvs" . }}
             {{- if .Values.api.extraEnvs }}
               {{- toYaml .Values.api.extraEnvs | nindent 12 }}
             {{- end }}
@@ -135,33 +130,8 @@ spec:
         configMap:
           name: "{{ .Values.settings.api.apiAclBootstrapFile }}"
       {{- end }}
-    {{- if .Values.api.nodeSelector }}
-      {{- with .Values.api.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- else if .Values.nodeSelector }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.api.tolerations) (.Values.tolerations) }}
-      tolerations:
-      {{- if .Values.api.tolerations }}
-        {{- toYaml .Values.api.tolerations | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.tolerations | nindent 6 }}
-      {{- end }}
-    {{- end }}
-    {{- if or (.Values.api.imagePullSecrets) (.Values.imagePullSecrets) }}
-      imagePullSecrets:
-      {{- if .Values.api.imagePullSecrets }}
-        {{- toYaml .Values.api.imagePullSecrets | nindent 6 }}
-      {{- else }}
-        {{- toYaml .Values.imagePullSecrets | nindent 6 }}
-      {{- end }}
-    {{- end }}
+    {{- include "bunkerweb.podNodeTolerations" (dict "comp" .Values.api "root" .Values) }}
+    {{- include "bunkerweb.podImagePullSecrets" (dict "comp" .Values.api "root" .Values) }}
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
