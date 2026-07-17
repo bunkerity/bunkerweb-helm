@@ -55,10 +55,10 @@ settings:
   #   - totp-secrets      : TOTP secrets for 2FA
   #   - mariadb-user      : MariaDB username
   #   - mariadb-password  : MariaDB password
-  #   - pro-license-key   : BunkerWeb Pro license key
   #   - api-token         : API Bearer token
   #   - api-username      : API username, also require api-password
   #   - api-password      : API password, also require api-username
+  # The pro-license-key is optional for non-PRO deployments
   existingSecret: ""
 
   # ----- KUBERNETES INTEGRATION -----
