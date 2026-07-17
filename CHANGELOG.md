@@ -11,6 +11,17 @@ or `[CI]`.
 > `vX.Y.Z` git tag. Entries before `v0.0.5` are folded into an initial-development note because
 > those `0.0.x` numbers were reused across the `1.6.0-rc` rollbacks.
 
+## v1.0.24 - 2026/07/17
+
+App version: `1.6.13`.
+
+- [DEPS] upgrade to BunkerWeb 1.6.13.
+- [SECURITY] upstream: NGINX 1.30.4 (CVE-2026-42533, CVE-2026-60005, CVE-2026-56434); fixes for rDNS spoof block bypass (GHSA-q54j-5484-pvjm), ACME challenge token path traversal (GHSA-79fm-4xj6-pp5g), instances destination validation (GHSA-rwch-jhxx-cx5f), and TOTP recovery-code rotation enforcement (GHSA-j63f-j59c-q626).
+- [FEATURE] `scheduler.features.rateLimit`: new `useLimitReqGlobal` / `limitReqGlobalRate` (`USE_LIMIT_REQ_GLOBAL`, `LIMIT_REQ_GLOBAL_RATE`) — cap the aggregate request rate for a whole service across all clients and URLs.
+- [FEATURE] `scheduler.features.geoBlocking`: new `countryIgnoreUri` (`COUNTRY_IGNORE_URI`) — PCRE URI patterns excluded from country checks.
+- [FEATURE] `scheduler.features.antibot`: new `antibotSuccessUri` (`ANTIBOT_SUCCESS_URI`) — fixed URI to redirect clients to after solving a challenge.
+- [DOCS] upstream fix: `KEEP_UPSTREAM_HEADERS` now preserves `Content-Security-Policy-Report-Only`.
+
 ## v1.0.23 - 2026/07/10
 
 App version: `1.6.12`.
