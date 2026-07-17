@@ -393,7 +393,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.12
+  tag: 1.6.13
   pullPolicy: IfNotPresent
 
   # Resource requests and limits
@@ -578,7 +578,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.12
+  tag: 1.6.13
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -725,6 +725,8 @@ scheduler:
       antibotRecaptchaClassic: ""
       # Only perform reverse DNS antibot checks on public IP addresses ("yes" or "no")
       antibotRdnsGlobal: ""
+      # Fixed URI to redirect clients to after solving the challenge (empty = original page)
+      antibotSuccessUri: ""
 
     # =============================================================================
     # RATE LIMITING
@@ -744,6 +746,10 @@ scheduler:
       limitConnMaxHttp2: ""
       # Max HTTP/3 connections per IP
       limitConnMaxHttp3: ""
+      # Activate global request limiting: cap the aggregate request rate for the whole service, all clients and URLs combined (yes/no, upstream default: no)
+      useLimitReqGlobal: ""
+      # Maximum aggregate request rate for the whole service (e.g. 1000r/s, upstream default: 1000r/s)
+      limitReqGlobalRate: ""
 
     # =============================================================================
     # BLACKLIST/WHITELIST
@@ -774,6 +780,8 @@ scheduler:
       whitelistCountry: ""
       # Blocked countries (ISO 3166-1 alpha-2 codes or group tokens like @EU, @G7, @FIVE_EYES, space-separated)
       blacklistCountry: ""
+      # List of PCRE regex patterns (space separated) for URIs excluded from country checks
+      countryIgnoreUri: ""
 
     # =============================================================================
     # BAD BEHAVIOR DETECTION
@@ -1268,7 +1276,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.12
+  tag: 1.6.13
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1374,7 +1382,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.12
+  tag: 1.6.13
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1507,7 +1515,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.12
+  tag: 1.6.13
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)

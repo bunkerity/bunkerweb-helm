@@ -369,6 +369,10 @@ Generate BunkerWeb feature environment variables
 - name: ANTIBOT_RDNS_GLOBAL
   value: {{ .antibot.antibotRdnsGlobal | quote }}
 {{- end }}
+{{- if and .antibot .antibot.antibotSuccessUri (ne .antibot.antibotSuccessUri "") }}
+- name: ANTIBOT_SUCCESS_URI
+  value: {{ .antibot.antibotSuccessUri | quote }}
+{{- end }}
 
 # =============================================================================
 # RATE LIMITING
@@ -400,6 +404,14 @@ Generate BunkerWeb feature environment variables
 {{- if and .rateLimit .rateLimit.limitConnMaxHttp3 (ne .rateLimit.limitConnMaxHttp3 "") }}
 - name: LIMIT_CONN_MAX_HTTP3
   value: {{ .rateLimit.limitConnMaxHttp3 | quote }}
+{{- end }}
+{{- if and .rateLimit .rateLimit.useLimitReqGlobal (ne .rateLimit.useLimitReqGlobal "") }}
+- name: USE_LIMIT_REQ_GLOBAL
+  value: {{ .rateLimit.useLimitReqGlobal | quote }}
+{{- end }}
+{{- if and .rateLimit .rateLimit.limitReqGlobalRate (ne .rateLimit.limitReqGlobalRate "") }}
+- name: LIMIT_REQ_GLOBAL_RATE
+  value: {{ .rateLimit.limitReqGlobalRate | quote }}
 {{- end }}
 
 # =============================================================================
@@ -445,6 +457,10 @@ Generate BunkerWeb feature environment variables
 {{- if and .geoBlocking .geoBlocking.blacklistCountry (ne .geoBlocking.blacklistCountry "") }}
 - name: BLACKLIST_COUNTRY
   value: {{ .geoBlocking.blacklistCountry | quote }}
+{{- end }}
+{{- if and .geoBlocking .geoBlocking.countryIgnoreUri (ne .geoBlocking.countryIgnoreUri "") }}
+- name: COUNTRY_IGNORE_URI
+  value: {{ .geoBlocking.countryIgnoreUri | quote }}
 {{- end }}
 
 # =============================================================================

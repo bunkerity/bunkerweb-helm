@@ -3,7 +3,7 @@ BunkerWeb has been successfully deployed!
 {{- if and .Release.IsUpgrade (ne (include "bunkerweb.apiEnabled" .) "true") }}
 
 ================================================================================
-                       UPGRADE NOTICE (chart 1.0.23)
+                       UPGRADE NOTICE (chart 1.0.24)
 ================================================================================
 
 The external API is now DISABLED by default (was enabled in <= 1.0.18, where
