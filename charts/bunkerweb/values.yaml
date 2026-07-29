@@ -1835,6 +1835,12 @@ mariadb:
   # Example: extraEnvs: [{"name": "MARIADB_AUTO_UPGRADE", "value": "1"}]
   extraEnvs: []
 
+  # Security context for MariaDB
+  # set fsGroup when running a no-root container variant
+  securityContext: {}
+    # fsGroup: 999
+    # fsGroupChangePolicy: "OnRootMismatch"
+
   # Resource requests and limits
   # RECOMMENDED: Uncomment and adjust for production
   # resources:

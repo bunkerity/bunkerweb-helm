@@ -19,6 +19,10 @@ spec:
         {{- include "bunkerweb.labels" . | nindent 8 }}
         bunkerweb.io/component: "mariadb"
     spec:
+      {{- with .Values.mariadb.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8}}
+      {{- end }}
       containers:
         - name: mariadb
           image: {{ .Values.mariadb.repository }}:{{ .Values.mariadb.tag }}
