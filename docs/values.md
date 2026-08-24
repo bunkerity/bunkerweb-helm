@@ -500,6 +500,7 @@ Database backend for BunkerWeb configuration and logs
 | `mariadb.nodeSelector`              | Node selector (overrides global setting)                                              | `object` | `{}`                                |
 | `mariadb.persistence`               | Persistent storage configuration                                                      | `object` | See nested values                   |
 | `mariadb.pullPolicy`                | Configuration for pullPolicy                                                          | `string` | `"IfNotPresent"`                    |
+| `mariadb.securityContext`           | Security context for MariaDB                                                          | `object` | `{}`                                |
 | `mariadb.repository`                | Container image configuration                                                         | `string` | `"docker.io/mariadb"`               |
 | `mariadb.tag`                       | Configuration for tag                                                                 | `string` | `"11"`                              |
 | `mariadb.tolerations`               | Tolerations (overrides global setting)                                                | `list`   | `[]`                                |
