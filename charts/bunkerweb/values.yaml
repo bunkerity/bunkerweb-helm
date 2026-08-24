@@ -404,7 +404,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.13
+  tag: 1.6.14
   pullPolicy: IfNotPresent
 
   # Resource requests and limits
@@ -589,7 +589,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.13
+  tag: 1.6.14
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1075,6 +1075,9 @@ scheduler:
       metricsMaxBlockedRequestsRedis: ""
       # Save metrics to Redis
       metricsSaveToRedis: ""
+      # TTL in seconds for metrics keys in Redis (0 keeps them permanent,
+      # accepts k/m suffix). Refreshed on every sync.
+      metricsRedisTtl: ""
       # Caps per-worker LRU event history (accepts k/m suffix, e.g. "1k")
       maxLruHistory: ""
       # Slot count for the shared per-worker datastore LRU (accepts k/m suffix)
@@ -1291,7 +1294,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.13
+  tag: 1.6.14
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1394,7 +1397,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.13
+  tag: 1.6.14
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1524,7 +1527,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.13
+  tag: 1.6.14
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1834,6 +1837,12 @@ mariadb:
   # Additional environment variables for MariaDB container
   # Example: extraEnvs: [{"name": "MARIADB_AUTO_UPGRADE", "value": "1"}]
   extraEnvs: []
+
+  # Security context for MariaDB
+  # Set fsGroup when running a non-root container variant
+  securityContext: {}
+    # fsGroup: 999
+    # fsGroupChangePolicy: "OnRootMismatch"
 
   # Resource requests and limits
   # RECOMMENDED: Uncomment and adjust for production

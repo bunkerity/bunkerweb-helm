@@ -570,6 +570,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "METRICS_MAX_BLOCKED_REQUESTS" "value" (and .metrics .metrics.metricsMaxBlockedRequests)) }}
 {{- include "bunkerweb.envVar" (dict "name" "METRICS_MAX_BLOCKED_REQUESTS_REDIS" "value" (and .metrics .metrics.metricsMaxBlockedRequestsRedis)) }}
 {{- include "bunkerweb.envVar" (dict "name" "METRICS_SAVE_TO_REDIS" "value" (and .metrics .metrics.metricsSaveToRedis)) }}
+{{- include "bunkerweb.envVar" (dict "name" "METRICS_REDIS_TTL" "value" (and .metrics .metrics.metricsRedisTtl)) }}
 {{- include "bunkerweb.envVar" (dict "name" "MAX_LRU_HISTORY" "value" (and .metrics .metrics.maxLruHistory)) }}
 {{- include "bunkerweb.envVar" (dict "name" "DATASTORE_LRU_SIZE" "value" (and .metrics .metrics.datastoreLruSize)) }}
 
