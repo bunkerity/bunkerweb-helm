@@ -74,9 +74,10 @@ BunkerWeb deploys as a multi-component system:
 
 ## CI/CD
 
-Two GitHub Actions workflows:
-- `.github/workflows/dev.yml` — on push to `dev` branch (charts/** changes): validate → package → upload to dev Helm repo via SSH
+Three GitHub Actions workflows:
+- `.github/workflows/dev.yml` — on push to `dev` branch (charts/** changes): plumber + validate → package → upload to dev Helm repo via SSH
 - `.github/workflows/prod.yml` — on push to `main` branch: same pipeline but uploads to production Helm repo
+- `.github/workflows/plumber.yml` — reusable [Plumber](https://getplumber.io) CI/CD security scan (also weekly), gating both pipelines at `min-score: B`. Policy in `.github/plumber/` — see its README before adding a third-party action, which must be allowlisted there and SHA-pinned.
 
 ## Development Notes
 

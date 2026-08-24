@@ -2,6 +2,7 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.26-blue)
 ![AppVersion](https://img.shields.io/badge/app%20version-1.6.14-green)
+[![Plumber CI/CD security score](https://score.getplumber.io/github.com/bunkerity/bunkerweb-helm.svg)](https://score.getplumber.io/github.com/bunkerity/bunkerweb-helm)
 
 Official [Helm chart](https://helm.sh/docs/) to deploy [BunkerWeb](https://www.bunkerweb.io/?utm_campaign=self&utm_source=github) on Kubernetes - A next-generation, open-source **web application firewall (WAF)** and reverse proxy.
 

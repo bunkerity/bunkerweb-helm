@@ -6,8 +6,16 @@ on:
       - main
 
 jobs:
+  plumber:
+    uses: ./.github/workflows/plumber.yml
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
+
   deploy:
     runs-on: ubuntu-latest
+    needs: plumber
     permissions:
       contents: write
 

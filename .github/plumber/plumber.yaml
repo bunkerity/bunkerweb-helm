@@ -1,0 +1,9 @@
+extends: plumber:default
+version: "2.0"
+
+github:
+  controls:
+    githubActionMustComeFromAuthorizedSources:
+      trustedGithubActions:
+        - azure/setup-helm
+        - softprops/action-gh-release
