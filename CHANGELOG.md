@@ -11,6 +11,19 @@ or `[CI]`.
 > `vX.Y.Z` git tag. Entries before `v0.0.5` are folded into an initial-development note because
 > those `0.0.x` numbers were reused across the `1.6.0-rc` rollbacks.
 
+## v1.0.26 - 2026/08/24
+
+App version: `1.6.14`.
+
+- [DEPS] upgrade to BunkerWeb 1.6.14.
+- [SECURITY] upstream: `X-SSL-*` request headers from clients are stripped before reaching an upstream (spoofable `X-SSL-Client-Verify: SUCCESS` with mTLS header forwarding off, or on any PHP-FPM service); UI session revocations are stored in Redis instead of a file outside the persistent volume, so they survive pod recreation and reach every replica; the year-long "remember me" token is removed (raise `settings.ui.sessionLifetimeHours` / `sessionAbsoluteHours` instead); TOTP codes can no longer be replayed; API config pushes no longer empty the target directory on a live instance mid-copy; Biscuit tokens with appended blocks are rejected; the database password is no longer logged on a malformed `DATABASE_URI`. Also OWASP CRS (GHSA-6jp8-c2w2-x7wr, GHSA-f5qm-3h4p-8qhg), Mbed TLS 4.2.0, and Alpine `python3` 3.14.7-r0 (CVE-2026-7210).
+- [FEATURE] `mariadb`: new `mariadb.securityContext` — pod-level security context, needed to set `fsGroup` when running a non-root MariaDB image. (#94, thanks @martinbfrey)
+- [FEATURE] `scheduler.features.metrics`: new `metricsRedisTtl` (`METRICS_REDIS_TTL`) — TTL in seconds for metrics keys in Redis (default `2592000`; `0` keeps them permanent), refreshed on every sync so abandoned metrics stay evictable under `volatile-lru`.
+- [BUGFIX] upstream `scheduler`: pod restarts no longer strand an instance on its loading configuration (stale `.bw-applied` marker), the initial push waits for the instance to answer, and the job environment is refreshed on reload — a DNS-01 service created in the web UI previously needed a container restart to get its certificate.
+- [BUGFIX] upstream `core`: an empty setting no longer renders an argument-less directive (`gzip_proxied ;`) that NGINX refuses to start on, and deleting a plugin cache entry no longer wipes that plugin's cache directory (which destroyed Let's Encrypt ACME accounts and live certificate links).
+- [DOCS] `MTLS_CA_CERTIFICATE_DATA` / `MTLS_CRL_DATA` (new in 1.6.14) supply the client CA bundle and CRL inline as base64 or PEM instead of a path every instance must read — the usual Kubernetes case. As in v1.0.23, the chart does not expose the `mtls` plugin; reach these via `scheduler.extraEnvs`.
+- [DOCS] upstream: `CROWDSEC_*` settings are now `multisite` (the chart's `scheduler.features.crowdSec` keys still apply globally); `KEEP_CONFIG_ON_RESTART` is no longer a setting — set it via `bunkerweb.extraEnvs`; `QUERY` is allowed by default in `ALLOWED_METHODS`.
+
 ## v1.0.25 - 2026/07/17
 
 App version: `1.6.13` (unchanged).
