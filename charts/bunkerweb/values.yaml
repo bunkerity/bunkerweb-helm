@@ -1839,7 +1839,7 @@ mariadb:
   extraEnvs: []
 
   # Security context for MariaDB
-  # set fsGroup when running a no-root container variant
+  # Set fsGroup when running a non-root container variant
   securityContext: {}
     # fsGroup: 999
     # fsGroupChangePolicy: "OnRootMismatch"

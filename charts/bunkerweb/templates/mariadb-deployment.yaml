@@ -21,7 +21,7 @@ spec:
     spec:
       {{- with .Values.mariadb.securityContext }}
       securityContext:
-        {{- toYaml . | nindent 8}}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: mariadb
