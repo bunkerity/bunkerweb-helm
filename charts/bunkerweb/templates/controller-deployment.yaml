@@ -35,6 +35,10 @@ spec:
         - name: bunkerweb-controller
           image: {{ .Values.controller.repository }}:{{ .Values.controller.tag }}
           imagePullPolicy: {{ .Values.controller.pullPolicy }}
+          {{- with .Values.controller.resources }}
+          resources:
+            {{- toYaml . | nindent 12}}
+          {{- end }}
           {{- with .Values.controller.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12}}
