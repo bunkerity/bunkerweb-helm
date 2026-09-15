@@ -362,6 +362,10 @@ service:
   # ClusterIP: Only accessible within the cluster
   type: LoadBalancer
 
+  # Set loadBalancerIP (if type is LoadBalancer)
+  # Allows binding to a floating IP
+  loadBalancerIP: ""
+
   # Set defined NodePorts if using Service type NodePort, if not set, random ports will be assigned
   # nodePortHttp: 30080
   # nodePortHttps: 30443
