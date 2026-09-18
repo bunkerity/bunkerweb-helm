@@ -747,7 +747,7 @@ Network policies for micro-segmentation
 | `networkPolicy.egress.internetPorts`      | Ports allowed for internet access                                                                       | `list`   | `[80, 443]`       |
 | `networkPolicy.ingress.allowMetrics`      | Allow Prometheus metrics scraping. The rule admits this chart's own Prometheus pods when prometheus.... | `bool`   | `true`            |
 | `networkPolicy.ingress.allowWeb`          | Allow public BunkerWeb HTTP/HTTPS traffic                                                               | `bool`   | `true`            |
-| `networkPolicy.ingress.apiPort`           | Instance API port (5000 in BunkerWeb)                                                                   | `int`    | `5000`            |
+| `networkPolicy.ingress.apiPorts`          | Instance API ports admitted from the callers above. BunkerWeb serves the instance API on API_HTTP_PO... | `list`   | `[5000]`          |
 | `networkPolicy.ingress.metricsAllowAll`   | Open the metrics port to every source. Off by default.                                                  | `bool`   | `false`           |
 | `networkPolicy.ingress.metricsFrom`       | Extra NetworkPolicy peers allowed to scrape metrics, e.g. an operator's Prometheus in another namesp... | `list`   | `[]`              |
 | `networkPolicy.ingress.metricsPort`       | Metrics port exposed by the BunkerWeb containers                                                        | `int`    | `9113`            |

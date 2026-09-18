@@ -106,7 +106,9 @@ spec:
               {{- include "bunkerweb.selectorLabels" . | nindent 14 }}
               bunkerweb.io/component: "api"
       ports:
+        {{- range .Values.networkPolicy.ingress.apiPorts | default (list 5000) }}
         - protocol: TCP
-          port: {{ .Values.networkPolicy.ingress.apiPort | default 5000 }}
+          port: {{ . }}
+        {{- end }}
 
 {{- end }}
