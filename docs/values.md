@@ -770,6 +770,7 @@ External service for BunkerWeb (LoadBalancer/NodePort)
 | `service.annotations`           | Additional service annotations                                                                          | `object` | `{}`              |
 | `service.enabled`               | Enable external service creation                                                                        | `bool`   | `true`            |
 | `service.externalTrafficPolicy` | External traffic policy: Local or Cluster Local: Preserves client IP but may cause uneven distributi... | `string` | `"Local"`         |
+| `service.loadBalancerIP`        | Set loadBalancerIP (if type is LoadBalancer) Allows binding to a floating IP                            | `string` | `""`              |
 | `service.type`                  | Service type: LoadBalancer, NodePort, or ClusterIP LoadBalancer: Exposes service externally using cl... | `string` | `"LoadBalancer"`  |
 
 ---
