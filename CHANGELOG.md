@@ -5,11 +5,11 @@ All notable changes to the BunkerWeb Helm chart are documented here. Versions re
 is noted per entry. Entries are tagged `[SECURITY]`, `[BUGFIX]`, `[FEATURE]`, `[DEPS]`, `[DOCS]`,
 or `[CI]`.
 
-> When cutting a release: bump `version` (and `appVersion` if the app changed) in `Chart.yaml`,
-> add a `## vX.Y.Z - YYYY/MM/DD` block here with today's date, then merge to `main`. CI opens a
-> draft GitHub release whose notes are extracted from this file; publishing the draft creates the
-> `vX.Y.Z` git tag. Entries before `v0.0.5` are folded into an initial-development note because
-> those `0.0.x` numbers were reused across the `1.6.0-rc` rollbacks.
+> When cutting a release, follow [`.github/RELEASING.md`](.github/RELEASING.md). A signed
+> `vX.Y.Z` tag starts CI, which validates and packages the chart once, opens a draft GitHub
+> release, then publishes that exact archive. Entries before `v0.0.5` are folded into an
+> initial-development note because those `0.0.x` numbers were reused across the `1.6.0-rc`
+> rollbacks.
 
 ## v1.1.0 - 2026/09/18
 

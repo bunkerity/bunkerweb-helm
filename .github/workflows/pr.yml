@@ -1,0 +1,53 @@
+name: Validate pull request
+
+# Validation only: no packaging, no publishing, no deployment credentials.
+# Publication workflows have no pull_request trigger and are not reachable from this workflow.
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  plumber:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - name: Run Plumber (advisory)
+        continue-on-error: true
+        uses: getplumber/plumber@c85c712bca3c9f547a88c66bb2541db179a1a79e # v0.4.52
+        with:
+          verify-attestation: true
+          config-file: .github/plumber/plumber.yaml
+          min-score: B
+          soft-fail: true
+          upload-sarif: false
+          score-push: false
+          upload-artifacts: true
+
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate Chart
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+
+      - name: Run Chart Validation
+        run: ./scripts/validate-chart.sh

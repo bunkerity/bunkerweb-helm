@@ -6,17 +6,22 @@
 # Packages the Helm chart and pushes it to the BunkerWeb chart repo.
 # Shared by the dev and prod deploy workflows; they differ only in target env.
 #
-# Usage: publish-chart.sh <env>   (env is "dev" or "prod")
+# Usage: publish-chart.sh <env> [chart.tgz]   (env is "dev" or "prod")
 # Requires: REPO_BEARER_TOKEN in the environment. Run from the repo root.
 
 set -euo pipefail
 
 chart_env="${1:?Usage: $0 <env>}"
+chart_file="${2:-}"
 
-cd ./charts
-out_dir="$(mktemp -d)"
-helm package ./bunkerweb/ --destination "$out_dir"
-chart_file="$(find "$out_dir" -maxdepth 1 -type f -name '*.tgz' -print -quit)"
+if [[ -n "$chart_file" ]]; then
+    [[ -f "$chart_file" ]] || { echo "Chart archive not found: $chart_file" >&2; exit 1; }
+else
+    out_dir="$(mktemp -d)"
+    helm package ./charts/bunkerweb/ --destination "$out_dir"
+    chart_file="$(find "$out_dir" -maxdepth 1 -type f -name '*.tgz' -print -quit)"
+fi
+
 curl --fail-with-body --show-error --silent --request POST \
     --header "Authorization: Bearer ${REPO_BEARER_TOKEN}" \
     --form "env=${chart_env}" \

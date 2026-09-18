@@ -411,6 +411,24 @@ bunkerweb:
   # Minimum 2 for high availability and PodDisruptionBudget
   replicas: 1
 
+  # Rollout strategy (DaemonSet kind only, ignored by Deployment & StatefulSet)
+  # type: "RollingUpdate" (default) or "OnDelete" for manual, node-by-node rollouts
+  # rollingUpdate is only rendered when type is RollingUpdate
+  updateStrategy:
+    type: RollingUpdate
+    # Optional maxSurge (integer or percentage) requires hostPorts: false
+    rollingUpdate:
+      # Integer or percentage of nodes allowed unavailable during a rollout
+      # Keep 1 to replace a single node pod at a time, raise it for faster rollouts
+      # maxSurge is unusable with hostPorts: true, two pods cannot bind the
+      # same node ports, so surge-based zero-downtime rollouts need hostPorts off
+      maxUnavailable: 1
+
+  # Seconds a freshly started pod must stay ready before the DaemonSet rollout
+  # moves on to the next node (DaemonSet kind only)
+  # Raise it to let traffic settle before more capacity is drained
+  minReadySeconds: 0
+
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb

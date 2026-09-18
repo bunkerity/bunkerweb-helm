@@ -12,7 +12,8 @@ template injection, cache poisoning and branch protection gaps.
 |---|---|
 | `.github/plumber/plumber.yaml` | Policy overlay on top of `plumber:default` |
 | `.github/plumber/README.md` | This file |
-| `.github/workflows/plumber.yml` | Reusable workflow invoked by the `dev` and `prod` workflows |
+| `.github/workflows/pr.yml` | Advisory PR scan and chart validation |
+| `.github/workflows/plumber.yml` | Reusable workflow invoked by the development and release workflows |
 
 ## Running it locally
 
@@ -36,17 +37,22 @@ pinned by commit SHA in the workflows.
 
 ## Gating
 
-The `dev` and `prod` workflows invoke Plumber directly, and the reusable
-workflow also runs weekly. It is gated at `min-score: B` with
-`soft-fail: false`, so scores of C, D or E fail the run — no chart is packaged
-or published behind a failing scan. Results land in the Code Scanning tab.
+The development workflow and signed-tag release workflow invoke the reusable
+Plumber workflow, which also runs weekly. These runs require `min-score: B`
+with `soft-fail: false`; results are uploaded to Code Scanning and the score
+service.
 
-Every input is set explicitly in `plumber.yml`, including those that match the
-action's own defaults, so that an auditor reads the effective configuration
-from the workflow alone and never has to diff it against `action.yml` at some
-past tag. `verify-attestation: true` keeps the sigstore/SLSA provenance check
-on the downloaded binary; `score-push: true` publishes the score used by the
-hosted badge service.
+Pull requests run the pinned action directly with `contents: read` only.
+The scan is advisory (`soft-fail: true`, `continue-on-error: true`) and disables
+SARIF upload and score publication. `.github/workflows/pr.yml` also runs the
+chart validation check, `scripts/validate-chart.sh`. Whether that check is
+required for merging depends on repository rules; the exact rule behind the
+observed blocked PR state has not been verified.
+
+The publication workflows are not triggered by `pull_request`: development
+publishes from `dev`, while production requires a signed `v*` tag and an
+approved `release` environment. Attestation verification remains enabled in
+both the advisory and reusable scans.
 
 Each run also uploads a `plumber-report` artifact holding the JSON report, the
 PBOM, the CycloneDX SBOM and the raw SARIF (`upload-artifacts: true`). The

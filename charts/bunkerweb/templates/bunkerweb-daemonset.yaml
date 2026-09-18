@@ -7,6 +7,16 @@ metadata:
   labels:
     {{- include "bunkerweb.labels" . | nindent 4 }}
 spec:
+  {{- with .Values.bunkerweb.updateStrategy }}
+  {{- $strategyType := .type | default "RollingUpdate" }}
+  updateStrategy:
+    type: {{ $strategyType }}
+    {{- if and (eq $strategyType "RollingUpdate") .rollingUpdate }}
+    rollingUpdate:
+      {{- toYaml .rollingUpdate | nindent 6 }}
+    {{- end }}
+  {{- end }}
+  minReadySeconds: {{ .Values.bunkerweb.minReadySeconds | default 0 }}
   selector:
     matchLabels:
       {{- include "bunkerweb.selectorLabels" . | nindent 6 }}

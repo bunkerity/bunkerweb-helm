@@ -424,6 +424,103 @@ test_bunkerweb_specific() {
         return 1
     fi
 
+    # Test DaemonSet rollout controls
+    log_info "  Testing DaemonSet rollout controls (defaults)"
+    if render --set bunkerweb.kind=DaemonSet; then
+        local ds
+        ds=$(source_block bunkerweb-daemonset.yaml)
+        if contains "$ds" "type: RollingUpdate" && contains "$ds" "maxUnavailable: 1" && contains "$ds" "minReadySeconds: 0"; then
+            log_success "    ✓ DaemonSet renders RollingUpdate, maxUnavailable 1, minReadySeconds 0"
+        else
+            log_error "    ✗ DaemonSet rollout defaults did not render as expected"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render DaemonSet with default rollout settings"
+        return 1
+    fi
+
+    log_info "  Testing DaemonSet custom rollout budgets"
+    for budget in 2 50%; do
+        if render --set bunkerweb.kind=DaemonSet --set "bunkerweb.updateStrategy.rollingUpdate.maxUnavailable=$budget"; then
+            ds=$(source_block bunkerweb-daemonset.yaml)
+            if ! contains "$ds" "maxUnavailable: $budget"; then
+                log_error "    ✗ Custom DaemonSet maxUnavailable was not preserved"
+                return 1
+            fi
+        else
+            log_error "    ✗ Failed to render custom DaemonSet maxUnavailable"
+            return 1
+        fi
+    done
+    if render --set bunkerweb.kind=DaemonSet --set bunkerweb.hostPorts=false \
+        --set bunkerweb.updateStrategy.rollingUpdate.maxUnavailable=0 \
+        --set bunkerweb.updateStrategy.rollingUpdate.maxSurge=1; then
+        ds=$(source_block bunkerweb-daemonset.yaml)
+        if ! contains "$ds" "maxUnavailable: 0" || ! contains "$ds" "maxSurge: 1" || contains "$ds" "hostPort:"; then
+            log_error "    ✗ Surge rollout settings did not render as expected"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render DaemonSet surge strategy without host ports"
+        return 1
+    fi
+    log_success "    ✓ Custom integer/percentage budgets and surge settings are preserved"
+
+    log_info "  Testing DaemonSet OnDelete strategy and custom minReadySeconds"
+    if render \
+        --set bunkerweb.kind=DaemonSet \
+        --set bunkerweb.updateStrategy.type=OnDelete \
+        --set bunkerweb.minReadySeconds=30; then
+        ds=$(source_block bunkerweb-daemonset.yaml)
+        if contains "$ds" "type: OnDelete" && ! contains "$ds" "rollingUpdate:" && contains "$ds" "minReadySeconds: 30"; then
+            log_success "    ✓ OnDelete omits rollingUpdate and honours minReadySeconds"
+        else
+            log_error "    ✗ OnDelete rollout settings did not render as expected"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render DaemonSet with OnDelete strategy"
+        return 1
+    fi
+
+    log_info "  Testing Deployment/StatefulSet ignore DaemonSet rollout controls"
+    if render --set bunkerweb.kind=Deployment --set bunkerweb.minReadySeconds=30 \
+        && ! contains "$(source_block bunkerweb-deployment.yaml)" "minReadySeconds" \
+        && ! contains "$(source_block bunkerweb-deployment.yaml)" "updateStrategy" \
+        && render --set bunkerweb.kind=StatefulSet --set bunkerweb.minReadySeconds=30 \
+        && ! contains "$(source_block bunkerweb-statefulset.yaml)" "minReadySeconds" \
+        && ! contains "$(source_block bunkerweb-statefulset.yaml)" "updateStrategy"; then
+        log_success "    ✓ Deployment and StatefulSet carry no DaemonSet rollout fields"
+    else
+        log_error "    ✗ DaemonSet rollout fields leaked into Deployment or StatefulSet"
+        return 1
+    fi
+
+    # Test the production release publishes the exact chart archive that passed validation
+    log_info "  Testing prebuilt chart publication"
+    local publish_test_dir publish_chart publish_args
+    publish_test_dir=$(mktemp -d)
+    publish_chart="$publish_test_dir/bunkerweb-test.tgz"
+    publish_args="$publish_test_dir/curl-args"
+    printf 'validated chart archive\n' > "$publish_chart"
+    curl() {
+        printf '%s\n' "$@" > "$PUBLISH_ARGS_FILE"
+    }
+    export -f curl
+    if PUBLISH_ARGS_FILE="$publish_args" REPO_BEARER_TOKEN=test \
+        ./scripts/publish-chart.sh prod "$publish_chart" \
+        && contains "$(cat "$publish_args")" "chart=@$publish_chart;type=application/gzip"; then
+        log_success "    ✓ Publisher reuses the validated chart archive"
+    else
+        unset -f curl
+        rm -r "$publish_test_dir"
+        log_error "    ✗ Publisher did not reuse the validated chart archive"
+        return 1
+    fi
+    unset -f curl
+    rm -r "$publish_test_dir"
+
     log_success "BunkerWeb-specific tests completed"
 }
 
