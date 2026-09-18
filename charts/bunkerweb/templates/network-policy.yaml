@@ -110,5 +110,8 @@ spec:
         - protocol: TCP
           port: {{ . }}
         {{- end }}
+    {{- with .Values.networkPolicy.ingress.extraRules }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 
 {{- end }}
