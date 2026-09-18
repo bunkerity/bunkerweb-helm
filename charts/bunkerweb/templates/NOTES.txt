@@ -118,8 +118,23 @@ Grafana Dashboard:
 {{- end }}
 {{- end }}
 
+{{- if eq (include "bunkerweb.apiTokenSource" .) "generated" }}
 ================================================================================
-                               NEXT STEPS
+                         API TOKEN GENERATION
+================================================================================
+
+The chart generated a shared API token and keeps it in the Kubernetes Secret
+{{ include "bunkerweb.fullname" . }}-api-token.
+
+`lookup` returns no existing Secret during `helm template` and `--dry-run`, so
+those rendered tokens are not reproducible. Do not pipe `helm template` directly
+to `kubectl apply`: it would generate a new Secret on every apply while running
+pods keep the old token. For GitOps or rendered manifests, use
+settings.apiToken.generate=false with settings.apiToken.fromExistingSecret=true.
+{{- end }}
+
+================================================================================
+                              NEXT STEPS
 ================================================================================
 
 1. Check deployment status:

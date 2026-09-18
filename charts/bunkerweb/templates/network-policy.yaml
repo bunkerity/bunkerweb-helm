@@ -46,4 +46,67 @@ spec:
         {{- end }}
     {{- end }}
     
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "bunkerweb.fullname" . }}-ingress
+  namespace: {{ include "bunkerweb.namespace" . }}
+  labels:
+    {{- include "bunkerweb.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "bunkerweb.selectorLabels" . | nindent 6 }}
+      bunkerweb.io/component: "bunkerweb"
+  policyTypes:
+    - Ingress
+  ingress:
+    {{- if .Values.networkPolicy.ingress.allowWeb }}
+    - ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8443
+    {{- end }}
+    {{- if .Values.networkPolicy.ingress.allowMetrics }}
+    {{- $metricsPort := .Values.networkPolicy.ingress.metricsPort | default 9113 }}
+    {{- $metricsFrom := .Values.networkPolicy.ingress.metricsFrom | default list }}
+    {{- if .Values.networkPolicy.ingress.metricsAllowAll }}
+    - ports:
+        - protocol: TCP
+          port: {{ $metricsPort }}
+    {{- else if or .Values.prometheus.enabled $metricsFrom }}
+    - from:
+        {{- if .Values.prometheus.enabled }}
+        - podSelector:
+            matchLabels:
+              {{- include "bunkerweb.selectorLabels" . | nindent 14 }}
+              bunkerweb.io/component: "prometheus"
+        {{- end }}
+        {{- with $metricsFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: {{ $metricsPort }}
+    {{- end }}
+    {{- end }}
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "bunkerweb.selectorLabels" . | nindent 14 }}
+              bunkerweb.io/component: "scheduler"
+        - podSelector:
+            matchLabels:
+              {{- include "bunkerweb.selectorLabels" . | nindent 14 }}
+              bunkerweb.io/component: "ui"
+        - podSelector:
+            matchLabels:
+              {{- include "bunkerweb.selectorLabels" . | nindent 14 }}
+              bunkerweb.io/component: "api"
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.ingress.apiPort | default 5000 }}
+
 {{- end }}

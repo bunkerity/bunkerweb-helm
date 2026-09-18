@@ -738,12 +738,19 @@ Network policies for micro-segmentation
 | `networkPolicy`                           | Network policies for micro-segmentation                                                                 | `object` | See nested values |
 | `networkPolicy.egress`                    | Egress traffic configuration                                                                            | `object` | See nested values |
 | `networkPolicy.enabled`                   | Enable network policies for enhanced security Requires a CNI that supports NetworkPolicies (e.g., Ca... | `bool`   | `false`           |
+| `networkPolicy.ingress`                   | Ingress traffic configuration. Enforcement depends on the CNI; the API_TOKEN remains the layer that ... | `object` | See nested values |
 | `networkPolicy.egress.allowDatabaseVNet`  | Allow access to database virtual network                                                                | `bool`   | `true`            |
 | `networkPolicy.egress.allowInternet`      | Allow internet access for updates and external APIs                                                     | `bool`   | `true`            |
 | `networkPolicy.egress.allowSameNamespace` | Allow traffic to pods in the same namespace                                                             | `bool`   | `true`            |
 | `networkPolicy.egress.databasePort`       | Database port for access                                                                                | `int`    | `3306`            |
 | `networkPolicy.egress.databaseVNetCIDR`   | CIDR range for database network                                                                         | `string` | `"10.0.0.0/16"`   |
 | `networkPolicy.egress.internetPorts`      | Ports allowed for internet access                                                                       | `list`   | `[80, 443]`       |
+| `networkPolicy.ingress.allowMetrics`      | Allow Prometheus metrics scraping. The rule admits this chart's own Prometheus pods when prometheus.... | `bool`   | `true`            |
+| `networkPolicy.ingress.allowWeb`          | Allow public BunkerWeb HTTP/HTTPS traffic                                                               | `bool`   | `true`            |
+| `networkPolicy.ingress.apiPort`           | Instance API port (5000 in BunkerWeb)                                                                   | `int`    | `5000`            |
+| `networkPolicy.ingress.metricsAllowAll`   | Open the metrics port to every source. Off by default.                                                  | `bool`   | `false`           |
+| `networkPolicy.ingress.metricsFrom`       | Extra NetworkPolicy peers allowed to scrape metrics, e.g. an operator's Prometheus in another namesp... | `list`   | `[]`              |
+| `networkPolicy.ingress.metricsPort`       | Metrics port exposed by the BunkerWeb containers                                                        | `int`    | `9113`            |
 
 ---
 
@@ -769,6 +776,7 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------- |
 | `settings`                                       | Configuration for BunkerWeb behavior in Kubernetes environment                                          | `object` | See nested values                                       |
 | `settings.api`                                   | Configuration for api                                                                                   | `object` | See nested values                                       |
+| `settings.apiToken`                              | Shared by the worker (which enforces it) and every component that calls it.                             | `object` | See nested values                                       |
 | `settings.existingSecret`                        | Specify the name of an existing secret containing sensitive parameters. When using this, the followi... | `string` | `""`                                                    |
 | `settings.kubernetes`                            | Configuration for kubernetes                                                                            | `object` | See nested values                                       |
 | `settings.misc`                                  | Configuration for misc                                                                                  | `object` | See nested values                                       |
@@ -788,6 +796,9 @@ Configuration for BunkerWeb behavior in Kubernetes environment
 | `settings.api.useBearerToken`                    | Authentication settings https://docs.bunkerweb.io/latest/api/#authentication Choose at least one met... | `object` | See nested values                                       |
 | `settings.api.useUserPass`                       | Username and Password                                                                                   | `object` | See nested values                                       |
 | `settings.api.whitelist`                         | Whitelist configuration for API access                                                                  | `object` | See nested values                                       |
+| `settings.apiToken.fromExistingSecret`           | Read api-token from settings.existingSecret.                                                            | `bool`   | `false`                                                 |
+| `settings.apiToken.generate`                     | Generate a cluster-wide token when no higher-precedence source is set.                                  | `bool`   | `true`                                                  |
+| `settings.apiToken.token`                        | Inline token, used when fromExistingSecret is false.                                                    | `string` | `""`                                                    |
 | `settings.kubernetes.domainName`                 | Kubernetes cluster domain name for service discovery                                                    | `string` | `"cluster.local"`                                       |
 | `settings.kubernetes.gatewayApiVersion`          | Gateway API version when gatewayClass.enabled=true (v1, v1beta1, v1beta2, v1alpha2, v1alpha1) Empty ... | `string` | `""`                                                    |
 | `settings.kubernetes.ignoreAnnotations`          | Annotations to be ignored by bunkerweb-controller when multiple ingress controllers (comma-separated... | `string` | `""`                                                    |

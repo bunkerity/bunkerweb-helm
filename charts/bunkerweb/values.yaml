@@ -72,6 +72,16 @@ settings:
   # (as optional keys) and take precedence over their plain values.yaml equivalents.
   existingSecret: ""
 
+  # ----- SHARED API TOKEN -----
+  # Shared by the worker (which enforces it) and every component that calls it.
+  apiToken:
+    # Generate a cluster-wide token when no higher-precedence source is set.
+    generate: true
+    # Read api-token from settings.existingSecret.
+    fromExistingSecret: false
+    # Inline token, used when fromExistingSecret is false.
+    token: ""
+
   # ----- KUBERNETES INTEGRATION -----
   kubernetes:
     # Space-separated list of namespaces to monitor for Ingress resources
@@ -1518,10 +1528,11 @@ ui:
 api:
   # Enable the external API
   # NOTE: the BunkerWeb API refuses to start without authentication, so when
-  # this is true you MUST configure one of settings.api.useBearerToken,
-  # settings.api.useUserPass, or settings.api.apiAclBootstrapFile (the chart
-  # fails to render otherwise). Auto-enabled when mcp.enabled uses the
-  # internal API (mcp.config.bunkerwebBaseUrl empty).
+  # this is true you MUST configure settings.apiToken, one of
+  # settings.api.useBearerToken, settings.api.useUserPass, or
+  # settings.api.apiAclBootstrapFile (the chart fails to render otherwise).
+  # apiToken.generate defaults to true. Auto-enabled when mcp.enabled uses
+  # the internal API (mcp.config.bunkerwebBaseUrl empty).
   enabled: false
 
   # Container image configuration
@@ -2094,6 +2105,36 @@ networkPolicy:
   # Enable network policies for enhanced security
   # Requires a CNI that supports NetworkPolicies (e.g., Calico, Cilium)
   enabled: false
+
+  # Ingress traffic configuration. Enforcement depends on the CNI; the
+  # API_TOKEN remains the layer that holds regardless of CNI enforcement.
+  ingress:
+    # Allow public BunkerWeb HTTP/HTTPS traffic
+    allowWeb: true
+
+    # Allow Prometheus metrics scraping. The rule admits this chart's own
+    # Prometheus pods when prometheus.enabled is true, plus any peer listed in
+    # metricsFrom. With no peer to admit, the rule is omitted rather than
+    # rendered with an empty "from", which in a NetworkPolicy would mean every
+    # source. Set metricsAllowAll to open the port to the whole cluster.
+    allowMetrics: true
+
+    # Extra NetworkPolicy peers allowed to scrape metrics, e.g. an operator's
+    # Prometheus in another namespace:
+    #   metricsFrom:
+    #     - namespaceSelector:
+    #         matchLabels:
+    #           kubernetes.io/metadata.name: monitoring
+    metricsFrom: []
+
+    # Open the metrics port to every source. Off by default.
+    metricsAllowAll: false
+
+    # Metrics port exposed by the BunkerWeb containers
+    metricsPort: 9113
+
+    # Instance API port (5000 in BunkerWeb)
+    apiPort: 5000
 
   # Egress traffic configuration
   egress:

@@ -198,21 +198,45 @@ test_bunkerweb_specific() {
         --set settings.ui.ingress.enabled=true \
         --set settings.ui.ingress.serverName=test.example.com || return 1
 
-    log_info "  Testing API auth guard (enabled without auth must fail)"
+    log_info "  Testing API auth guard (enabled without a token must fail)"
     assert_render_fails \
-        "API enabled without auth should have failed to render" \
-        "API auth guard correctly blocks unauthenticated API" \
-        --set api.enabled=true || return 1
+        "API enabled without a token should have failed to render" \
+        "API auth guard correctly blocks tokenless API" \
+        --set api.enabled=true --set settings.apiToken.generate=false || return 1
 
-    log_info "  Testing MCP auto-enables API (must require auth)"
+    log_info "  Testing default generated token reaches API-facing workloads"
+    if render --set api.enabled=true --dry-run; then
+        local token_ref='name: "test-bunkerweb-api-token"'
+        local worker_doc scheduler_doc ui_doc api_doc
+        worker_doc=$(source_block bunkerweb-deployment.yaml)
+        scheduler_doc=$(source_block scheduler-deployment.yaml)
+        ui_doc=$(source_block ui-deployment.yaml)
+        api_doc=$(source_block api-deployment.yaml)
+        if contains "$worker_doc" "$token_ref" \
+            && contains "$scheduler_doc" "$token_ref" \
+            && contains "$ui_doc" "$token_ref" \
+            && contains "$api_doc" "$token_ref"; then
+            log_success "    ✓ Default token is shared by worker, scheduler, UI, and API"
+        else
+            log_error "    ✗ Default token was not shared by all API-facing workloads"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render API with the default generated token"
+        return 1
+    fi
+
+    log_info "  Testing MCP auto-enables API (must require a token)"
     assert_render_fails \
-        "MCP enabled without API auth should have failed to render" \
-        "MCP auto-enables API and enforces the auth guard" \
-        --set mcp.enabled=true || return 1
+        "MCP enabled without a token should have failed to render" \
+        "MCP auto-enables API and enforces the token guard" \
+        --set mcp.enabled=true --set settings.apiToken.generate=false || return 1
 
     log_info "  Testing API disabled"
     if render --set api.enabled=false --dry-run; then
-        if ! contains "$output" "Source: bunkerweb/templates/api-"; then
+        local api_templates
+        api_templates=$(echo "$output" | grep -F "Source: bunkerweb/templates/api-" | grep -vF "api-token-secret.yaml" || true)
+        if [[ -z "$api_templates" ]]; then
             log_success "    ✓ API correctly disabled"
         else
             log_error "    ✗ API templates still generated when disabled"

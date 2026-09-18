@@ -190,11 +190,58 @@ true
 {{- end -}}
 
 {{/*
+Resolve the shared API token source. Precedence is:
+settings.apiToken.fromExistingSecret, settings.apiToken.token,
+legacy settings.api.useBearerToken, then the generated Secret.
+*/}}
+{{- define "bunkerweb.apiTokenSource" -}}
+{{- if and .Values.settings.apiToken.fromExistingSecret (not (empty .Values.settings.existingSecret)) -}}
+existing
+{{- else if not (empty .Values.settings.apiToken.token) -}}
+token
+{{- else if and .Values.settings.api.useBearerToken.fromExistingSecret (not (empty .Values.settings.existingSecret)) -}}
+legacy-existing
+{{- else if and (not .Values.settings.api.useBearerToken.fromExistingSecret) (not (empty .Values.settings.api.useBearerToken.token)) -}}
+legacy-token
+{{- else if .Values.settings.apiToken.generate -}}
+generated
+{{- end -}}
+{{- end -}}
+
+{{/*
+Emit the shared API token environment variable for components that call the
+worker instance API. Call with dict "root" . and optionally "name".
+*/}}
+{{- define "bunkerweb.apiTokenEnv" -}}
+{{- $root := .root -}}
+{{- $name := .name | default "API_TOKEN" -}}
+{{- $source := include "bunkerweb.apiTokenSource" $root -}}
+{{- if $source }}
+- name: {{ $name }}
+  {{- if or (eq $source "existing") (eq $source "legacy-existing") }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ $root.Values.settings.existingSecret }}"
+      key: api-token
+  {{- else if eq $source "generated" }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ include "bunkerweb.fullname" $root }}-api-token"
+      key: api-token
+  {{- else if eq $source "token" }}
+  value: "{{ $root.Values.settings.apiToken.token }}"
+  {{- else }}
+  value: "{{ $root.Values.settings.api.useBearerToken.token }}"
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Whether any API authentication method is configured.
 */}}
 {{- define "bunkerweb.apiAuthConfigured" -}}
 {{- $s := .Values.settings.api -}}
-{{- $hasToken := or (and $s.useBearerToken.fromExistingSecret (not (empty .Values.settings.existingSecret))) (and (not $s.useBearerToken.fromExistingSecret) (not (empty $s.useBearerToken.token))) -}}
+{{- $hasToken := ne (include "bunkerweb.apiTokenSource" .) "" -}}
 {{- $hasUserPass := or (and $s.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret))) (and (not $s.useUserPass.fromExistingSecret) (not (empty $s.useUserPass.apiUsername)) (not (empty $s.useUserPass.apiPassword))) -}}
 {{- $hasAcl := not (empty $s.apiAclBootstrapFile) -}}
 {{- if or $hasToken $hasUserPass $hasAcl -}}
@@ -311,6 +358,7 @@ StatefulSet workloads. Emit at col 0; the caller applies `| nindent 12`.
 # Internal subnet(s) + localhost
 - name: API_WHITELIST_IP
   value: "{{ .Values.settings.misc.apiWhitelistIp }}"
+{{- include "bunkerweb.apiTokenEnv" (dict "root" .) }}
 {{- include "bunkerweb.redisEnv" . | nindent 0 }}
 {{- if .Values.ui.logs.enabled }}
 - name: ACCESS_LOG_1

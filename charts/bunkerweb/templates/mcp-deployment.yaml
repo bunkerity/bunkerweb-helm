@@ -37,6 +37,9 @@ spec:
           env:
             - name: WORKERS
               value: {{ .Values.mcp.config.workers | quote }}
+          {{- if and (not .Values.mcp.secrets.existingSecret) (empty .Values.mcp.secrets.bunkerwebApiToken) (ne (include "bunkerweb.apiTokenSource" .) "") }}
+            {{- include "bunkerweb.apiTokenEnv" (dict "root" . "name" "BUNKERWEB_API_TOKEN") | nindent 12 }}
+          {{- end }}
           {{- if .Values.mcp.secrets.existingSecret }}
             - name: BUNKERWEB_API_TOKEN
               valueFrom:

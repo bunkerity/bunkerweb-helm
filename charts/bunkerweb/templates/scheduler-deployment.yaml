@@ -64,6 +64,7 @@ spec:
               value: "{{ .Values.settings.misc.dnsResolvers }}"
             - name: API_WHITELIST_IP
               value: "{{ .Values.settings.misc.apiWhitelistIp }}"
+            {{- include "bunkerweb.apiTokenEnv" (dict "root" .) | nindent 12 }}
             {{- $hasBunkerWebInstance := false }}
             {{- if kindIs "slice" .Values.scheduler.extraEnvs }}
               {{- range .Values.scheduler.extraEnvs }}
