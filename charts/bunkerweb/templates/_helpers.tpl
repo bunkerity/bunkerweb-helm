@@ -414,6 +414,10 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_CRS_PLUGINS" "value" (and .modsecurity .modsecurity.modsecurityCrsPlugins)) }}
 {{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_REQUEST_BODY_LIMIT" "value" (and .modsecurity .modsecurity.modsecuritySecRequestBodyLimit)) }}
 {{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_REQUEST_BODY_LIMIT_ACTION" "value" (and .modsecurity .modsecurity.modsecuritySecRequestBodyLimitAction)) }}
+{{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_AUDIT_ENGINE" "value" (and .modsecurity .modsecurity.modsecuritySecAuditEngine)) }}
+{{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_AUDIT_LOG" "value" (and .modsecurity .modsecurity.modsecuritySecAuditLog)) }}
+{{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_AUDIT_LOG_TYPE" "value" (and .modsecurity .modsecurity.modsecuritySecAuditLogType)) }}
+{{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_AUDIT_LOG_STORAGE_DIR" "value" (and .modsecurity .modsecurity.modsecuritySecAuditLogStorageDir)) }}
 
 # =============================================================================
 # ANTIBOT PROTECTION
@@ -427,6 +431,8 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_RECAPTCHA_CLASSIC" "value" (and .antibot .antibot.antibotRecaptchaClassic)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_RDNS_GLOBAL" "value" (and .antibot .antibot.antibotRdnsGlobal)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_SUCCESS_URI" "value" (and .antibot .antibot.antibotSuccessUri)) }}
+{{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_IGNORE_HEADER_NAME" "value" (and .antibot .antibot.antibotIgnoreHeaderName)) }}
+{{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_IGNORE_HEADER_VALUE" "value" (and .antibot .antibot.antibotIgnoreHeaderValue)) }}
 
 # =============================================================================
 # RATE LIMITING
@@ -448,10 +454,16 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_COMMUNITY_LISTS" "value" (and .blacklist .blacklist.blacklistCommunityLists)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_IP" "value" (and .blacklist .blacklist.blacklistIp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_IP_URLS" "value" (and .blacklist .blacklist.blacklistIpUrls)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_HEADER_NAME" "value" (and .blacklist .blacklist.blacklistHeaderName)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_HEADER_VALUE" "value" (and .blacklist .blacklist.blacklistHeaderValue)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_IGNORE_HEADER_NAME" "value" (and .blacklist .blacklist.blacklistIgnoreHeaderName)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_IGNORE_HEADER_VALUE" "value" (and .blacklist .blacklist.blacklistIgnoreHeaderValue)) }}
 
 {{- include "bunkerweb.envVar" (dict "name" "USE_WHITELIST" "value" (and .whitelist .whitelist.useWhitelist)) }}
 {{- include "bunkerweb.envVar" (dict "name" "WHITELIST_IP" "value" (and .whitelist .whitelist.whitelistIp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "WHITELIST_IP_URLS" "value" (and .whitelist .whitelist.whitelistIpUrls)) }}
+{{- include "bunkerweb.envVar" (dict "name" "WHITELIST_HEADER_NAME" "value" (and .whitelist .whitelist.whitelistHeaderName)) }}
+{{- include "bunkerweb.envVar" (dict "name" "WHITELIST_HEADER_VALUE" "value" (and .whitelist .whitelist.whitelistHeaderValue)) }}
 
 # =============================================================================
 # COUNTRY BLOCKING
@@ -459,6 +471,8 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "WHITELIST_COUNTRY" "value" (and .geoBlocking .geoBlocking.whitelistCountry)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_COUNTRY" "value" (and .geoBlocking .geoBlocking.blacklistCountry)) }}
 {{- include "bunkerweb.envVar" (dict "name" "COUNTRY_IGNORE_URI" "value" (and .geoBlocking .geoBlocking.countryIgnoreUri)) }}
+{{- include "bunkerweb.envVar" (dict "name" "COUNTRY_IGNORE_HEADER_NAME" "value" (and .geoBlocking .geoBlocking.countryIgnoreHeaderName)) }}
+{{- include "bunkerweb.envVar" (dict "name" "COUNTRY_IGNORE_HEADER_VALUE" "value" (and .geoBlocking .geoBlocking.countryIgnoreHeaderValue)) }}
 
 # =============================================================================
 # BAD BEHAVIOR DETECTION
@@ -534,6 +548,18 @@ Generate BunkerWeb feature environment variables
 {{- /* toString: this value is numeric, and `ne <int> ""` is a template error. */}}
 {{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_VERIFY_DEPTH" "value" (and .reverseProxy .reverseProxy.reverseProxySslVerifyDepth)) }}
 {{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_TRUSTED_CERTIFICATE" "value" (and .reverseProxy .reverseProxy.reverseProxySslTrustedCertificate)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_TRUSTED_CERTIFICATE_DATA" "value" (and .reverseProxy .reverseProxy.reverseProxySslTrustedCertificateData)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_TRUSTED_CERTIFICATE_PRIORITY" "value" (and .reverseProxy .reverseProxy.reverseProxySslTrustedCertificatePriority)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_CERT" "value" (and .reverseProxy .reverseProxy.reverseProxySslCert)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_CERT_DATA" "value" (and .reverseProxy .reverseProxy.reverseProxySslCertData)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_KEY" "value" (and .reverseProxy .reverseProxy.reverseProxySslKey)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_KEY_DATA" "value" (and .reverseProxy .reverseProxy.reverseProxySslKeyData)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_CERT_PRIORITY" "value" (and .reverseProxy .reverseProxy.reverseProxySslCertPriority)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_CRL" "value" (and .reverseProxy .reverseProxy.reverseProxySslCrl)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_CRL_DATA" "value" (and .reverseProxy .reverseProxy.reverseProxySslCrlData)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_PROTOCOLS" "value" (and .reverseProxy .reverseProxy.reverseProxySslProtocols)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_SSL_CIPHERS" "value" (and .reverseProxy .reverseProxy.reverseProxySslCiphers)) }}
+{{- include "bunkerweb.envVar" (dict "name" "REVERSE_PROXY_MAX_CLIENT_SIZE" "value" (and .reverseProxy .reverseProxy.reverseProxyMaxClientSize)) }}
 
 # =============================================================================
 # GRPC REVERSE PROXY
@@ -555,6 +581,21 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "GRPC_NEXT_UPSTREAM_TIMEOUT" "value" (and .grpc .grpc.grpcNextUpstreamTimeout)) }}
 {{- include "bunkerweb.envVar" (dict "name" "GRPC_NEXT_UPSTREAM_TRIES" "value" (and .grpc .grpc.grpcNextUpstreamTries)) }}
 {{- include "bunkerweb.envVar" (dict "name" "GRPC_INCLUDES" "value" (and .grpc .grpc.grpcIncludes)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_VERIFY" "value" (and .grpc .grpc.grpcSslVerify)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_VERIFY_DEPTH" "value" (and .grpc .grpc.grpcSslVerifyDepth)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_TRUSTED_CERTIFICATE" "value" (and .grpc .grpc.grpcSslTrustedCertificate)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_TRUSTED_CERTIFICATE_DATA" "value" (and .grpc .grpc.grpcSslTrustedCertificateData)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_TRUSTED_CERTIFICATE_PRIORITY" "value" (and .grpc .grpc.grpcSslTrustedCertificatePriority)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_CERT" "value" (and .grpc .grpc.grpcSslCert)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_CERT_DATA" "value" (and .grpc .grpc.grpcSslCertData)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_KEY" "value" (and .grpc .grpc.grpcSslKey)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_KEY_DATA" "value" (and .grpc .grpc.grpcSslKeyData)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_CERT_PRIORITY" "value" (and .grpc .grpc.grpcSslCertPriority)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_CRL" "value" (and .grpc .grpc.grpcSslCrl)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_CRL_DATA" "value" (and .grpc .grpc.grpcSslCrlData)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_PROTOCOLS" "value" (and .grpc .grpc.grpcSslProtocols)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_SSL_CIPHERS" "value" (and .grpc .grpc.grpcSslCiphers)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GRPC_MAX_CLIENT_SIZE" "value" (and .grpc .grpc.grpcMaxClientSize)) }}
 
 # =============================================================================
 # REAL IP DETECTION
@@ -591,6 +632,8 @@ Generate BunkerWeb feature environment variables
 # =============================================================================
 {{- include "bunkerweb.envVar" (dict "name" "USE_DNSBL" "value" (and .dnsbl .dnsbl.useDnsbl)) }}
 {{- include "bunkerweb.envVar" (dict "name" "DNSBL_LIST" "value" (and .dnsbl .dnsbl.dnsblList)) }}
+{{- include "bunkerweb.envVar" (dict "name" "DNSBL_IGNORE_HEADER_NAME" "value" (and .dnsbl .dnsbl.dnsblIgnoreHeaderName)) }}
+{{- include "bunkerweb.envVar" (dict "name" "DNSBL_IGNORE_HEADER_VALUE" "value" (and .dnsbl .dnsbl.dnsblIgnoreHeaderValue)) }}
 
 # =============================================================================
 # BUNKERNET THREAT INTELLIGENCE
@@ -609,6 +652,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "SESSIONS_CHECK_IP" "value" (and .sessions .sessions.sessionsCheckIp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "SESSIONS_CHECK_USER_AGENT" "value" (and .sessions .sessions.sessionsCheckUserAgent)) }}
 {{- include "bunkerweb.envVar" (dict "name" "SESSIONS_DOMAIN" "value" (and .sessions .sessions.sessionsDomain)) }}
+{{- include "bunkerweb.envVar" (dict "name" "SESSIONS_REVOCATION_MEMORY_SIZE" "value" (and .sessions .sessions.sessionsRevocationMemorySize)) }}
 
 # =============================================================================
 # METRICS AND MONITORING
@@ -676,6 +720,8 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.secretOrValue" (dict "name" "CROWDSEC_API_KEY" "secret" $.Values.settings.existingSecret "key" "crowdsec-api-key" "optional" true "value" (and .crowdSec .crowdSec.crowdSecApiKey)) }}
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_MODE" "value" (and .crowdSec .crowdSec.crowdSecMode)) }}
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_APPSEC_URL" "value" (and .crowdSec .crowdSec.crowdSecAppsecUrl)) }}
+{{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_MANAGEMENT_LOGIN" "value" (and .crowdSec .crowdSec.crowdSecManagementLogin)) }}
+{{- include "bunkerweb.secretOrValue" (dict "name" "CROWDSEC_MANAGEMENT_PASSWORD" "secret" $.Values.settings.existingSecret "key" "crowdsec-management-password" "optional" true "value" (and .crowdSec .crowdSec.crowdSecManagementPassword)) }}
 
 # =============================================================================
 # PHP INTEGRATION
@@ -692,6 +738,8 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "USE_GREYLIST" "value" (and .greylist .greylist.useGreylist)) }}
 {{- include "bunkerweb.envVar" (dict "name" "GREYLIST_IP" "value" (and .greylist .greylist.greylistIp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "GREYLIST_IP_URLS" "value" (and .greylist .greylist.greylistIpUrls)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GREYLIST_HEADER_NAME" "value" (and .greylist .greylist.greylistHeaderName)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GREYLIST_HEADER_VALUE" "value" (and .greylist .greylist.greylistHeaderValue)) }}
 
 # =============================================================================
 # REVERSE SCAN

@@ -66,6 +66,7 @@ settings:
   #   - auth-basic-password : HTTP basic auth password (AUTH_BASIC_PASSWORD)
   #   - darkvisitors-token : robots.txt DarkVisitors token (ROBOTSTXT_DARKVISITORS_TOKEN)
   #   - crowdsec-api-key  : CrowdSec API key (CROWDSEC_API_KEY)
+  #   - crowdsec-management-password : CrowdSec management machine password (CROWDSEC_MANAGEMENT_PASSWORD)
   # The pro-license-key is optional (non-Pro deployments may omit it). When
   # existingSecret is set, it takes precedence over scheduler.proLicenseKey.
   # The optional feature secrets above are likewise sourced from the secret
@@ -129,8 +130,9 @@ settings:
     databaseUri: ""
 
     # DNS resolvers for BunkerWeb (space-separated)
-    # Default uses CoreDNS service in kube-system namespace
-    dnsResolvers: "coredns.kube-system.svc.cluster.local"
+    # Default is the cluster DNS Service, which is named kube-dns in kube-system
+    # even on clusters where CoreDNS backs it (kubeadm, k3s, EKS, GKE, AKS).
+    dnsResolvers: "kube-dns.kube-system.svc.cluster.local"
 
     # IP ranges allowed to access BunkerWeb API (space-separated CIDR blocks)
     # Includes common Kubernetes and private network ranges
@@ -436,7 +438,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.14
+  tag: 1.6.15
   pullPolicy: IfNotPresent
 
   # Resource requests and limits
@@ -621,7 +623,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.14
+  tag: 1.6.15
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -745,6 +747,16 @@ scheduler:
       modsecuritySecRequestBodyLimit: ""
       # SecRequestBodyLimitAction ("Reject" returns HTTP 413, "ProcessPartial" inspects only the prefix)
       modsecuritySecRequestBodyLimitAction: ""
+      # SecAuditEngine ("Off", "On", or "RelevantOnly"; upstream default "Off")
+      modsecuritySecAuditEngine: ""
+      # SecAuditLog path. Serial writes here; Concurrent uses it as the index file.
+      # Must end in .log and live on a writable path on every BunkerWeb pod.
+      modsecuritySecAuditLog: ""
+      # Audit writer: "Serial" (single file) or "Concurrent" (one file per transaction)
+      modsecuritySecAuditLogType: ""
+      # Concurrent storage directory, preprovisioned and writable on every BunkerWeb pod
+      # (mount it via bunkerweb.volumes / bunkerweb.volumeMounts). Ignored for Serial.
+      modsecuritySecAuditLogStorageDir: ""
 
     # =============================================================================
     # ANTIBOT PROTECTION
@@ -768,6 +780,12 @@ scheduler:
       antibotRdnsGlobal: ""
       # Fixed URI to redirect clients to after solving the challenge (empty = original page)
       antibotSuccessUri: ""
+      # Request header that exempts a request from the antibot challenge.
+      # Any client can send this header, so the value below is a shared secret:
+      # inject it from a Secret via scheduler.extraEnvs if you do not want it here.
+      antibotIgnoreHeaderName: ""
+      # PCRE regex the header value must match (empty = match on the header name alone)
+      antibotIgnoreHeaderValue: ""
 
     # =============================================================================
     # RATE LIMITING
@@ -804,6 +822,14 @@ scheduler:
       blacklistIp: ""
       # Blacklist URLs for automatic updates
       blacklistIpUrls: ""
+      # Request header that adds a request to the blacklist (shared secret, see antibot)
+      blacklistHeaderName: ""
+      # PCRE regex the header value must match (empty = match on the header name alone)
+      blacklistHeaderValue: ""
+      # Request header that exempts a request from the blacklist (shared secret)
+      blacklistIgnoreHeaderName: ""
+      # PCRE regex the ignore header value must match
+      blacklistIgnoreHeaderValue: ""
 
     whitelist:
       # Enable whitelist functionality
@@ -812,6 +838,10 @@ scheduler:
       whitelistIp: ""
       # Whitelist URLs for automatic updates
       whitelistIpUrls: ""
+      # Request header that adds a request to the whitelist (shared secret, see antibot)
+      whitelistHeaderName: ""
+      # PCRE regex the header value must match (empty = match on the header name alone)
+      whitelistHeaderValue: ""
 
     # =============================================================================
     # COUNTRY BLOCKING
@@ -823,6 +853,10 @@ scheduler:
       blacklistCountry: ""
       # List of PCRE regex patterns (space separated) for URIs excluded from country checks
       countryIgnoreUri: ""
+      # Request header that exempts a request from the country check (shared secret)
+      countryIgnoreHeaderName: ""
+      # PCRE regex the header value must match (empty = match on the header name alone)
+      countryIgnoreHeaderValue: ""
 
     # =============================================================================
     # BAD BEHAVIOR DETECTION
@@ -958,9 +992,33 @@ scheduler:
       # to every instance - mount it via scheduler.volumes / scheduler.volumeMounts.
       # A URL is not accepted. If the CA cannot be resolved, upstream verification is
       # silently disabled (nginx renders proxy_ssl_verify off).
-      # To supply the CA inline instead, set REVERSE_PROXY_SSL_TRUSTED_CERTIFICATE_DATA
-      # and REVERSE_PROXY_SSL_TRUSTED_CERTIFICATE_PRIORITY=data via scheduler.extraEnvs.
+      # To supply the CA inline instead, use the two keys below.
       reverseProxySslTrustedCertificate: ""
+      # CA bundle as base64 or plaintext PEM, used when the priority below is "data"
+      reverseProxySslTrustedCertificateData: ""
+      # Source of the CA bundle: "file" (default) or "data"
+      reverseProxySslTrustedCertificatePriority: ""
+      # Client certificate presented to the upstream for mutual TLS: absolute path on
+      # the scheduler pod ("file" priority) or inline PEM/base64 ("data" priority).
+      reverseProxySslCert: ""
+      # Client certificate as base64 or plaintext PEM ("data" priority)
+      reverseProxySslCertData: ""
+      # Private key matching the client certificate (same file/data split)
+      reverseProxySslKey: ""
+      # Client private key as base64 or plaintext PEM ("data" priority)
+      reverseProxySslKeyData: ""
+      # Source of the client certificate and key: "file" (default) or "data"
+      reverseProxySslCertPriority: ""
+      # CRL used when verifying the upstream certificate (path, or inline via *Data)
+      reverseProxySslCrl: ""
+      # CRL as base64 or plaintext PEM, used only when the CRL path above is empty
+      reverseProxySslCrlData: ""
+      # TLS versions offered to the upstream (proxy_ssl_protocols); empty = NGINX default
+      reverseProxySslProtocols: ""
+      # Cipher suite offered to the upstream (proxy_ssl_ciphers); empty = NGINX default
+      reverseProxySslCiphers: ""
+      # Max body size for this location (0 = unlimited); empty falls back to MAX_CLIENT_SIZE
+      reverseProxyMaxClientSize: ""
 
     # =============================================================================
     # GRPC REVERSE PROXY
@@ -1000,6 +1058,37 @@ scheduler:
       grpcNextUpstreamTries: ""
       # Additional config for gRPC location block
       grpcIncludes: ""
+      # Verify the gRPC upstream certificate ("yes" or "no", upstream default "no")
+      grpcSslVerify: ""
+      # Verification depth in the upstream certificate chain
+      grpcSslVerifyDepth: ""
+      # CA bundle used to verify the upstream: absolute path on the scheduler pod,
+      # or inline PEM/base64 with the priority set to "data".
+      grpcSslTrustedCertificate: ""
+      # CA bundle as base64 or plaintext PEM ("data" priority)
+      grpcSslTrustedCertificateData: ""
+      # Source of the CA bundle: "file" (default) or "data"
+      grpcSslTrustedCertificatePriority: ""
+      # Client certificate presented to the upstream for mutual TLS (file or data)
+      grpcSslCert: ""
+      # Client certificate as base64 or plaintext PEM ("data" priority)
+      grpcSslCertData: ""
+      # Private key matching the client certificate (same file/data split)
+      grpcSslKey: ""
+      # Client private key as base64 or plaintext PEM ("data" priority)
+      grpcSslKeyData: ""
+      # Source of the client certificate and key: "file" (default) or "data"
+      grpcSslCertPriority: ""
+      # CRL used when verifying the upstream certificate (path, or inline via *Data)
+      grpcSslCrl: ""
+      # CRL as base64 or plaintext PEM, used only when the CRL path above is empty
+      grpcSslCrlData: ""
+      # TLS versions offered to the upstream (grpc_ssl_protocols); empty = NGINX default
+      grpcSslProtocols: ""
+      # Cipher suite offered to the upstream (grpc_ssl_ciphers); empty = NGINX default
+      grpcSslCiphers: ""
+      # Max body size for this location (0 = unlimited); empty falls back to MAX_CLIENT_SIZE
+      grpcMaxClientSize: ""
 
     # =============================================================================
     # REAL IP DETECTION
@@ -1060,6 +1149,10 @@ scheduler:
       useDnsbl: ""
       # DNSBL servers to query (space-separated)
       dnsblList: ""
+      # Request header that exempts a request from the DNSBL checks (shared secret)
+      dnsblIgnoreHeaderName: ""
+      # PCRE regex the header value must match (empty = match on the header name alone)
+      dnsblIgnoreHeaderValue: ""
 
     # =============================================================================
     # BUNKERNET THREAT INTELLIGENCE
@@ -1092,6 +1185,8 @@ scheduler:
       # Domain attribute on the session cookie (e.g. "example.com" to share antibot
       # challenge state across sibling subdomains). Leave empty to scope per-host.
       sessionsDomain: ""
+      # Size of the in-instance store holding revoked session identifiers (e.g. "16m")
+      sessionsRevocationMemorySize: ""
 
     # =============================================================================
     # METRICS AND MONITORING
@@ -1206,6 +1301,12 @@ scheduler:
       crowdSecMode: ""
       # AppSec component URL (optional)
       crowdSecAppsecUrl: ""
+      # Dedicated CrowdSec management machine, used to investigate alerts and remove
+      # decisions from the web UI. Leave empty for a read-only bouncer.
+      crowdSecManagementLogin: ""
+      # Password of the management machine (never the bouncer key)
+      # Ignored when settings.existingSecret is set (uses the secret key crowdsec-management-password instead)
+      crowdSecManagementPassword: ""
 
     # =============================================================================
     # PHP INTEGRATION
@@ -1232,6 +1333,10 @@ scheduler:
       greylistIp: ""
       # Greylist URLs for automatic updates
       greylistIpUrls: ""
+      # Request header that adds a request to the greylist (shared secret, see antibot)
+      greylistHeaderName: ""
+      # PCRE regex the header value must match (empty = match on the header name alone)
+      greylistHeaderValue: ""
 
     # =============================================================================
     # REVERSE SCAN
@@ -1326,7 +1431,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.14
+  tag: 1.6.15
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1429,7 +1534,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.14
+  tag: 1.6.15
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1560,7 +1665,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.14
+  tag: 1.6.15
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)

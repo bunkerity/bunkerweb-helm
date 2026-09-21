@@ -4,7 +4,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 ## Project Overview
 
-BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.0.25, app version 1.6.13. Helm 3, API v2.
+BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.1.0, app version 1.6.15. Helm 3, API v2.
 
 ## Repository Layout
 
