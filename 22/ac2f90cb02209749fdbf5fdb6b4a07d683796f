@@ -1,0 +1,19 @@
+.github/workflows/dev.yml
+  s_c4fe9048c8ba9a::t_485dd20c0fc925 28-29,52-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "22ac2f90cb02209749fdbf5fdb6b4a07d683796f",
+  "prompts": {},
+  "sessions": {
+    "s_c4fe9048c8ba9a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a74ff8d9-dca5-49af-903a-a64d4b7afd58",
+        "model": "claude-opus-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    }
+  }
+}
