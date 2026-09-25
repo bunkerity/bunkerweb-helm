@@ -12,8 +12,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.mcp.ingress.ingressClassName }}
-  ingressClassName: {{ .Values.mcp.ingress.ingressClassName }}
+  {{- $ingressClassName := .Values.mcp.ingress.ingressClassName | default (ternary .Values.ingressClass.name "" .Values.ingressClass.enabled) }}
+  {{- if $ingressClassName }}
+  ingressClassName: {{ $ingressClassName }}
   {{- end }}
   {{- if and .Values.mcp.ingress.tls.enabled .Values.mcp.ingress.tls.secretName }}
   tls:

@@ -11,6 +11,12 @@ or `[CI]`.
 > initial-development note because those `0.0.x` numbers were reused across the `1.6.0-rc`
 > rollbacks.
 
+## Unreleased
+
+- [BUGFIX] `settings.kubernetes.skipForeignClasses` (default `true`, BunkerWeb 1.6.16+): the controller ignores Ingresses and Gateways whose class belongs to another controller.
+- [FEATURE] `settings.kubernetes.gatewayClass` sets `KUBERNETES_GATEWAY_CLASS`.
+- [BUGFIX] The UI, API, MCP and Grafana Ingresses default their `ingressClassName` to `ingressClass.name`.
+
 ## v1.1.0 - 2026/09/21
 
 App version: `1.6.15`.

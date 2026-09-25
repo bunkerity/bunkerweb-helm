@@ -109,6 +109,7 @@ test_template_generation() {
         "api.enabled=false:Without API"
         "api.enabled=true,settings.api.useBearerToken.token=test-token,settings.api.ingress.enabled=true,settings.api.ingress.serverName=api.test.com:With API Ingress"
         "settings.ui.ingress.enabled=true,settings.ui.ingress.serverName=ui.test.com:With UI Ingress"
+        "ingressClass.name=bw-custom:With custom IngressClass name"
     )
 
     for config in "${test_configs[@]}"; do
@@ -197,6 +198,19 @@ test_bunkerweb_specific() {
     assert_renders "UI ingress configuration" \
         --set settings.ui.ingress.enabled=true \
         --set settings.ui.ingress.serverName=test.example.com || return 1
+
+    log_info "  Testing chart Ingresses follow a custom IngressClass name"
+    if render --set ingressClass.name=bw-custom --set settings.ui.ingress.enabled=true --set settings.ui.ingress.serverName=ui.test.com --dry-run; then
+        if contains "$(source_block ui-ingress.yaml)" "ingressClassName: bw-custom"; then
+            log_success "    ✓ UI Ingress uses the custom IngressClass name"
+        else
+            log_error "    ✗ UI Ingress did not use the custom IngressClass name"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render the UI Ingress with a custom IngressClass name"
+        return 1
+    fi
 
     log_info "  Testing API auth guard (enabled without a token must fail)"
     assert_render_fails \

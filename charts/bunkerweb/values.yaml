@@ -94,6 +94,15 @@ settings:
     # Must match the IngressClass resource name
     ingressClass: ""
 
+    # Gateway class name that BunkerWeb will handle
+    # Must match the GatewayClass resource name
+    gatewayClass: ""
+
+    # Leave alone Ingresses and Gateways whose IngressClass/GatewayClass belongs to another
+    # controller (for example the AWS Load Balancer Controller). Requires BunkerWeb 1.6.16 or
+    # later; older images ignore it.
+    skipForeignClasses: true
+
     # Kubernetes cluster domain name for service discovery
     domainName: "cluster.local"
 
@@ -208,6 +217,7 @@ settings:
       # Set to true to create an Ingress resource for the UI
       enabled: false
       # IngressClass name to use
+      # Empty: uses `ingressClass.name` when `ingressClass.enabled`
       ingressClassName: ""
       # Domain name for UI access
       # Example: "bunkerweb-ui.example.com"
@@ -346,6 +356,7 @@ settings:
       # Set to true to create an Ingress resource for the API
       enabled: false
       # IngressClass name to use
+      # Empty: uses `ingressClass.name` when `ingressClass.enabled`
       ingressClassName: ""
       # Domain name for API access
       # Example: "bunkerweb-api.example.com"
@@ -1833,7 +1844,8 @@ mcp:
     # You MUST secure access using BunkerWeb annotations (whitelist, auth) or network policies.
     enabled: false
     # IngressClass name to use
-    ingressClassName: "bunkerweb"
+    # Empty: uses `ingressClass.name` when `ingressClass.enabled`
+    ingressClassName: ""
     # Domain name for MCP access
     serverName: ""
     # Path for MCP access
@@ -2178,6 +2190,7 @@ grafana:
   # Ingress configuration for external access
   ingress:
     enabled: false
+    # IngressClass name to use. Empty/unset: uses `ingressClass.name` when `ingressClass.enabled`
     # ingressClassName: "bunkerweb"
     # serverName: "grafana.example.com"
     # serverPath: "/"

@@ -74,6 +74,14 @@ spec:
               value: "{{ .Values.settings.kubernetes.namespaces }}"
             - name: KUBERNETES_INGRESS_CLASS
               value: "{{ .Values.settings.kubernetes.ingressClass }}"
+            - name: KUBERNETES_SKIP_FOREIGN_CLASSES
+              value: "{{ ternary "yes" "no" .Values.settings.kubernetes.skipForeignClasses }}"
+            - name: KUBERNETES_INGRESS_CONTROLLER
+              value: "{{ .Values.ingressClass.controller }}"
+            - name: KUBERNETES_GATEWAY_CLASS
+              value: "{{ .Values.settings.kubernetes.gatewayClass }}"
+            - name: KUBERNETES_GATEWAY_CONTROLLER
+              value: "{{ .Values.gatewayClass.controller }}"
             - name: KUBERNETES_DOMAIN_NAME
               value: "{{ .Values.settings.kubernetes.domainName }}"
             - name: KUBERNETES_IGNORE_ANNOTATIONS
