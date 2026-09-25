@@ -1,0 +1,50 @@
+charts/bunkerweb/templates/clusterrole.yaml
+  s_c3f03e0f69002d::t_4f9248345130cf 17-19
+charts/bunkerweb/templates/grafana-ingress.yaml
+  s_c3f03e0f69002d::t_acd1fdd3cef7a1 14-16
+CHANGELOG.md
+  s_c3f03e0f69002d::t_11d5e74fc17d08 14-19
+charts/bunkerweb/values.yaml
+  s_c3f03e0f69002d::t_f570bee2312c4b 220
+  s_c3f03e0f69002d::t_a6b0130ee70b87 1847-1848
+  s_c3f03e0f69002d::t_5e389799dc7378 2193
+  s_c3f03e0f69002d::t_664a0640f0944c 97-105
+  s_c3f03e0f69002d::t_a3f9b63865dfe1 359
+charts/bunkerweb/templates/api-ingress.yaml
+  s_c3f03e0f69002d::t_fccf40df59da8e 15-17
+docs/values.md
+  s_c3f03e0f69002d::t_ce5287cf6b1c87 755,859,864,906,928
+charts/bunkerweb/templates/ui-ingress.yaml
+  s_c3f03e0f69002d::t_0514a41889de37 15-17
+charts/bunkerweb/templates/controller-deployment.yaml
+  s_c3f03e0f69002d::t_b723491ea85069 77-84
+charts/bunkerweb/templates/mcp-ingress.yaml
+  s_c3f03e0f69002d::t_257501800d225e 15-17
+scripts/validate-chart.sh
+  s_c3f03e0f69002d::t_db3b2882b938f7 112
+  s_ca05435d07af44::t_4c80e007203dd0 202-214
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d5fc59799674bae6db7aac3bf5cc606bde9a095d",
+  "prompts": {},
+  "sessions": {
+    "s_c3f03e0f69002d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "abfd6ef0-0d87-44d5-89f8-77fe7d731cc4",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    },
+    "s_ca05435d07af44": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "06005abd-6979-4317-af58-12b4f9b0427a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    }
+  }
+}
