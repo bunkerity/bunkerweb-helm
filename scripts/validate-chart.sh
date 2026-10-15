@@ -109,6 +109,7 @@ test_template_generation() {
         "api.enabled=false:Without API"
         "api.enabled=true,settings.api.useBearerToken.token=test-token,settings.api.ingress.enabled=true,settings.api.ingress.serverName=api.test.com:With API Ingress"
         "settings.ui.ingress.enabled=true,settings.ui.ingress.serverName=ui.test.com:With UI Ingress"
+        "ingressClass.name=bw-custom:With custom IngressClass name"
     )
 
     for config in "${test_configs[@]}"; do
@@ -198,6 +199,19 @@ test_bunkerweb_specific() {
         --set settings.ui.ingress.enabled=true \
         --set settings.ui.ingress.serverName=test.example.com || return 1
 
+    log_info "  Testing chart Ingresses follow a custom IngressClass name"
+    if render --set ingressClass.name=bw-custom --set settings.ui.ingress.enabled=true --set settings.ui.ingress.serverName=ui.test.com --dry-run; then
+        if contains "$(source_block ui-ingress.yaml)" "ingressClassName: bw-custom"; then
+            log_success "    ✓ UI Ingress uses the custom IngressClass name"
+        else
+            log_error "    ✗ UI Ingress did not use the custom IngressClass name"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render the UI Ingress with a custom IngressClass name"
+        return 1
+    fi
+
     log_info "  Testing API auth guard (enabled without a token must fail)"
     assert_render_fails \
         "API enabled without a token should have failed to render" \
@@ -269,6 +283,35 @@ test_bunkerweb_specific() {
         echo "$output" | sed 's/^/      /'
         return 1
     fi
+
+    # Test worker probes: strict startupProbe gate and strict readinessProbe (issue #97)
+    log_info "  Testing worker startupProbe/readinessProbe on every kind"
+    local kind doc_name probe_doc startup_block readiness_block
+    for kind in Deployment DaemonSet StatefulSet; do
+        doc_name="bunkerweb-${kind,,}.yaml"
+        if ! render --set bunkerweb.kind="$kind" --dry-run; then
+            log_error "    ✗ Failed to render the $kind worker"
+            return 1
+        fi
+        probe_doc=$(source_block "$doc_name")
+        startup_block=$(echo "$probe_doc" | awk '/^ +startupProbe:/{f=1;next} f&&/^ +[a-zA-Z]+Probe:/{f=0} f')
+        readiness_block=$(echo "$probe_doc" | awk '/^ +readinessProbe:/{f=1;next} f&&/^ +[a-zA-Z]+:/&&!/^ {12}/{f=0} f')
+        if contains "$startup_block" "healthcheck.sh" && contains "$startup_block" "- ok" \
+            && contains "$readiness_block" "healthcheck.sh" && contains "$readiness_block" "- ok"; then
+            log_success "    ✓ $kind: strict startupProbe and readinessProbe"
+        else
+            log_error "    ✗ $kind: startupProbe/readinessProbe did not render as expected"
+            return 1
+        fi
+        # Helm merges {} into the default map, so only null removes the probe
+        if render --set bunkerweb.kind="$kind" --set-json "bunkerweb.startupProbe=null" --dry-run \
+            && ! contains "$(source_block "$doc_name")" "startupProbe:"; then
+            log_success "    ✓ $kind: startupProbe=null removes the probe"
+        else
+            log_error "    ✗ $kind: startupProbe=null did not remove the probe"
+            return 1
+        fi
+    done
 
     # Test parity: initContainers on bunkerweb and controller
     log_info "  Testing bunkerweb/controller initContainers parity"

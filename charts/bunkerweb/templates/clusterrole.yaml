@@ -14,6 +14,9 @@ rules:
   - apiGroups: ["networking.k8s.io"]
     resources: ["ingresses/status"]
     verbs: ["get", "watch", "list", "patch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingressclasses"]
+    verbs: ["get", "watch", "list"]
   - apiGroups: ["gateway.networking.k8s.io"]
     resources:
       - gatewayclasses

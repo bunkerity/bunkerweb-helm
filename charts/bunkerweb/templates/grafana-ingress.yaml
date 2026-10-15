@@ -11,8 +11,9 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- if .Values.grafana.ingress.ingressClassName }}
-  ingressClassName: {{ .Values.grafana.ingress.ingressClassName }}
+  {{- $ingressClassName := (dig "ingressClassName" "" .Values.grafana.ingress) | default (ternary .Values.ingressClass.name "" .Values.ingressClass.enabled) }}
+  {{- if $ingressClassName }}
+  ingressClassName: {{ $ingressClassName }}
   {{- end}}
   {{- if .Values.grafana.ingress.tlsSecretName }}
   tls:

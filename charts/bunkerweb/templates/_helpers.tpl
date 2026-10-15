@@ -80,6 +80,12 @@ REDIS settings
 {{- if and .Values.redis.enabled .Values.settings.redis.redisSentinelHosts }}
 {{- fail "settings.redis.redisSentinelHosts requires redis.enabled=false (use an external Redis/Sentinel cluster, not the bundled Redis)." }}
 {{- end }}
+{{- if and .Values.redis.enabled .Values.settings.redis.redisClusterNodes }}
+{{- fail "settings.redis.redisClusterNodes requires redis.enabled=false (use an external Redis Cluster, not the bundled Redis)." }}
+{{- end }}
+{{- if and .Values.settings.redis.redisClusterNodes .Values.settings.redis.redisSentinelHosts }}
+{{- fail "settings.redis.redisClusterNodes and settings.redis.redisSentinelHosts are mutually exclusive." }}
+{{- end }}
 {{- if eq .Values.settings.redis.useRedis "yes" }}
 - name: USE_REDIS
   value: "yes"
@@ -103,7 +109,7 @@ REDIS settings
   value: "{{ .Values.redis.config.password }}"
   {{- end }}
 {{- else }}
-{{- if or .Values.settings.redis.redisHost (not .Values.settings.redis.redisSentinelHosts) }}
+{{- if or .Values.settings.redis.redisHost (not (or .Values.settings.redis.redisSentinelHosts .Values.settings.redis.redisClusterNodes)) }}
 - name: REDIS_HOST
   value: "{{ .Values.settings.redis.redisHost }}"
 {{- end }}
@@ -146,6 +152,11 @@ REDIS settings
 {{- if .Values.settings.redis.redisTimeout }}
 - name: REDIS_TIMEOUT
   value: "{{ .Values.settings.redis.redisTimeout }}"
+{{- end }}
+{{- /* Redis Cluster (1.6.16+). When set, the nodes are discovered from these seeds and redisHost is not needed. */}}
+{{- if .Values.settings.redis.redisClusterNodes }}
+- name: REDIS_CLUSTER_NODES
+  value: "{{ .Values.settings.redis.redisClusterNodes }}"
 {{- end }}
 {{- /* Redis Sentinel (high availability). When set, the master is resolved via the Sentinels. */}}
 {{- if .Values.settings.redis.redisSentinelHosts }}
@@ -381,6 +392,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "DISABLE_DEFAULT_SERVER_STRICT_SNI" "value" (and .global.disableDefaultServerStrictSni)) }}
 {{- include "bunkerweb.envVar" (dict "name" "MAX_HEADERS" "value" (and .global.maxHeaders)) }}
 {{- include "bunkerweb.envVar" (dict "name" "WORKER_SHUTDOWN_TIMEOUT" "value" (and .global.workerShutdownTimeout)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BANS_TLS_DROP_REASONS" "value" (and .global.bansTlsDropReasons)) }}
 
 # =============================================================================
 # NGINX TIMEOUTS
@@ -426,6 +438,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_URI" "value" (and .antibot .antibot.antibotUri)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_TIME_RESOLVE" "value" (and .antibot .antibot.antibotTimeResolve)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_TIME_VALID" "value" (and .antibot .antibot.antibotTimeValid)) }}
+{{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_JAVASCRIPT_DIFFICULTY" "value" (and .antibot .antibot.antibotJavascriptDifficulty)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_IGNORE_IP" "value" (and .antibot .antibot.antibotIgnoreIp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_IGNORE_URI" "value" (and .antibot .antibot.antibotIgnoreUri)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_RECAPTCHA_CLASSIC" "value" (and .antibot .antibot.antibotRecaptchaClassic)) }}
@@ -720,6 +733,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.secretOrValue" (dict "name" "CROWDSEC_API_KEY" "secret" $.Values.settings.existingSecret "key" "crowdsec-api-key" "optional" true "value" (and .crowdSec .crowdSec.crowdSecApiKey)) }}
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_MODE" "value" (and .crowdSec .crowdSec.crowdSecMode)) }}
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_APPSEC_URL" "value" (and .crowdSec .crowdSec.crowdSecAppsecUrl)) }}
+{{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_BAN_REFRESH" "value" (and .crowdSec .crowdSec.crowdSecBanRefresh)) }}
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_MANAGEMENT_LOGIN" "value" (and .crowdSec .crowdSec.crowdSecManagementLogin)) }}
 {{- include "bunkerweb.secretOrValue" (dict "name" "CROWDSEC_MANAGEMENT_PASSWORD" "secret" $.Values.settings.existingSecret "key" "crowdsec-management-password" "optional" true "value" (and .crowdSec .crowdSec.crowdSecManagementPassword)) }}
 
