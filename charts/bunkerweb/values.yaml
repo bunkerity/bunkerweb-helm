@@ -665,6 +665,20 @@ bunkerweb:
 # Manages BunkerWeb configuration and coordination
 
 scheduler:
+  # Deploy the scheduler
+  # Set to false when this release only runs BunkerWeb workers and a scheduler
+  # in another release or cluster manages them (split control plane / data plane).
+  # In that case:
+  # - set the same API token on both sides: settings.apiToken.token, or
+  #   settings.existingSecret with settings.apiToken.fromExistingSecret (key api-token)
+  # - with networkPolicy.enabled, allow the remote scheduler in
+  #   networkPolicy.ingress.extraRules; the built-in rule only admits this release's scheduler
+  # - allow the remote scheduler's source range in settings.misc.apiWhitelistIp; the workers
+  #   reject API calls from outside it (default: private ranges only)
+  # - scheduler.features, image and resources only shape the scheduler Deployment, so set
+  #   them on the remote scheduler instead
+  enabled: true
+
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler

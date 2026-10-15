@@ -11,6 +11,10 @@ or `[CI]`.
 > initial-development note because those `0.0.x` numbers were reused across the `1.6.0-rc`
 > rollbacks.
 
+## Unreleased
+
+- [FEATURE] `scheduler.enabled` (default `true`): set it to `false` to skip the scheduler Deployment when a scheduler in another release or cluster manages this release's workers. The value was previously not read.
+
 ## v1.2.0 - 2026/10/15
 
 App version: `1.6.16`.
