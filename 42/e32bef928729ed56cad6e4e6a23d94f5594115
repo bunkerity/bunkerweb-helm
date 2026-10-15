@@ -1,0 +1,46 @@
+charts/bunkerweb/Chart.yaml
+  s_4c47a679f7e470::t_6d03a88173de75 18,24
+scripts/validate-chart.sh
+  s_4c47a679f7e470::t_f2570a7dcf0449 287,300-301
+charts/bunkerweb/templates/_helpers.tpl
+  s_4c47a679f7e470::t_31d9c44cd1f536 83-88,112,156-160,395,441,736
+AGENTS.md
+  s_4c47a679f7e470::t_6d03a88173de75 7
+README.md
+  s_4c47a679f7e470::t_6d03a88173de75 3-4
+docs/values.md
+  s_4c47a679f7e470::t_b134f3eeb8c1eb 69,75,120,145,200,254,303,332,527,675,881
+charts/bunkerweb/values.yaml
+  s_4c47a679f7e470::t_31d9c44cd1f536 178-184,737-739,821-823,1355-1357
+  s_4c47a679f7e470::t_6d03a88173de75 459,600-604,610,671,1488,1591,1722
+CHANGELOG.md
+  s_4c47a679f7e470::t_e573a66a068240 14,16-18,26-27
+  s_4c47a679f7e470::t_6e471086bb9d52 24-25
+  s_4600783926e6d7::t_1eba17f568eb19 19-20
+CLAUDE.md
+  s_4c47a679f7e470::t_6d03a88173de75 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "42e32bef928729ed56cad6e4e6a23d94f5594115",
+  "prompts": {},
+  "sessions": {
+    "s_4600783926e6d7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "577228b8-9e99-4afb-b5b7-0fab1e1a53d0",
+        "model": "unknown"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    },
+    "s_4c47a679f7e470": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "52e6466c-12af-4661-81b3-573832eb8856",
+        "model": "unknown"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    }
+  }
+}
