@@ -1,0 +1,40 @@
+charts/bunkerweb/values.yaml
+  s_4dc3aa954b3a99::t_c7f7c01e385702 677
+  s_9ea6951bbc60d6::t_3085a145369186 670-676,678-679
+CHANGELOG.md
+  s_ece940fd503041::t_170e1ca30ab97a 16
+charts/bunkerweb/templates/NOTES.txt
+  s_ece940fd503041::t_b0019a999d0fb3 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "67a64947f03e5e85429db06f429c7bdc8436a869",
+  "prompts": {},
+  "sessions": {
+    "s_4dc3aa954b3a99": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9da7892a-9092-4c42-8f75-1dc652cdb235",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    },
+    "s_9ea6951bbc60d6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6744f0f8-cf69-4c6b-a42d-ee801b8bdbad",
+        "model": "unknown"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    },
+    "s_ece940fd503041": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "25124f0b-d2d2-4ee3-85fe-f3c947d12dae",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    }
+  }
+}
