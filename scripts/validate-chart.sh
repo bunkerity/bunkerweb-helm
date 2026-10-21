@@ -275,6 +275,23 @@ test_bunkerweb_specific() {
         return 1
     fi
 
+    log_info "  Testing numeric zero in scheduler feature values"
+    if render --dry-run \
+        && ! contains "$(source_block scheduler-deployment.yaml)" "name: DATABASE_READ_TIMEOUT" \
+        && render --set scheduler.features.databasePool.databaseReadTimeout=0 --dry-run; then
+        local timeout_block
+        timeout_block=$(source_block scheduler-deployment.yaml | grep -A1 'name: DATABASE_READ_TIMEOUT' || true)
+        if contains "$timeout_block" 'value: "0"'; then
+            log_success "    ✓ DATABASE_READ_TIMEOUT is omitted by default and numeric zero renders as a string"
+        else
+            log_error "    ✗ Numeric zero DATABASE_READ_TIMEOUT did not render as a string"
+            return 1
+        fi
+    else
+        log_error "    ✗ Failed to render scheduler feature timeout or default timeout was not omitted"
+        return 1
+    fi
+
     # Test scheduler custom-plugin volumes/volumeMounts/initContainers (issue #87)
     log_info "  Testing scheduler initContainers/volumes/volumeMounts (custom plugins)"
     if render \

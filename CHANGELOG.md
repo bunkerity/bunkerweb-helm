@@ -11,9 +11,15 @@ or `[CI]`.
 > initial-development note because those `0.0.x` numbers were reused across the `1.6.0-rc`
 > rollbacks.
 
-## Unreleased
+## v1.3.0 - 2026/10/21
 
+App version: `1.6.17`.
+
+- [DEPS] upgrade to BunkerWeb 1.6.17.
+- [SECURITY] upstream: NGINX 1.30.6 (five CVEs), a custom-config `rewrite` no longer skips the access checks (bans, lists, rate limit, antibot, ModSecurity), and the TLS ban check matches nginx's address for IPv4-mapped IPv6 clients. Upgrade to get them.
+- [BUGFIX] A numeric `0` in a `scheduler.features` value (for example `databaseReadTimeout: 0`, `metricsRedisTtl: 0`) is rendered instead of dropped, so it no longer falls back to the upstream default.
 - [FEATURE] `scheduler.enabled` (default `true`): set it to `false` to skip the scheduler Deployment when a scheduler in another release or cluster manages this release's workers. The value was previously not read.
+- [FEATURE] New 1.6.17 settings: `scheduler.features.databasePool.databaseConnectTimeout` and `databaseReadTimeout` (bound database calls, so a vanished database no longer blocks the scheduler, UI or API), `scheduler.features.badBehavior.badBehaviorReportMaxEvents` and `badBehaviorReportMaxStringSize` (bound ban evidence stored in Redis).
 
 ## v1.2.0 - 2026/10/15
 

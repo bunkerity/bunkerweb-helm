@@ -1,10 +1,10 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents working in this repository.
 
 ## Project Overview
 
-BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.2.0, app version 1.6.16. Helm 3, API v2.
+BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.3.0, app version 1.6.17. Helm 3, API v2.
 
 ## Repository Layout
 
