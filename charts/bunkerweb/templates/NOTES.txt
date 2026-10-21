@@ -26,7 +26,7 @@ App Version: {{ .Chart.AppVersion }}
 ================================================================================
 
 BunkerWeb ({{ .Values.bunkerweb.kind }}): {{ if .Values.bunkerweb.kind }}Enabled{{ else }}Disabled{{ end }}
-Scheduler: Enabled
+Scheduler: {{ if .Values.scheduler.enabled }}Enabled{{ else }}Disabled{{ end }}
 Controller: {{ if .Values.controller.enabled }}Enabled{{ else }}Disabled{{ end }}
 Web UI: {{ if .Values.ui.enabled }}Enabled{{ else }}Disabled{{ end }}
 MariaDB: {{ if .Values.mariadb.enabled }}Enabled{{ else }}Disabled{{ end }}

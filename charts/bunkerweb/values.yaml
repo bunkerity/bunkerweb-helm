@@ -456,7 +456,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.16
+  tag: 1.6.17
   pullPolicy: IfNotPresent
 
   # Resource requests and limits
@@ -665,10 +665,24 @@ bunkerweb:
 # Manages BunkerWeb configuration and coordination
 
 scheduler:
+  # Deploy the scheduler
+  # Set to false when this release only runs BunkerWeb workers and a scheduler
+  # in another release or cluster manages them (split control plane / data plane).
+  # In that case:
+  # - set the same API token on both sides: settings.apiToken.token, or
+  #   settings.existingSecret with settings.apiToken.fromExistingSecret (key api-token)
+  # - with networkPolicy.enabled, allow the remote scheduler in
+  #   networkPolicy.ingress.extraRules; the built-in rule only admits this release's scheduler
+  # - allow the remote scheduler's source range in settings.misc.apiWhitelistIp; the workers
+  #   reject API calls from outside it (default: private ranges only)
+  # - scheduler.features, image and resources only shape the scheduler Deployment, so set
+  #   them on the remote scheduler instead
+  enabled: true
+
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.16
+  tag: 1.6.17
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -773,6 +787,10 @@ scheduler:
       databaseRequestRetryAttempts: ""
       # Delay between retry attempts (seconds)
       databaseRequestRetryDelay: ""
+      # Max time to wait when opening a database connection (upstream default "10s", must be above 0). BunkerWeb 1.6.17+
+      databaseConnectTimeout: ""
+      # Max time a MySQL/MariaDB call waits for the server (upstream default "5m", "0" disables it). BunkerWeb 1.6.17+
+      databaseReadTimeout: ""
 
     # =============================================================================
     # MODSECURITY WAF
@@ -923,6 +941,10 @@ scheduler:
       badBehaviorCountTime: ""
       # Ban duration (seconds, 0 = permanent)
       badBehaviorBanTime: ""
+      # Recent events kept as ban evidence in reports (1 to 10000, upstream default 100). BunkerWeb 1.6.17+
+      badBehaviorReportMaxEvents: ""
+      # Max bytes of each URL or method kept as ban evidence (4 to 65536, upstream default 512). BunkerWeb 1.6.17+
+      badBehaviorReportMaxStringSize: ""
 
     # =============================================================================
     # SSL/TLS CONFIGURATION
@@ -1485,7 +1507,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.16
+  tag: 1.6.17
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1588,7 +1610,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.16
+  tag: 1.6.17
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1719,7 +1741,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.16
+  tag: 1.6.17
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)

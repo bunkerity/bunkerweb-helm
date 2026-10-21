@@ -313,7 +313,7 @@ The caller passes the value pre-guarded (e.g. `(and .parent .parent.field)`) so
 nil-parent short-circuiting is preserved.
 */}}
 {{- define "bunkerweb.envVar" -}}
-{{- if .value }}
+{{- if or .value (eq (toString .value) "0") }}
 - name: {{ .name }}
   value: {{ .value | quote }}
 {{- end }}
@@ -414,6 +414,8 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "DATABASE_RETRY_TIMEOUT" "value" (and .databasePool .databasePool.databaseRetryTimeout)) }}
 {{- include "bunkerweb.envVar" (dict "name" "DATABASE_REQUEST_RETRY_ATTEMPTS" "value" (and .databasePool .databasePool.databaseRequestRetryAttempts)) }}
 {{- include "bunkerweb.envVar" (dict "name" "DATABASE_REQUEST_RETRY_DELAY" "value" (and .databasePool .databasePool.databaseRequestRetryDelay)) }}
+{{- include "bunkerweb.envVar" (dict "name" "DATABASE_CONNECT_TIMEOUT" "value" (and .databasePool .databasePool.databaseConnectTimeout)) }}
+{{- include "bunkerweb.envVar" (dict "name" "DATABASE_READ_TIMEOUT" "value" (and .databasePool .databasePool.databaseReadTimeout)) }}
 
 # =============================================================================
 # MODSECURITY WAF
@@ -495,6 +497,8 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "BAD_BEHAVIOR_THRESHOLD" "value" (and .badBehavior .badBehavior.badBehaviorThreshold)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BAD_BEHAVIOR_COUNT_TIME" "value" (and .badBehavior .badBehavior.badBehaviorCountTime)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BAD_BEHAVIOR_BAN_TIME" "value" (and .badBehavior .badBehavior.badBehaviorBanTime)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BAD_BEHAVIOR_REPORT_MAX_EVENTS" "value" (and .badBehavior .badBehavior.badBehaviorReportMaxEvents)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BAD_BEHAVIOR_REPORT_MAX_STRING_SIZE" "value" (and .badBehavior .badBehavior.badBehaviorReportMaxStringSize)) }}
 
 # =============================================================================
 # SSL/TLS CONFIGURATION
