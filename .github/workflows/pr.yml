@@ -24,7 +24,7 @@ jobs:
           persist-credentials: false
       - name: Run Plumber (advisory)
         continue-on-error: true
-        uses: getplumber/plumber@cd1ecdf0a0053f9b0cc123976bb369772d876af3 # v0.7.4
+        uses: getplumber/plumber@93ea968a173204b9a7f91df270a4e853845aefa3 # v0.7.9
         with:
           verify-attestation: true
           config-file: .github/plumber/plumber.yaml
