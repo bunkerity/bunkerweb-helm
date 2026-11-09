@@ -182,6 +182,30 @@ contains() {
     [[ $(echo "$1" | grep -cF -- "$2" || true) -gt 0 ]]
 }
 
+# Extract only the named container's env from a rendered workload.
+container_env() {
+    source_block "$1" | awk -v container="$2" '
+        /^        - name:/ { selected = ($3 == container); env = 0 }
+        selected && /^          env:/ { env = 1; next }
+        env && /^          [^ ]/ { env = 0 }
+        env { print }
+    '
+}
+
+# Require one literal env entry with the expected value, in the selected container.
+assert_env_value() {
+    local env=$1 name=$2 value=$3
+    if ! awk -v name="$name" -v value="\"$value\"" '
+        $1 == "-" && $2 == "name:" && $3 == name {
+            count++; getline; sub(/^ +value: /, ""); if ($0 == value) matched++
+        }
+        END { exit !(count == 1 && matched == 1) }
+    ' <<< "$env"; then
+        log_error "    ✗ $name missing, duplicated, or incorrect (expected: $value)"
+        return 1
+    fi
+}
+
 # Test specific BunkerWeb configurations
 test_bunkerweb_specific() {
     log_info "Testing BunkerWeb-specific configurations..."
@@ -469,34 +493,96 @@ test_bunkerweb_specific() {
         return 1
     fi
 
-    # Test syslogAddress helper
-    log_info "  Testing syslogAddress helper with default value"
-    if render --set ui.logs.enabled=true; then
-        # Use grep -c instead of grep -q to avoid SIGPIPE with pipefail
-        if contains "$output" "ui-test-bunkerweb"; then
-            log_success "    ✓ syslogAddress fallback to service works"
-        else
-            log_warning "    ⚠ syslogAddress fallback may not be working as expected"
-        fi
-    else
-        log_error "    ✗ Failed to generate templates with UI logs"
+    # Issue #142: inspect actual container env, not matching strings elsewhere in the chart.
+    local logging_mode address component env duplicates
+    local logging_args=()
+    for kind in Deployment DaemonSet StatefulSet; do
+        for logging_mode in disabled default custom; do
+            logging_args=(--set ui.logs.enabled=false)
+            address="ui-test-bunkerweb.default.svc.cluster.local:514"
+            if [[ "$logging_mode" != disabled ]]; then
+                logging_args=(--set ui.logs.enabled=true --set ui.logs.syslogAddress=)
+                if [[ "$logging_mode" == custom ]]; then
+                    address="custom-syslog.example.com:1514"
+                    logging_args+=(--set "ui.logs.syslogAddress=$address")
+                fi
+            fi
+            log_info "  Testing $kind logging: $logging_mode"
+            if ! render --set bunkerweb.kind="$kind" --set scheduler.enabled=true \
+                --set controller.enabled=true --set ui.enabled=true --set api.enabled=true \
+                "${logging_args[@]}"; then
+                log_error "    ✗ Failed to render $kind logging: $logging_mode"
+                echo "$output"
+                return 1
+            fi
+            for component in bunkerweb scheduler controller ui api; do
+                doc_name="$component-deployment.yaml"
+                local container="bunkerweb-$component"
+                if [[ "$component" == bunkerweb ]]; then
+                    doc_name="bunkerweb-${kind,,}.yaml"
+                    container=bunkerweb
+                fi
+                env=$(container_env "$doc_name" "$container")
+                if [[ -z "$env" ]]; then
+                    log_error "    ✗ $doc_name: $container env missing"
+                    return 1
+                fi
+                duplicates=$(awk '$1 == "-" && $2 == "name:" {print $3}' <<< "$env" | sort | uniq -d)
+                if [[ -n "$duplicates" ]]; then
+                    log_error "    ✗ $container has duplicate env names: $duplicates"
+                    return 1
+                fi
+                if [[ "$logging_mode" == disabled ]]; then
+                    if contains "$env" 'name: LOG_TYPES' || contains "$env" 'name: LOG_SYSLOG_ADDRESS' \
+                        || contains "$env" 'name: ACCESS_LOG_1' || contains "$env" 'name: ERROR_LOG_1'; then
+                        log_error "    ✗ $container has automatic syslog env with logging disabled"
+                        return 1
+                    fi
+                else
+                    log_info "    Checking $container logging env"
+                    assert_env_value "$env" LOG_TYPES "stderr syslog" || return 1
+                    assert_env_value "$env" LOG_SYSLOG_ADDRESS "$address" || return 1
+                    if [[ "$component" == bunkerweb || "$component" == scheduler ]]; then
+                        assert_env_value "$env" ACCESS_LOG_1 "syslog:server=$address,tag=bunkerweb_access" || return 1
+                        assert_env_value "$env" ERROR_LOG_1 "syslog:server=$address,tag=bunkerweb" || return 1
+                    fi
+                fi
+            done
+            log_success "    ✓ $kind logging: $logging_mode env values and unique names"
+        done
+    done
+    log_info "  Testing scheduler extraEnvs override NGINX log destinations"
+    if ! render --set ui.logs.enabled=true --set scheduler.enabled=true \
+        --set-json 'scheduler.extraEnvs=[{"name":"ACCESS_LOG_1","value":"/dev/stdout"},{"name":"ERROR_LOG_1","value":"stderr"}]'; then
+        log_error "    ✗ Failed to render scheduler NGINX log overrides"
+        echo "$output"
         return 1
     fi
-
-    log_info "  Testing syslogAddress helper with custom value"
-    if render \
-        --set ui.logs.enabled=true \
-        --set "ui.logs.syslogAddress=custom-syslog.example.com:514"; then
-        if contains "$output" "custom-syslog.example.com:514"; then
-            log_success "    ✓ Custom syslogAddress works"
-        else
-            log_error "    ✗ Custom syslogAddress not applied correctly"
+    env=$(container_env scheduler-deployment.yaml bunkerweb-scheduler)
+    local log_name log_value
+    for log_name in ACCESS_LOG_1 ERROR_LOG_1; do
+        log_value=/dev/stdout
+        if [[ "$log_name" == ERROR_LOG_1 ]]; then
+            log_value=stderr
+        fi
+        if ! awk -v name="$log_name" -v value="$log_value" '
+            $1 == "-" && $2 == "name:" && $3 == name {
+                getline; sub(/^ +value: /, ""); last = $0; found = 1
+            }
+            END { exit !(found && (last == value || last == "\"" value "\"")) }
+        ' <<< "$env"; then
+            log_error "    ✗ Scheduler $log_name override must appear last (expected: $log_value)"
             return 1
         fi
-    else
-        log_error "    ✗ Failed to generate templates with custom syslog address"
+    done
+    log_success "    ✓ Scheduler extraEnvs override both NGINX log destinations"
+
+    if ! render --set ui.logs.enabled=true --set scheduler.enabled=false \
+        || [[ -n "$(source_block scheduler-deployment.yaml)" ]]; then
+        log_error "    ✗ UI logging must not enable the disabled scheduler"
         return 1
     fi
+    log_success "    ✓ UI logging preserves scheduler.enabled=false"
 
     # Test DaemonSet rollout controls
     log_info "  Testing DaemonSet rollout controls (defaults)"

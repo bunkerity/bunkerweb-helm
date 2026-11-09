@@ -105,10 +105,11 @@ spec:
             {{- end }}
             {{- include "bunkerweb.redisEnv" . | nindent 12 }}
             {{- include "bunkerweb.featureEnvs" . | nindent 12 }}
+            {{- include "bunkerweb.nginxLogEnvs" . | nindent 12 }}
             {{- if .Values.scheduler.extraEnvs }}
               {{- toYaml .Values.scheduler.extraEnvs | nindent 12 }}
             {{- end }}
-            {{- include "bunkerweb.logEnvs" . }}
+            {{- include "bunkerweb.logEnvs" . | nindent 12 }}
           {{- with .Values.scheduler.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}

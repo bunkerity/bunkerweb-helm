@@ -11,6 +11,10 @@ or `[CI]`.
 > initial-development note because those `0.0.x` numbers were reused across the `1.6.0-rc`
 > rollbacks.
 
+## Unreleased
+
+- [BUGFIX] `ui.logs.enabled` now configures scheduler NGINX syslog destinations and Python syslog logging on every worker kind; remove temporary logging `extraEnvs` overrides when upgrading. (Refs #142)
+
 ## v1.3.0 - 2026/10/21
 
 App version: `1.6.17`.

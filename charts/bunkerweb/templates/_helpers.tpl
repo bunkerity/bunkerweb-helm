@@ -342,16 +342,25 @@ Usage: {{- include "bunkerweb.secretOrValue" (dict "name" "ENV" "secret" <existi
 {{- end -}}
 
 {{/*
-Syslog log env vars (LOG_TYPES/LOG_SYSLOG_ADDRESS) shared by the api, ui,
-scheduler and controller deployments. Indentation is baked at 12 spaces; call
-as {{- include "bunkerweb.logEnvs" . }} with no nindent.
+Python logging env shared by workers, scheduler, controller, UI and API.
+Emit at col 0; the caller applies indentation.
 */}}
 {{- define "bunkerweb.logEnvs" -}}
 {{- if .Values.ui.logs.enabled }}
-            - name: LOG_TYPES
-              value: "stderr syslog"
-            - name: LOG_SYSLOG_ADDRESS
-              value: "{{ include "bunkerweb.syslogAddress" . }}"
+- name: LOG_TYPES
+  value: "stderr syslog"
+- name: LOG_SYSLOG_ADDRESS
+  value: "{{ include "bunkerweb.syslogAddress" . }}"
+{{- end }}
+{{- end -}}
+
+{{/* NGINX syslog destinations shared by workers and the configuration scheduler. */}}
+{{- define "bunkerweb.nginxLogEnvs" -}}
+{{- if .Values.ui.logs.enabled }}
+- name: ACCESS_LOG_1
+  value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb_access"
+- name: ERROR_LOG_1
+  value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb"
 {{- end }}
 {{- end -}}
 
@@ -371,12 +380,8 @@ StatefulSet workloads. Emit at col 0; the caller applies `| nindent 12`.
   value: "{{ .Values.settings.misc.apiWhitelistIp }}"
 {{- include "bunkerweb.apiTokenEnv" (dict "root" .) }}
 {{- include "bunkerweb.redisEnv" . | nindent 0 }}
-{{- if .Values.ui.logs.enabled }}
-- name: ACCESS_LOG_1
-  value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb_access"
-- name: ERROR_LOG_1
-  value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb"
-{{- end }}
+{{- include "bunkerweb.nginxLogEnvs" . | nindent 0 }}
+{{- include "bunkerweb.logEnvs" . | nindent 0 }}
 {{- end -}}
 
 {{/*

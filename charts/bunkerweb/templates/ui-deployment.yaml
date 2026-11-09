@@ -90,7 +90,7 @@ spec:
               value: "{{ .Values.settings.ui.flaskSecret }}"
               {{- end }}
             {{- include "bunkerweb.apiTokenEnv" (dict "root" .) | nindent 12 }}
-            {{- include "bunkerweb.logEnvs" . }}
+            {{- include "bunkerweb.logEnvs" . | nindent 12 }}
             - name: OVERRIDE_ADMIN_CREDS
               value: "{{ .Values.settings.ui.overrideAdminCreds }}"
             {{- if .Values.settings.ui.maxContentLength }}

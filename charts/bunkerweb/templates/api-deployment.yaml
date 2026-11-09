@@ -105,7 +105,7 @@ spec:
             - name: API_ALLOWED_HOSTS
               value: {{ .Values.settings.api.allowedHosts | quote }}
             {{- end }}
-            {{- include "bunkerweb.logEnvs" . }}
+            {{- include "bunkerweb.logEnvs" . | nindent 12 }}
             {{- if .Values.api.extraEnvs }}
               {{- toYaml .Values.api.extraEnvs | nindent 12 }}
             {{- end }}
