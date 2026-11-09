@@ -1,0 +1,43 @@
+CHANGELOG.md
+  s_13821751a3ab6b::t_bc8b960f44245c 14-17
+charts/bunkerweb/templates/scheduler-deployment.yaml
+  s_4abf35655d09c0::t_74d28296a51b35 108
+  s_13821751a3ab6b::t_bc8b960f44245c 112
+charts/bunkerweb/templates/ui-deployment.yaml
+  s_13821751a3ab6b::t_bc8b960f44245c 93
+charts/bunkerweb/templates/api-deployment.yaml
+  s_13821751a3ab6b::t_bc8b960f44245c 108
+charts/bunkerweb/templates/controller-deployment.yaml
+  s_13821751a3ab6b::t_bc8b960f44245c 121
+scripts/validate-chart.sh
+  s_13821751a3ab6b::t_2f348a0951be91 185-208,496-553,580-582,585
+  s_4abf35655d09c0::t_5dd7ff5ade0a04 554-558,561-567,569-571,573-574,577-579
+  s_4abf35655d09c0::t_64246e38d90dde 568,572
+charts/bunkerweb/templates/_helpers.tpl
+  s_13821751a3ab6b::t_a0489519ed852c 345-346
+  s_13821751a3ab6b::t_bc8b960f44245c 350-363,383-384
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "01a825f8a28d2625f77a7c440ed22f71652a9ccc",
+  "prompts": {},
+  "sessions": {
+    "s_13821751a3ab6b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1bff2-2574-7d31-b842-aa051f637464",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    },
+    "s_4abf35655d09c0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1bffb-512d-73b0-b47c-ae84a58f6db6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    }
+  }
+}
