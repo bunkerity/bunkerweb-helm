@@ -1,0 +1,19 @@
+charts/bunkerweb/values.yaml
+  s_3cd9712730601e::t_ad9bfc97c27a56 452-466
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dcfd43e63fdfefa6b3044a1ea3695e5d24a95e1f",
+  "prompts": {},
+  "sessions": {
+    "s_3cd9712730601e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0ca50321-2e21-4ba2-a65b-079323d5d5d9",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    }
+  }
+}
