@@ -480,6 +480,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_AUDIT_LOG" "value" (and .modsecurity .modsecurity.modsecuritySecAuditLog)) }}
 {{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_AUDIT_LOG_TYPE" "value" (and .modsecurity .modsecurity.modsecuritySecAuditLogType)) }}
 {{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_AUDIT_LOG_STORAGE_DIR" "value" (and .modsecurity .modsecurity.modsecuritySecAuditLogStorageDir)) }}
+{{- include "bunkerweb.envVar" (dict "name" "MODSECURITY_SEC_AUDIT_LOG_FORMAT" "value" (and .modsecurity .modsecurity.modsecuritySecAuditLogFormat)) }}
 
 # =============================================================================
 # ANTIBOT PROTECTION
@@ -491,6 +492,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_JAVASCRIPT_DIFFICULTY" "value" (and .antibot .antibot.antibotJavascriptDifficulty)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_IGNORE_IP" "value" (and .antibot .antibot.antibotIgnoreIp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_IGNORE_URI" "value" (and .antibot .antibot.antibotIgnoreUri)) }}
+{{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_INCLUDE_URI" "value" (and .antibot .antibot.antibotIncludeUri)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_RECAPTCHA_CLASSIC" "value" (and .antibot .antibot.antibotRecaptchaClassic)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_RDNS_GLOBAL" "value" (and .antibot .antibot.antibotRdnsGlobal)) }}
 {{- include "bunkerweb.envVar" (dict "name" "ANTIBOT_SUCCESS_URI" "value" (and .antibot .antibot.antibotSuccessUri)) }}
@@ -521,12 +523,14 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_HEADER_VALUE" "value" (and .blacklist .blacklist.blacklistHeaderValue)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_IGNORE_HEADER_NAME" "value" (and .blacklist .blacklist.blacklistIgnoreHeaderName)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_IGNORE_HEADER_VALUE" "value" (and .blacklist .blacklist.blacklistIgnoreHeaderValue)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BLACKLIST_URLS_REFRESH_INTERVAL" "value" (and .blacklist .blacklist.blacklistUrlsRefreshInterval)) }}
 
 {{- include "bunkerweb.envVar" (dict "name" "USE_WHITELIST" "value" (and .whitelist .whitelist.useWhitelist)) }}
 {{- include "bunkerweb.envVar" (dict "name" "WHITELIST_IP" "value" (and .whitelist .whitelist.whitelistIp)) }}
 {{- include "bunkerweb.envVar" (dict "name" "WHITELIST_IP_URLS" "value" (and .whitelist .whitelist.whitelistIpUrls)) }}
 {{- include "bunkerweb.envVar" (dict "name" "WHITELIST_HEADER_NAME" "value" (and .whitelist .whitelist.whitelistHeaderName)) }}
 {{- include "bunkerweb.envVar" (dict "name" "WHITELIST_HEADER_VALUE" "value" (and .whitelist .whitelist.whitelistHeaderValue)) }}
+{{- include "bunkerweb.envVar" (dict "name" "WHITELIST_URLS_REFRESH_INTERVAL" "value" (and .whitelist .whitelist.whitelistUrlsRefreshInterval)) }}
 
 # =============================================================================
 # COUNTRY BLOCKING
@@ -588,6 +592,11 @@ Generate BunkerWeb feature environment variables
 
 {{- include "bunkerweb.envVar" (dict "name" "USE_BROTLI" "value" (and .compression .compression.useBrotli)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BROTLI_COMP_LEVEL" "value" (and .compression .compression.brotliCompLevel)) }}
+
+{{- include "bunkerweb.envVar" (dict "name" "USE_ZSTD" "value" (and .compression .compression.useZstd)) }}
+{{- include "bunkerweb.envVar" (dict "name" "ZSTD_COMP_LEVEL" "value" (and .compression .compression.zstdCompLevel)) }}
+{{- include "bunkerweb.envVar" (dict "name" "ZSTD_MIN_LENGTH" "value" (and .compression .compression.zstdMinLength)) }}
+{{- include "bunkerweb.envVar" (dict "name" "ZSTD_TYPES" "value" (and .compression .compression.zstdTypes)) }}
 
 # =============================================================================
 # CLIENT CACHING
@@ -705,6 +714,7 @@ Generate BunkerWeb feature environment variables
 # =============================================================================
 {{- include "bunkerweb.envVar" (dict "name" "USE_BUNKERNET" "value" (and .bunkerNet .bunkerNet.useBunkernet)) }}
 {{- include "bunkerweb.envVar" (dict "name" "BUNKERNET_SERVER" "value" (and .bunkerNet .bunkerNet.bunkernetServer)) }}
+{{- include "bunkerweb.envVar" (dict "name" "BUNKERNET_FILTER_HEADERS" "value" (and .bunkerNet .bunkerNet.bunkernetFilterHeaders)) }}
 
 # =============================================================================
 # SESSION MANAGEMENT
@@ -786,6 +796,8 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_MODE" "value" (and .crowdSec .crowdSec.crowdSecMode)) }}
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_APPSEC_URL" "value" (and .crowdSec .crowdSec.crowdSecAppsecUrl)) }}
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_BAN_REFRESH" "value" (and .crowdSec .crowdSec.crowdSecBanRefresh)) }}
+{{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_CACHE_SIZE" "value" (and .crowdSec .crowdSec.crowdSecCacheSize)) }}
+{{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_METADATA_CACHE_SIZE" "value" (and .crowdSec .crowdSec.crowdSecMetadataCacheSize)) }}
 {{- include "bunkerweb.envVar" (dict "name" "CROWDSEC_MANAGEMENT_LOGIN" "value" (and .crowdSec .crowdSec.crowdSecManagementLogin)) }}
 {{- include "bunkerweb.secretOrValue" (dict "name" "CROWDSEC_MANAGEMENT_PASSWORD" "secret" $.Values.settings.existingSecret "key" "crowdsec-management-password" "optional" true "value" (and .crowdSec .crowdSec.crowdSecManagementPassword)) }}
 
@@ -806,6 +818,7 @@ Generate BunkerWeb feature environment variables
 {{- include "bunkerweb.envVar" (dict "name" "GREYLIST_IP_URLS" "value" (and .greylist .greylist.greylistIpUrls)) }}
 {{- include "bunkerweb.envVar" (dict "name" "GREYLIST_HEADER_NAME" "value" (and .greylist .greylist.greylistHeaderName)) }}
 {{- include "bunkerweb.envVar" (dict "name" "GREYLIST_HEADER_VALUE" "value" (and .greylist .greylist.greylistHeaderValue)) }}
+{{- include "bunkerweb.envVar" (dict "name" "GREYLIST_URLS_REFRESH_INTERVAL" "value" (and .greylist .greylist.greylistUrlsRefreshInterval)) }}
 
 # =============================================================================
 # REVERSE SCAN
