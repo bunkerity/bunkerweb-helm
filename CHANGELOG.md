@@ -13,7 +13,11 @@ or `[CI]`.
 
 ## Unreleased
 
-- [BUGFIX] `ui.logs.enabled` now configures scheduler NGINX syslog destinations and Python syslog logging on every worker kind; remove temporary logging `extraEnvs` overrides when upgrading. (Refs #142)
+- [BUGFIX] `ui.logs.enabled` now configures scheduler NGINX syslog destinations and Python syslog logging on every worker kind; temporary logging `extraEnvs` overrides are no longer needed but can stay (see below). (Refs #142)
+- [BUGFIX] An `extraEnvs` entry naming an env var the chart also sets (for example `SERVER_NAME`, `LOG_TYPES`) now replaces the chart's entry instead of rendering a duplicate, which could make `helm upgrade` fail on `$setElementOrder` or keep the chart's value instead of yours. A name repeated inside `extraEnvs` keeps its last entry, and on the scheduler, controller, UI and API `extraEnvs` now also win over the logging env. (Refs #147)
+- [BUGFIX] An `extraEnvs` override that referenced the chart's value, such as `DNS_RESOLVERS: "$(DNS_RESOLVERS) 192.0.2.53"`, now stays literal: write the full value.
+- [BUGFIX] `bunkerweb.pdb.minAvailable` renders alone (Kubernetes rejects both fields), and a `0` in `minAvailable` or `maxUnavailable` is honoured instead of falling back to `maxUnavailable: 1`.
+- **Upgrade step:** a release whose deployed manifest renders an env name twice in one container (an `extraEnvs` name the chart also sets, a name repeated inside `extraEnvs`, or the #142 logging workaround on an unreleased `dev` chart) loses that variable on the first `helm upgrade` to this version and runs pods without it until a second identical upgrade. Run the check in [Upgrading to 1.3.1](docs/README.md#upgrading-to-131) first; it reads the last deployed revision of the release. If it lists anything, follow that section's steps: pause the listed Deployments (`OnDelete` for a DaemonSet or StatefulSet), run `helm upgrade` twice without `--wait`, `--atomic` or `--force`, verify the variables, then restore the recorded update strategies and resume the Deployments, so Kubernetes rolls the pods itself (a workload recorded as `OnDelete` keeps its pods until you replace them).
 
 ## v1.3.0 - 2026/10/21
 

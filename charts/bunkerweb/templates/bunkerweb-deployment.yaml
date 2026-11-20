@@ -80,10 +80,7 @@ spec:
               name: metrics
             {{- end }}
           env:
-            {{- include "bunkerweb.commonEnv" . | nindent 12 }}
-          {{- if .Values.bunkerweb.extraEnvs }}
-            {{- toYaml .Values.bunkerweb.extraEnvs | nindent 12 }}
-          {{- end }}
+            {{- include "bunkerweb.mergeEnv" (dict "chart" (include "bunkerweb.commonEnv" .) "extra" .Values.bunkerweb.extraEnvs) | nindent 12 }}
           {{- with .Values.bunkerweb.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12}}

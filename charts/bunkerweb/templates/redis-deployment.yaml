@@ -28,18 +28,7 @@ spec:
           {{- end }}
           args: ["--requirepass", "$(REDIS_PASSWORD)"]
           env:
-            - name: REDIS_PASSWORD
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: redis-password
-              {{- else }}
-              value: "{{ .Values.redis.config.password }}"
-              {{- end }}
-          {{- if .Values.redis.extraEnvs }}
-            {{- toYaml .Values.redis.extraEnvs | nindent 12 }}
-          {{- end }}
+            {{- include "bunkerweb.mergeEnv" (dict "chart" (include "bunkerweb.redis.env" .) "extra" .Values.redis.extraEnvs) | nindent 12 }}
           {{- with .Values.redis.resources }}
           resources:
             {{- toYaml . | nindent 12}}
@@ -68,3 +57,16 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end }}
+
+{{/* Chart-generated redis container env, merged with extraEnvs by bunkerweb.mergeEnv. */}}
+{{- define "bunkerweb.redis.env" -}}
+- name: REDIS_PASSWORD
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: redis-password
+  {{- else }}
+  value: "{{ .Values.redis.config.password }}"
+  {{- end }}
+{{- end -}}

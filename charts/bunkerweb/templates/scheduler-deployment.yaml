@@ -45,71 +45,7 @@ spec:
             {{- toYaml . | nindent 12}}
           {{- end }}
           env:
-            # Mandatory for k8s integration
-            - name: KUBERNETES_MODE
-              value: "yes"
-            - name: DATABASE_URI
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: database-uri
-              {{- else }}
-              value: "{{ include "bunkerweb.databaseUri" . }}"
-              {{- end }}
-            - name: SERVER_NAME
-              value: ""
-            - name: MULTISITE
-              value: "yes"
-            - name: DNS_RESOLVERS
-              value: "{{ .Values.settings.misc.dnsResolvers }}"
-            - name: API_WHITELIST_IP
-              value: "{{ .Values.settings.misc.apiWhitelistIp }}"
-            {{- include "bunkerweb.apiTokenEnv" (dict "root" .) | nindent 12 }}
-            {{- $hasBunkerWebInstance := false }}
-            {{- if kindIs "slice" .Values.scheduler.extraEnvs }}
-              {{- range .Values.scheduler.extraEnvs }}
-                {{- if eq .name "BUNKERWEB_INSTANCES" }}
-                  {{- $hasBunkerWebInstance = true }}
-                {{- end }}
-              {{- end }}
-            {{- end }}
-            {{- if or (not .Values.scheduler.extraEnvs) (not $hasBunkerWebInstance) }}
-            - name: BUNKERWEB_INSTANCES
-              value: ""
-            {{- end }}
-            {{- if .Values.settings.ui.wizard }}
-            - name: UI_HOST
-              value: "{{ printf "http://ui-%s.%s.svc.%s:7000" (include "bunkerweb.fullname" .) (include "bunkerweb.namespace" .) .Values.settings.kubernetes.domainName }}"
-            {{- end }}
-            {{- if .Values.scheduler.usePrometheusExporter }}
-            - name: USE_PROMETHEUS_EXPORTER
-              value: "yes"
-            - name: USE_MONITORING
-              value: "yes"
-            {{- end }}
-            {{- if not (empty .Values.settings.existingSecret) }}
-            - name: PRO_LICENSE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: pro-license-key
-                  optional: true
-            {{- else if .Values.scheduler.proLicenseKey }}
-            - name: PRO_LICENSE_KEY
-              value: {{ .Values.scheduler.proLicenseKey | quote }}
-            {{- end }}
-            {{- if .Values.scheduler.maxWorkers }}
-            - name: SCHEDULER_MAX_WORKERS
-              value: {{ .Values.scheduler.maxWorkers | quote }}
-            {{- end }}
-            {{- include "bunkerweb.redisEnv" . | nindent 12 }}
-            {{- include "bunkerweb.featureEnvs" . | nindent 12 }}
-            {{- include "bunkerweb.nginxLogEnvs" . | nindent 12 }}
-            {{- if .Values.scheduler.extraEnvs }}
-              {{- toYaml .Values.scheduler.extraEnvs | nindent 12 }}
-            {{- end }}
-            {{- include "bunkerweb.logEnvs" . | nindent 12 }}
+            {{- include "bunkerweb.mergeEnv" (dict "chart" (include "bunkerweb.scheduler.env" .) "extra" .Values.scheduler.extraEnvs) | nindent 12 }}
           {{- with .Values.scheduler.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
@@ -125,3 +61,59 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end }}
+
+{{/* Chart-generated scheduler container env, merged with extraEnvs by bunkerweb.mergeEnv. */}}
+{{- define "bunkerweb.scheduler.env" -}}
+# Mandatory for k8s integration
+- name: KUBERNETES_MODE
+  value: "yes"
+- name: DATABASE_URI
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: database-uri
+  {{- else }}
+  value: "{{ include "bunkerweb.databaseUri" . }}"
+  {{- end }}
+- name: SERVER_NAME
+  value: ""
+- name: MULTISITE
+  value: "yes"
+- name: DNS_RESOLVERS
+  value: "{{ .Values.settings.misc.dnsResolvers }}"
+- name: API_WHITELIST_IP
+  value: "{{ .Values.settings.misc.apiWhitelistIp }}"
+{{- include "bunkerweb.apiTokenEnv" (dict "root" .) | nindent 0 }}
+- name: BUNKERWEB_INSTANCES
+  value: ""
+{{- if .Values.settings.ui.wizard }}
+- name: UI_HOST
+  value: "{{ printf "http://ui-%s.%s.svc.%s:7000" (include "bunkerweb.fullname" .) (include "bunkerweb.namespace" .) .Values.settings.kubernetes.domainName }}"
+{{- end }}
+{{- if .Values.scheduler.usePrometheusExporter }}
+- name: USE_PROMETHEUS_EXPORTER
+  value: "yes"
+- name: USE_MONITORING
+  value: "yes"
+{{- end }}
+{{- if not (empty .Values.settings.existingSecret) }}
+- name: PRO_LICENSE_KEY
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: pro-license-key
+      optional: true
+{{- else if .Values.scheduler.proLicenseKey }}
+- name: PRO_LICENSE_KEY
+  value: {{ .Values.scheduler.proLicenseKey | quote }}
+{{- end }}
+{{- if .Values.scheduler.maxWorkers }}
+- name: SCHEDULER_MAX_WORKERS
+  value: {{ .Values.scheduler.maxWorkers | quote }}
+{{- end }}
+{{- include "bunkerweb.redisEnv" . | nindent 0 }}
+{{- include "bunkerweb.featureEnvs" . | nindent 0 }}
+{{- include "bunkerweb.nginxLogEnvs" . | nindent 0 }}
+{{- include "bunkerweb.logEnvs" . | nindent 0 }}
+{{- end -}}
