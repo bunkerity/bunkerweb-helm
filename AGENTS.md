@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents working in this repository.
 
 ## Project Overview
 
-BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.3.1, app version 1.6.17. Helm 3, API v2.
+BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.4.0, app version 1.6.18. Helm 3, API v2.
 
 ## Repository Layout
 
@@ -52,7 +52,7 @@ BunkerWeb deploys as a multi-component system:
 
 ## Key Template Patterns
 
-**`_helpers.tpl`** (844 lines) contains critical helper functions:
+**`_helpers.tpl`** (857 lines) contains critical helper functions:
 - `bunkerweb.databaseUri` — builds the database connection string dynamically (internal MariaDB vs external)
 - `bunkerweb.featureEnvs` — generates environment variables from the large `scheduler.features` section in values.yaml. This is the most complex helper and maps feature config to BunkerWeb env vars.
 - `bunkerweb.redisEnv` — generates Redis connection env vars with auth support
@@ -65,7 +65,7 @@ BunkerWeb deploys as a multi-component system:
 
 ## Values Structure
 
-`values.yaml` (2,402 lines) has these major sections:
+`values.yaml` (2,432 lines) has these major sections:
 - **`settings`** — BunkerWeb configuration: `kubernetes` (namespace, ingressClass), `misc` (databaseUri, DNS), `redis`, `ui`, `api`, `scheduler.features` (800+ lines of WAF feature toggles like ModSecurity, antibot, rate limiting, geo-blocking, etc.)
 - **`service`** — Kubernetes Service config (type, externalTrafficPolicy)
 - **`bunkerweb`** — core component config (kind, replicas, HPA, PDB, resources, probes, volumes, affinity)

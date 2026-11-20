@@ -473,7 +473,7 @@ bunkerweb:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb
   repository: docker.io/bunkerity/bunkerweb
-  tag: 1.6.17
+  tag: 1.6.18
   pullPolicy: IfNotPresent
 
   # Resource requests and limits
@@ -699,7 +699,7 @@ scheduler:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-scheduler
   repository: docker.io/bunkerity/bunkerweb-scheduler
-  tag: 1.6.17
+  tag: 1.6.18
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -840,6 +840,9 @@ scheduler:
       # Concurrent storage directory, preprovisioned and writable on every BunkerWeb pod
       # (mount it via bunkerweb.volumes / bunkerweb.volumeMounts). Ignored for Serial.
       modsecuritySecAuditLogStorageDir: ""
+      # Audit log format: "Native" (multi-part text, upstream default) or "JSON" (one object per entry, for log shippers).
+      # Set it globally when the global CRS mode is on. BunkerWeb 1.6.18+
+      modsecuritySecAuditLogFormat: ""
 
     # =============================================================================
     # ANTIBOT PROTECTION
@@ -860,6 +863,9 @@ scheduler:
       antibotIgnoreIp: ""
       # URIs to bypass antibot challenges (regex patterns, space-separated)
       antibotIgnoreUri: ""
+      # Only these URIs get the antibot challenge (PCRE regex patterns, space-separated, unanchored).
+      # Empty (upstream default) challenges every URI; antibotIgnoreUri takes precedence. BunkerWeb 1.6.18+
+      antibotIncludeUri: ""
       # Use classic reCAPTCHA instead of newer version
       antibotRecaptchaClassic: ""
       # Only perform reverse DNS antibot checks on public IP addresses ("yes" or "no")
@@ -916,6 +922,8 @@ scheduler:
       blacklistIgnoreHeaderName: ""
       # PCRE regex the ignore header value must match
       blacklistIgnoreHeaderValue: ""
+      # Minimum time before the blacklist URLs are downloaded again (upstream default "1h", "0" downloads on every hourly job run). BunkerWeb 1.6.18+
+      blacklistUrlsRefreshInterval: ""
 
     whitelist:
       # Enable whitelist functionality
@@ -928,6 +936,8 @@ scheduler:
       whitelistHeaderName: ""
       # PCRE regex the header value must match (empty = match on the header name alone)
       whitelistHeaderValue: ""
+      # Minimum time before the whitelist URLs are downloaded again (upstream default "1h", "0" downloads on every hourly job run). BunkerWeb 1.6.18+
+      whitelistUrlsRefreshInterval: ""
 
     # =============================================================================
     # COUNTRY BLOCKING
@@ -1034,6 +1044,14 @@ scheduler:
       useBrotli: ""
       # Brotli compression level (0-11)
       brotliCompLevel: ""
+      # Enable Zstandard compression (upstream default "no"). BunkerWeb 1.6.18+
+      useZstd: ""
+      # Zstandard compression level (1-19, upstream default 3). BunkerWeb 1.6.18+
+      zstdCompLevel: ""
+      # Minimum response size for Zstandard compression (bytes, upstream default 1000). BunkerWeb 1.6.18+
+      zstdMinLength: ""
+      # MIME types compressed with Zstandard (space-separated; empty keeps the upstream list of text, JSON, XML, font and SVG types). BunkerWeb 1.6.18+
+      zstdTypes: ""
 
     # =============================================================================
     # CLIENT CACHING
@@ -1252,6 +1270,10 @@ scheduler:
       useBunkernet: ""
       # BunkerNet API server
       bunkernetServer: ""
+      # Send only the User-Agent, Accept, Accept-Encoding, Accept-Language, Content-Type and Content-Length request
+      # headers in a BunkerNet report ("yes" or "no", upstream default "no"). Cookie, Authorization and
+      # Proxy-Authorization are never sent either way. BunkerWeb 1.6.18+
+      bunkernetFilterHeaders: ""
 
     # =============================================================================
     # SESSION MANAGEMENT
@@ -1394,6 +1416,12 @@ scheduler:
       # Turn CrowdSec blocks into short BunkerWeb bans renewed while the decision lasts; the value is the
       # longest a ban lasts before CrowdSec is asked again (e.g. "5m"). "0" (upstream default) disables it. BunkerWeb 1.6.16+
       crowdSecBanRefresh: ""
+      # Shared memory for the decisions of all services, in whole megabytes (e.g. "100m", upstream default "100m", minimum "1m").
+      # Unknown IPs are allowed while the Local API is unavailable. BunkerWeb 1.6.18+
+      crowdSecCacheSize: ""
+      # Shared memory for optional report metadata, in whole megabytes (upstream default "24m", minimum "1m").
+      # Allow about 1m per 1,000 stream decisions; it cannot evict decisions. BunkerWeb 1.6.18+
+      crowdSecMetadataCacheSize: ""
       # Dedicated CrowdSec management machine, used to investigate alerts and remove
       # decisions from the web UI. Leave empty for a read-only bouncer.
       crowdSecManagementLogin: ""
@@ -1430,6 +1458,8 @@ scheduler:
       greylistHeaderName: ""
       # PCRE regex the header value must match (empty = match on the header name alone)
       greylistHeaderValue: ""
+      # Minimum time before the greylist URLs are downloaded again (upstream default "1h", "0" downloads on every hourly job run). BunkerWeb 1.6.18+
+      greylistUrlsRefreshInterval: ""
 
     # =============================================================================
     # REVERSE SCAN
@@ -1524,7 +1554,7 @@ controller:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-autoconf
   repository: docker.io/bunkerity/bunkerweb-autoconf
-  tag: 1.6.17
+  tag: 1.6.18
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1627,7 +1657,7 @@ ui:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-ui
   repository: docker.io/bunkerity/bunkerweb-ui
-  tag: 1.6.17
+  tag: 1.6.18
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)
@@ -1758,7 +1788,7 @@ api:
   # Container image configuration
   # Also available at ghcr.io/bunkerity/bunkerweb-api
   repository: docker.io/bunkerity/bunkerweb-api
-  tag: 1.6.17
+  tag: 1.6.18
   pullPolicy: IfNotPresent
 
   # Image pull secrets (overrides global setting)

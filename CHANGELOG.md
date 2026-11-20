@@ -11,6 +11,17 @@ or `[CI]`.
 > initial-development note because those `0.0.x` numbers were reused across the `1.6.0-rc`
 > rollbacks.
 
+## v1.4.0 - 2026/11/20
+
+App version: `1.6.18`.
+
+- [DEPS] upgrade to BunkerWeb 1.6.18. The scheduler migrates the database on first start and a 1.6.17 scheduler then refuses it: back up the database before upgrading, and restore that backup if you roll back to chart 1.3.1.
+- [SECURITY] upstream: NGINX 1.30.7 (nine CVEs, HTTP/2 and HTTP/3), a stored XSS in the Web UI bulk-action modals, `API_DOCS_URL` no longer exposes other API routes without authentication, multi-line file settings can no longer add other settings, the controller no longer logs secret values, and Alpine `openssl` and `libpq` fixes. Upgrade to get them.
+- [FEATURE] New 1.6.18 settings: `scheduler.features.antibot.antibotIncludeUri`, `blacklist.blacklistUrlsRefreshInterval`, `whitelist.whitelistUrlsRefreshInterval`, `greylist.greylistUrlsRefreshInterval`, `compression.useZstd` / `zstdCompLevel` / `zstdMinLength` / `zstdTypes`, `bunkerNet.bunkernetFilterHeaders`, `crowdSec.crowdSecCacheSize` / `crowdSecMetadataCacheSize`, `modsecurity.modsecuritySecAuditLogFormat`.
+- [DOCS] upstream: `antibotIgnoreUri` and `geoBlocking.countryIgnoreUri` now match the normalized request path, so re-check patterns written for the raw path. BunkerWeb's own ModSecurity rules move to IDs 9,800,000-9,809,999: update custom exclusions that name an old ID.
+- [DOCS] upstream: the Data-Shield Critical preset in `blacklist.blacklistCommunityLists` now downloads the free Community Standard list; Critical became the paid Data-Shield Pro feed, served through a relay as the [blacklist docs](https://docs.bunkerweb.io/latest/features/#blacklist) describe. An enabled `settings.api.whitelist` whose non-empty `whitelistIps` holds no valid IP or CIDR now denies every API request (an empty list still skips the check): check your entries before upgrading.
+- [DOCS] upstream: the Web UI locks a client IP or username for 15 minutes after five failed logins within 15 minutes; set `LOGIN_THROTTLE=no` through `ui.extraEnvs` to turn it off. It reads the client IP `PROXY_NUMBERS` forwarding hops back (default `1`, right when only BunkerWeb forwards to the UI): set it through `ui.extraEnvs` to the number of trusted forwarding proxies, or to `0` when users reach the UI directly, for example with `kubectl port-forward`.
+
 ## v1.3.1 - 2026/11/20
 
 App version: `1.6.17`.
