@@ -342,16 +342,25 @@ Usage: {{- include "bunkerweb.secretOrValue" (dict "name" "ENV" "secret" <existi
 {{- end -}}
 
 {{/*
-Syslog log env vars (LOG_TYPES/LOG_SYSLOG_ADDRESS) shared by the api, ui,
-scheduler and controller deployments. Indentation is baked at 12 spaces; call
-as {{- include "bunkerweb.logEnvs" . }} with no nindent.
+Python logging env shared by workers, scheduler, controller, UI and API.
+Emit at col 0; the caller applies indentation.
 */}}
 {{- define "bunkerweb.logEnvs" -}}
 {{- if .Values.ui.logs.enabled }}
-            - name: LOG_TYPES
-              value: "stderr syslog"
-            - name: LOG_SYSLOG_ADDRESS
-              value: "{{ include "bunkerweb.syslogAddress" . }}"
+- name: LOG_TYPES
+  value: "stderr syslog"
+- name: LOG_SYSLOG_ADDRESS
+  value: "{{ include "bunkerweb.syslogAddress" . }}"
+{{- end }}
+{{- end -}}
+
+{{/* NGINX syslog destinations shared by workers and the configuration scheduler. */}}
+{{- define "bunkerweb.nginxLogEnvs" -}}
+{{- if .Values.ui.logs.enabled }}
+- name: ACCESS_LOG_1
+  value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb_access"
+- name: ERROR_LOG_1
+  value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb"
 {{- end }}
 {{- end -}}
 
@@ -371,12 +380,51 @@ StatefulSet workloads. Emit at col 0; the caller applies `| nindent 12`.
   value: "{{ .Values.settings.misc.apiWhitelistIp }}"
 {{- include "bunkerweb.apiTokenEnv" (dict "root" .) }}
 {{- include "bunkerweb.redisEnv" . | nindent 0 }}
-{{- if .Values.ui.logs.enabled }}
-- name: ACCESS_LOG_1
-  value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb_access"
-- name: ERROR_LOG_1
-  value: "syslog:server={{ include "bunkerweb.syslogAddress" . }},tag=bunkerweb"
+{{- include "bunkerweb.nginxLogEnvs" . | nindent 0 }}
+{{- include "bunkerweb.logEnvs" . | nindent 0 }}
+{{- end -}}
+
+{{/*
+Final container env list: the chart-generated env followed by the user's extraEnvs,
+with each name at most once (a duplicate name breaks `helm upgrade`: the three-way
+strategic merge keys the env list on `name`, kubernetes/kubernetes#86163).
+- an extraEnvs entry replaces a chart entry of the same name (its value or valueFrom wins)
+- a name repeated inside extraEnvs keeps its last occurrence (the kubelet's own rule)
+- the remaining chart entries keep their text and order; extraEnvs entries render after them
+Usage (emit at col 0; the caller applies indentation):
+  {{- include "bunkerweb.mergeEnv" (dict "chart" (include "<chart env define>" .) "extra" .Values.<comp>.extraEnvs) | nindent 12 }}
+`chart` must be the chart's env as YAML list items at col 0, each starting `- name: <NAME>`.
+*/}}
+{{- define "bunkerweb.mergeEnv" -}}
+{{- $extra := .extra | default list }}
+{{- if not (kindIs "slice" $extra) }}
+{{- fail "extraEnvs must be a list of Kubernetes EnvVar entries ({name, value | valueFrom})" }}
 {{- end }}
+{{- $last := dict }}
+{{- range $i, $e := $extra }}
+{{- if not (kindIs "map" $e) }}
+{{- fail "extraEnvs entries must be Kubernetes EnvVar maps ({name, value | valueFrom})" }}
+{{- end }}
+{{- if $e.name }}
+{{- $_ := set $last (toString $e.name) $i }}
+{{- end }}
+{{- end }}
+{{- $lines := list }}
+{{- $keep := true }}
+{{- range $line := splitList "\n" .chart }}
+{{- if hasPrefix "- name:" $line }}
+{{- $keep = not (hasKey $last (trimAll "\"' " (trimPrefix "- name:" $line))) }}
+{{- end }}
+{{- if and $keep (trim $line) }}
+{{- $lines = append $lines $line }}
+{{- end }}
+{{- end }}
+{{- range $i, $e := $extra }}
+{{- if or (not $e.name) (eq (int (get $last (toString $e.name))) $i) }}
+{{- $lines = append $lines (toYaml (list $e)) }}
+{{- end }}
+{{- end }}
+{{- join "\n" $lines }}
 {{- end -}}
 
 {{/*

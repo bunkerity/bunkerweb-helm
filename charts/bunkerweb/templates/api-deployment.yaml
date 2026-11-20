@@ -43,72 +43,7 @@ spec:
             {{- toYaml . | nindent 12}}
           {{- end }}
           env:
-            - name: DATABASE_URI
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: database-uri
-              {{- else }}
-              value: "{{ include "bunkerweb.databaseUri" . }}"
-              {{- end }}
-            {{- include "bunkerweb.apiTokenEnv" (dict "root" .) | nindent 12 }}
-            {{- if or (and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret))) (and (not .Values.settings.api.useUserPass.fromExistingSecret) (not (empty .Values.settings.api.useUserPass.apiUsername)) (not (empty .Values.settings.api.useUserPass.apiPassword))) }}
-            - name: API_USERNAME
-              {{- if and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret)) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: api-username
-              {{- else }}
-              value: "{{ .Values.settings.api.useUserPass.apiUsername }}"
-              {{- end }}
-            - name: API_PASSWORD
-              {{- if and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret)) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: api-password
-              {{- else }}
-              value: "{{ .Values.settings.api.useUserPass.apiPassword }}"
-              {{- end }}
-            {{- end }}
-              {{- if not (empty .Values.settings.api.apiAclBootstrapFile) }}
-            - name: API_ACL_BOOTSTRAP_FILE
-              value: "{{ .Values.settings.api.apiAclBootstrapFile }}"
-              {{- end }}
-            - name: API_WHITELIST_ENABLED
-              value: "{{ .Values.settings.api.whitelist.enabled }}"
-            - name: API_WHITELIST_IPS
-              value: "{{ .Values.settings.api.whitelist.whitelistIps }}"
-            - name: FORWARDED_ALLOW_IPS
-              value: "{{ .Values.settings.api.forwardedAllowIps }}"
-            - name: API_ROOT_PATH
-              value: "{{ .Values.settings.api.rootPath }}"
-            - name: API_DOCS_URL
-              value: "{{ .Values.settings.api.docsUrl }}"
-            - name: API_REDOC_URL
-              value: "{{ .Values.settings.api.redocUrl }}"
-            - name: API_OPENAPI_URL
-              value: "{{ .Values.settings.api.openApiUrl }}"
-            - name: API_RATE_LIMIT_ENABLED
-              value: "{{ .Values.settings.api.rateLimit.enabled }}"
-            - name: API_RATE_LIMIT_STRATEGY
-              value: "{{ .Values.settings.api.rateLimit.strategy }}"
-            - name: API_RATE_LIMIT_DEFAULTS
-              value: "{{ .Values.settings.api.rateLimit.defaults }}"
-            {{- if .Values.settings.api.maxRequests }}
-            - name: API_MAX_REQUESTS
-              value: {{ .Values.settings.api.maxRequests | quote }}
-            {{- end }}
-            {{- if .Values.settings.api.allowedHosts }}
-            - name: API_ALLOWED_HOSTS
-              value: {{ .Values.settings.api.allowedHosts | quote }}
-            {{- end }}
-            {{- include "bunkerweb.logEnvs" . }}
-            {{- if .Values.api.extraEnvs }}
-              {{- toYaml .Values.api.extraEnvs | nindent 12 }}
-            {{- end }}
+            {{- include "bunkerweb.mergeEnv" (dict "chart" (include "bunkerweb.api.env" .) "extra" .Values.api.extraEnvs) | nindent 12 }}
           {{- if .Values.settings.api.apiAclBootstrapFile }}
           volumeMounts:
           - name: api-acl-bootstrap
@@ -127,3 +62,70 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end }}
+
+{{/* Chart-generated api container env, merged with extraEnvs by bunkerweb.mergeEnv. */}}
+{{- define "bunkerweb.api.env" -}}
+- name: DATABASE_URI
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: database-uri
+  {{- else }}
+  value: "{{ include "bunkerweb.databaseUri" . }}"
+  {{- end }}
+{{- include "bunkerweb.apiTokenEnv" (dict "root" .) | nindent 0 }}
+{{- if or (and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret))) (and (not .Values.settings.api.useUserPass.fromExistingSecret) (not (empty .Values.settings.api.useUserPass.apiUsername)) (not (empty .Values.settings.api.useUserPass.apiPassword))) }}
+- name: API_USERNAME
+  {{- if and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret)) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: api-username
+  {{- else }}
+  value: "{{ .Values.settings.api.useUserPass.apiUsername }}"
+  {{- end }}
+- name: API_PASSWORD
+  {{- if and .Values.settings.api.useUserPass.fromExistingSecret (not (empty .Values.settings.existingSecret)) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: api-password
+  {{- else }}
+  value: "{{ .Values.settings.api.useUserPass.apiPassword }}"
+  {{- end }}
+{{- end }}
+  {{- if not (empty .Values.settings.api.apiAclBootstrapFile) }}
+- name: API_ACL_BOOTSTRAP_FILE
+  value: "{{ .Values.settings.api.apiAclBootstrapFile }}"
+  {{- end }}
+- name: API_WHITELIST_ENABLED
+  value: "{{ .Values.settings.api.whitelist.enabled }}"
+- name: API_WHITELIST_IPS
+  value: "{{ .Values.settings.api.whitelist.whitelistIps }}"
+- name: FORWARDED_ALLOW_IPS
+  value: "{{ .Values.settings.api.forwardedAllowIps }}"
+- name: API_ROOT_PATH
+  value: "{{ .Values.settings.api.rootPath }}"
+- name: API_DOCS_URL
+  value: "{{ .Values.settings.api.docsUrl }}"
+- name: API_REDOC_URL
+  value: "{{ .Values.settings.api.redocUrl }}"
+- name: API_OPENAPI_URL
+  value: "{{ .Values.settings.api.openApiUrl }}"
+- name: API_RATE_LIMIT_ENABLED
+  value: "{{ .Values.settings.api.rateLimit.enabled }}"
+- name: API_RATE_LIMIT_STRATEGY
+  value: "{{ .Values.settings.api.rateLimit.strategy }}"
+- name: API_RATE_LIMIT_DEFAULTS
+  value: "{{ .Values.settings.api.rateLimit.defaults }}"
+{{- if .Values.settings.api.maxRequests }}
+- name: API_MAX_REQUESTS
+  value: {{ .Values.settings.api.maxRequests | quote }}
+{{- end }}
+{{- if .Values.settings.api.allowedHosts }}
+- name: API_ALLOWED_HOSTS
+  value: {{ .Values.settings.api.allowedHosts | quote }}
+{{- end }}
+{{- include "bunkerweb.logEnvs" . | nindent 0 }}
+{{- end -}}

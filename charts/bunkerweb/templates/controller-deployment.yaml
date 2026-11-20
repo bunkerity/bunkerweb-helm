@@ -52,73 +52,7 @@ spec:
             {{- toYaml . | nindent 12}}
           {{- end }}
           env:
-            # Mandatory for k8s integration
-            - name: KUBERNETES_MODE
-              value: "yes"
-            - name: KUBERNETES_REVERSE_PROXY_SUFFIX_START
-              value: "0"
-            {{- if .Values.gatewayClass.enabled }}
-            - name: KUBERNETES_GATEWAY_MODE
-              value: "yes"
-            {{- end }}
-            - name: DATABASE_URI
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: database-uri
-              {{- else }}
-              value: "{{ include "bunkerweb.databaseUri" . }}"
-              {{- end }}
-            - name: NAMESPACES
-              value: "{{ .Values.settings.kubernetes.namespaces }}"
-            - name: KUBERNETES_INGRESS_CLASS
-              value: "{{ .Values.settings.kubernetes.ingressClass }}"
-            - name: KUBERNETES_SKIP_FOREIGN_CLASSES
-              value: "{{ ternary "yes" "no" .Values.settings.kubernetes.skipForeignClasses }}"
-            - name: KUBERNETES_INGRESS_CONTROLLER
-              value: "{{ .Values.ingressClass.controller }}"
-            - name: KUBERNETES_GATEWAY_CLASS
-              value: "{{ .Values.settings.kubernetes.gatewayClass }}"
-            - name: KUBERNETES_GATEWAY_CONTROLLER
-              value: "{{ .Values.gatewayClass.controller }}"
-            - name: KUBERNETES_DOMAIN_NAME
-              value: "{{ .Values.settings.kubernetes.domainName }}"
-            - name: KUBERNETES_IGNORE_ANNOTATIONS
-              value: "{{ .Values.settings.kubernetes.ignoreAnnotations }}"
-            {{- if .Values.settings.kubernetes.verifySsl }}
-            - name: KUBERNETES_VERIFY_SSL
-              value: "{{ .Values.settings.kubernetes.verifySsl }}"
-            {{- end }}
-            {{- if .Values.settings.kubernetes.sslCaCert }}
-            - name: KUBERNETES_SSL_CA_CERT
-              value: "{{ .Values.settings.kubernetes.sslCaCert }}"
-            {{- end }}
-            {{- if and .Values.gatewayClass.enabled .Values.settings.kubernetes.gatewayApiVersion }}
-            - name: KUBERNETES_GATEWAY_API_VERSION
-              value: "{{ .Values.settings.kubernetes.gatewayApiVersion }}"
-            {{- end }}
-            {{- if .Values.settings.kubernetes.useFqdn }}
-            - name: USE_KUBERNETES_FQDN
-              value: "{{ .Values.settings.kubernetes.useFqdn }}"
-            {{- end }}
-            {{- if .Values.settings.kubernetes.serviceProtocol }}
-            - name: KUBERNETES_SERVICE_PROTOCOL
-              value: "{{ .Values.settings.kubernetes.serviceProtocol }}"
-            {{- end }}
-            - name: BUNKERWEB_SERVICE_NAME
-              value: "{{ include "bunkerweb.fullname" . }}-external"
-            - name: BUNKERWEB_NAMESPACE
-              value: "{{ include "bunkerweb.namespace" . }}"
-            {{- /* Guard on emptiness, not truthiness: 0 is a valid value that disables the worker. */}}
-            {{- if ne (toString .Values.controller.settingsRecheckInterval) "" }}
-            - name: AUTOCONF_SETTINGS_RECHECK_INTERVAL
-              value: {{ .Values.controller.settingsRecheckInterval | quote }}
-            {{- end }}
-            {{- if .Values.controller.extraEnvs }}
-            {{- toYaml .Values.controller.extraEnvs | nindent 12 }}
-            {{- end }}
-            {{- include "bunkerweb.logEnvs" . }}
+            {{- include "bunkerweb.mergeEnv" (dict "chart" (include "bunkerweb.controller.env" .) "extra" .Values.controller.extraEnvs) | nindent 12 }}
           {{- with .Values.controller.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
@@ -130,3 +64,71 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end }}
+
+{{/* Chart-generated controller container env, merged with extraEnvs by bunkerweb.mergeEnv. */}}
+{{- define "bunkerweb.controller.env" -}}
+# Mandatory for k8s integration
+- name: KUBERNETES_MODE
+  value: "yes"
+- name: KUBERNETES_REVERSE_PROXY_SUFFIX_START
+  value: "0"
+{{- if .Values.gatewayClass.enabled }}
+- name: KUBERNETES_GATEWAY_MODE
+  value: "yes"
+{{- end }}
+- name: DATABASE_URI
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: database-uri
+  {{- else }}
+  value: "{{ include "bunkerweb.databaseUri" . }}"
+  {{- end }}
+- name: NAMESPACES
+  value: "{{ .Values.settings.kubernetes.namespaces }}"
+- name: KUBERNETES_INGRESS_CLASS
+  value: "{{ .Values.settings.kubernetes.ingressClass }}"
+- name: KUBERNETES_SKIP_FOREIGN_CLASSES
+  value: "{{ ternary "yes" "no" .Values.settings.kubernetes.skipForeignClasses }}"
+- name: KUBERNETES_INGRESS_CONTROLLER
+  value: "{{ .Values.ingressClass.controller }}"
+- name: KUBERNETES_GATEWAY_CLASS
+  value: "{{ .Values.settings.kubernetes.gatewayClass }}"
+- name: KUBERNETES_GATEWAY_CONTROLLER
+  value: "{{ .Values.gatewayClass.controller }}"
+- name: KUBERNETES_DOMAIN_NAME
+  value: "{{ .Values.settings.kubernetes.domainName }}"
+- name: KUBERNETES_IGNORE_ANNOTATIONS
+  value: "{{ .Values.settings.kubernetes.ignoreAnnotations }}"
+{{- if .Values.settings.kubernetes.verifySsl }}
+- name: KUBERNETES_VERIFY_SSL
+  value: "{{ .Values.settings.kubernetes.verifySsl }}"
+{{- end }}
+{{- if .Values.settings.kubernetes.sslCaCert }}
+- name: KUBERNETES_SSL_CA_CERT
+  value: "{{ .Values.settings.kubernetes.sslCaCert }}"
+{{- end }}
+{{- if and .Values.gatewayClass.enabled .Values.settings.kubernetes.gatewayApiVersion }}
+- name: KUBERNETES_GATEWAY_API_VERSION
+  value: "{{ .Values.settings.kubernetes.gatewayApiVersion }}"
+{{- end }}
+{{- if .Values.settings.kubernetes.useFqdn }}
+- name: USE_KUBERNETES_FQDN
+  value: "{{ .Values.settings.kubernetes.useFqdn }}"
+{{- end }}
+{{- if .Values.settings.kubernetes.serviceProtocol }}
+- name: KUBERNETES_SERVICE_PROTOCOL
+  value: "{{ .Values.settings.kubernetes.serviceProtocol }}"
+{{- end }}
+- name: BUNKERWEB_SERVICE_NAME
+  value: "{{ include "bunkerweb.fullname" . }}-external"
+- name: BUNKERWEB_NAMESPACE
+  value: "{{ include "bunkerweb.namespace" . }}"
+{{- /* Guard on emptiness, not truthiness: 0 is a valid value that disables the worker. */}}
+{{- if ne (toString .Values.controller.settingsRecheckInterval) "" }}
+- name: AUTOCONF_SETTINGS_RECHECK_INTERVAL
+  value: {{ .Values.controller.settingsRecheckInterval | quote }}
+{{- end }}
+{{- include "bunkerweb.logEnvs" . | nindent 0 }}
+{{- end -}}

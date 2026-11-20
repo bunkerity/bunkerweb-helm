@@ -35,32 +35,7 @@ spec:
           image: "{{ .Values.grafana.repository }}:{{ .Values.grafana.tag }}"
           imagePullPolicy: {{ .Values.grafana.pullPolicy }}
           env:
-            - name: GF_SECURITY_ADMIN_USER
-              value: {{ .Values.grafana.adminUser | quote }}
-            {{- if .Values.grafana.existingSecret }}
-            - name: GF_SECURITY_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.grafana.existingSecret }}"
-                  key: admin-password
-            {{- else if .Values.grafana.adminPassword }}
-            - name: GF_SECURITY_ADMIN_PASSWORD
-              value: {{ .Values.grafana.adminPassword | quote }}
-            {{- else }}
-            {{- end }}
-            - name: GF_PATHS_DATA
-              value: /var/lib/grafana
-            - name: GF_PATHS_LOGS
-              value: /var/log/grafana
-            - name: GF_PATHS_PLUGINS
-              value: /var/lib/grafana/plugins
-            - name: GF_PATHS_PROVISIONING
-              value: /etc/grafana/provisioning
-            - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
-              value: /var/lib/grafana/dashboards/bunkerweb-20755.json
-            {{- if .Values.grafana.extraEnvs }}
-            {{- toYaml .Values.grafana.extraEnvs | nindent 12 }}
-            {{- end }}
+            {{- include "bunkerweb.mergeEnv" (dict "chart" (include "bunkerweb.grafana.env" .) "extra" .Values.grafana.extraEnvs) | nindent 12 }}
           ports:
             - name: grafana
               containerPort: {{ .Values.grafana.service.port }}
@@ -116,3 +91,30 @@ spec:
           emptyDir: {}
           {{- end }}
 {{- end }}
+
+{{/* Chart-generated grafana container env, merged with extraEnvs by bunkerweb.mergeEnv. */}}
+{{- define "bunkerweb.grafana.env" -}}
+- name: GF_SECURITY_ADMIN_USER
+  value: {{ .Values.grafana.adminUser | quote }}
+{{- if .Values.grafana.existingSecret }}
+- name: GF_SECURITY_ADMIN_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.grafana.existingSecret }}"
+      key: admin-password
+{{- else if .Values.grafana.adminPassword }}
+- name: GF_SECURITY_ADMIN_PASSWORD
+  value: {{ .Values.grafana.adminPassword | quote }}
+{{- else }}
+{{- end }}
+- name: GF_PATHS_DATA
+  value: /var/lib/grafana
+- name: GF_PATHS_LOGS
+  value: /var/log/grafana
+- name: GF_PATHS_PLUGINS
+  value: /var/lib/grafana/plugins
+- name: GF_PATHS_PROVISIONING
+  value: /etc/grafana/provisioning
+- name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+  value: /var/lib/grafana/dashboards/bunkerweb-20755.json
+{{- end -}}

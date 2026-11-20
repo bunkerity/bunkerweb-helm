@@ -36,31 +36,7 @@ spec:
             {{- toYaml .Values.mariadb.args | nindent 12 }}
           {{- end }}
           env:
-            - name: MARIADB_RANDOM_ROOT_PASSWORD
-              value: "{{ .Values.mariadb.config.randomRootPassword }}"
-            - name: MARIADB_DATABASE
-              value: "{{ .Values.mariadb.config.database }}"
-            - name: MARIADB_USER
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: mariadb-user
-              {{- else }}
-              value: "{{ .Values.mariadb.config.user }}"
-              {{- end }}
-            - name: MARIADB_PASSWORD
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: mariadb-password
-              {{- else }}
-              value: "{{ .Values.mariadb.config.password }}"
-              {{- end }}
-          {{- if .Values.mariadb.extraEnvs }}
-            {{- toYaml .Values.mariadb.extraEnvs | nindent 12 }}
-          {{- end }}
+            {{- include "bunkerweb.mergeEnv" (dict "chart" (include "bunkerweb.mariadb.env" .) "extra" .Values.mariadb.extraEnvs) | nindent 12 }}
           volumeMounts:
             - mountPath: "/var/lib/mysql"
               name: vol-db
@@ -71,3 +47,29 @@ spec:
     {{- include "bunkerweb.podNodeTolerations" (dict "comp" .Values.mariadb "root" .Values) }}
     {{- include "bunkerweb.podImagePullSecrets" (dict "comp" .Values.mariadb "root" .Values) }}
 {{- end }}
+
+{{/* Chart-generated mariadb container env, merged with extraEnvs by bunkerweb.mergeEnv. */}}
+{{- define "bunkerweb.mariadb.env" -}}
+- name: MARIADB_RANDOM_ROOT_PASSWORD
+  value: "{{ .Values.mariadb.config.randomRootPassword }}"
+- name: MARIADB_DATABASE
+  value: "{{ .Values.mariadb.config.database }}"
+- name: MARIADB_USER
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: mariadb-user
+  {{- else }}
+  value: "{{ .Values.mariadb.config.user }}"
+  {{- end }}
+- name: MARIADB_PASSWORD
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: mariadb-password
+  {{- else }}
+  value: "{{ .Values.mariadb.config.password }}"
+  {{- end }}
+{{- end -}}

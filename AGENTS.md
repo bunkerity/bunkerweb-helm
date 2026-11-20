@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents working in this repository.
 
 ## Project Overview
 
-BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.3.0, app version 1.6.17. Helm 3, API v2.
+BunkerWeb Helm chart — deploys BunkerWeb (open-source WAF/reverse proxy) on Kubernetes. Chart version 1.3.1, app version 1.6.17. Helm 3, API v2.
 
 ## Repository Layout
 
@@ -47,14 +47,16 @@ BunkerWeb deploys as a multi-component system:
 - **Controller** (`controller-deployment.yaml`) — watches Kubernetes Ingress and Gateway API resources, translates them to BunkerWeb config. Optional, enabled via `controller.enabled`.
 - **UI** (`ui-*.yaml`) — web management interface with syslog sidecar for log collection. Optional, enabled via `ui.enabled`.
 - **API** (`api-*.yaml`) — external REST API. Optional, enabled via `api.enabled`.
+- **MCP** (`mcp-*.yaml`) — MCP server for AI clients. Optional, enabled via `mcp.enabled`; it auto-enables the API when `mcp.config.bunkerwebBaseUrl` is empty (`bunkerweb.apiEnabled`).
 - **MariaDB/Redis/Prometheus/Grafana** — optional infrastructure components, each with their own deployment + service + PVC templates.
 
 ## Key Template Patterns
 
-**`_helpers.tpl`** (829 lines) contains critical helper functions:
+**`_helpers.tpl`** (844 lines) contains critical helper functions:
 - `bunkerweb.databaseUri` — builds the database connection string dynamically (internal MariaDB vs external)
 - `bunkerweb.featureEnvs` — generates environment variables from the large `scheduler.features` section in values.yaml. This is the most complex helper and maps feature config to BunkerWeb env vars.
 - `bunkerweb.redisEnv` — generates Redis connection env vars with auth support
+- `bunkerweb.mergeEnv` — every container's `env` goes through it: chart env (a `bunkerweb.<comp>.env` define) plus `<comp>.extraEnvs`, one entry per name, extraEnvs win. A new env var goes in that define, never inline after the include.
 - `bunkerweb.syslogAddress` — resolves syslog address for UI log forwarding
 
 **Conditional rendering**: Most components are gated by `.Values.<component>.enabled`. BunkerWeb kind selection uses three separate template files (`bunkerweb-deployment.yaml`, `bunkerweb-daemonset.yaml`, `bunkerweb-statefulset.yaml`) each guarded by `if eq .Values.bunkerweb.kind "<Kind>"`.
@@ -63,7 +65,7 @@ BunkerWeb deploys as a multi-component system:
 
 ## Values Structure
 
-`values.yaml` (1,521 lines) has these major sections:
+`values.yaml` (2,402 lines) has these major sections:
 - **`settings`** — BunkerWeb configuration: `kubernetes` (namespace, ingressClass), `misc` (databaseUri, DNS), `redis`, `ui`, `api`, `scheduler.features` (800+ lines of WAF feature toggles like ModSecurity, antibot, rate limiting, geo-blocking, etc.)
 - **`service`** — Kubernetes Service config (type, externalTrafficPolicy)
 - **`bunkerweb`** — core component config (kind, replicas, HPA, PDB, resources, probes, volumes, affinity)
@@ -74,7 +76,8 @@ BunkerWeb deploys as a multi-component system:
 
 ## CI/CD
 
-Three GitHub Actions workflows:
+Four GitHub Actions workflows:
+- `.github/workflows/pr.yml` — on pull requests to `dev`/`main`: advisory plumber scan + `validate-chart.sh`, read-only, no packaging or publishing
 - `.github/workflows/dev.yml` — on push to `dev` branch (charts/** changes): plumber + validate → package → upload to dev Helm repo via SSH
 - `.github/workflows/prod.yml` — on push to `main` branch: same pipeline but uploads to production Helm repo
 - `.github/workflows/plumber.yml` — reusable [Plumber](https://getplumber.io) CI/CD security scan (also weekly), gating both pipelines at `min-score: B`. Policy in `.github/plumber/` — see its README before adding a third-party action, which must be allowlisted there and SHA-pinned.

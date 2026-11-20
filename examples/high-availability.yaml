@@ -28,7 +28,7 @@ topologySpreadConstraints:
     matchLabels:
       app: bunkerweb
 settings:
-  existingSecret: bunkerweb-settings-secret.yaml
+  existingSecret: bunkerweb-settings-secret
   redis:
     redisHost: redis-bunkerweb.bunkerweb.svc.cluster.local
   ui:
@@ -53,7 +53,6 @@ bunkerweb:
     headless: false
   pdb:
     minAvailable: '1'
-    maxUnavailable: '2'
 scheduler:
   pullPolicy: Always
   resources:

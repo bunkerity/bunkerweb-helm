@@ -11,6 +11,17 @@ or `[CI]`.
 > initial-development note because those `0.0.x` numbers were reused across the `1.6.0-rc`
 > rollbacks.
 
+## v1.3.1 - 2026/11/20
+
+App version: `1.6.17`.
+
+- [BUGFIX] `ui.logs.enabled` now configures scheduler NGINX syslog destinations and Python syslog logging on every worker kind; temporary logging `extraEnvs` overrides are no longer needed but can stay (see below). (Refs #142)
+- [BUGFIX] An `extraEnvs` entry naming an env var the chart also sets (for example `SERVER_NAME`, `LOG_TYPES`) now replaces the chart's entry instead of rendering a duplicate, which could make `helm upgrade` fail on `$setElementOrder` or keep the chart's value instead of yours. A name repeated inside `extraEnvs` keeps its last entry, and on the scheduler, controller, UI and API `extraEnvs` now also win over the logging env. (Refs #147)
+- [BUGFIX] An `extraEnvs` override that referenced the chart's value, such as `DNS_RESOLVERS: "$(DNS_RESOLVERS) 192.0.2.53"`, now stays literal: write the full value.
+- [BUGFIX] `bunkerweb.pdb.minAvailable` renders alone (Kubernetes rejects both fields), and a `0` in `minAvailable` or `maxUnavailable` is honoured instead of falling back to `maxUnavailable: 1`.
+- [FEATURE] `bunkerweb.strategy` sets the update strategy of the BunkerWeb Deployment (`bunkerweb.kind: Deployment`); the default `{}` keeps the Kubernetes defaults. (#145, #146, thanks @anthosz)
+- **Upgrade step:** a release whose deployed manifest renders an env name twice in one container (an `extraEnvs` name the chart also sets, a name repeated inside `extraEnvs`, or the #142 logging workaround on an unreleased `dev` chart) loses that variable on the first `helm upgrade` to this version and runs pods without it until a second identical upgrade. Run the check in [Upgrading to 1.3.1](docs/README.md#upgrading-to-131) first; it reads the last deployed revision of the release. If it lists anything, follow that section's steps: pause the listed Deployments (`OnDelete` for a DaemonSet or StatefulSet), run `helm upgrade` twice without `--wait`, `--atomic` or `--force`, verify the variables, then restore the recorded update strategies and resume the Deployments, so Kubernetes rolls the pods itself (a workload recorded as `OnDelete` keeps its pods until you replace them).
+
 ## v1.3.0 - 2026/10/21
 
 App version: `1.6.17`.
@@ -18,7 +29,7 @@ App version: `1.6.17`.
 - [DEPS] upgrade to BunkerWeb 1.6.17.
 - [SECURITY] upstream: NGINX 1.30.6 (five CVEs), a custom-config `rewrite` no longer skips the access checks (bans, lists, rate limit, antibot, ModSecurity), and the TLS ban check matches nginx's address for IPv4-mapped IPv6 clients. Upgrade to get them.
 - [BUGFIX] A numeric `0` in a `scheduler.features` value (for example `databaseReadTimeout: 0`, `metricsRedisTtl: 0`) is rendered instead of dropped, so it no longer falls back to the upstream default.
-- [FEATURE] `scheduler.enabled` (default `true`): set it to `false` to skip the scheduler Deployment when a scheduler in another release or cluster manages this release's workers. The value was previously not read.
+- [FEATURE] `scheduler.enabled` (default `true`): set it to `false` to skip the scheduler Deployment when a scheduler in another release or cluster manages this release's workers. The value was previously not read. (#117, thanks @ReyhZhao)
 - [FEATURE] New 1.6.17 settings: `scheduler.features.databasePool.databaseConnectTimeout` and `databaseReadTimeout` (bound database calls, so a vanished database no longer blocks the scheduler, UI or API), `scheduler.features.badBehavior.badBehaviorReportMaxEvents` and `badBehaviorReportMaxStringSize` (bound ban evidence stored in Redis).
 
 ## v1.2.0 - 2026/10/15

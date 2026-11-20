@@ -8,11 +8,15 @@ metadata:
   labels:
     {{- include "bunkerweb.labels" . | nindent 4 }}
 spec:
-  {{- if .Values.bunkerweb.pdb.minAvailable }}
-  minAvailable: {{ .Values.bunkerweb.pdb.minAvailable }}
-  {{- end }}
-  {{- if or .Values.bunkerweb.pdb.maxUnavailable ( not .Values.bunkerweb.pdb.minAvailable ) }}
-  maxUnavailable: {{ .Values.bunkerweb.pdb.maxUnavailable | default 1 }}
+  {{- /* Kubernetes accepts only one of the two fields: minAvailable wins when set. Only null and "" mean unset: 0 is a real budget. */}}
+  {{- $min := .Values.bunkerweb.pdb.minAvailable }}
+  {{- $max := .Values.bunkerweb.pdb.maxUnavailable }}
+  {{- if not (or (kindIs "invalid" $min) (eq (toString $min) "")) }}
+  minAvailable: {{ $min }}
+  {{- else if or (kindIs "invalid" $max) (eq (toString $max) "") }}
+  maxUnavailable: 1
+  {{- else }}
+  maxUnavailable: {{ $max }}
   {{- end }}
   selector:
     matchLabels:

@@ -44,82 +44,7 @@ spec:
             {{- toYaml . | nindent 12}}
           {{- end }}
           env:
-            - name: DATABASE_URI
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: database-uri
-              {{- else }}
-              value: "{{ include "bunkerweb.databaseUri" . }}"
-              {{- end }}
-            - name: ADMIN_USERNAME
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: admin-username
-              {{- else }}
-              value: "{{ .Values.settings.ui.adminUsername }}"
-              {{- end }}
-            - name: ADMIN_PASSWORD
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: admin-password
-              {{- else }}
-              value: "{{ .Values.settings.ui.adminPassword }}"
-              {{- end }}
-            - name: TOTP_SECRETS
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: totp-secrets
-              {{- else }}
-              value: "{{ .Values.settings.ui.totpSecrets }}"
-              {{- end }}
-            - name: FLASK_SECRET
-              {{- if not (empty .Values.settings.existingSecret) }}
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Values.settings.existingSecret }}"
-                  key: flask-secret
-              {{- else }}
-              value: "{{ .Values.settings.ui.flaskSecret }}"
-              {{- end }}
-            {{- include "bunkerweb.apiTokenEnv" (dict "root" .) | nindent 12 }}
-            {{- include "bunkerweb.logEnvs" . }}
-            - name: OVERRIDE_ADMIN_CREDS
-              value: "{{ .Values.settings.ui.overrideAdminCreds }}"
-            {{- if .Values.settings.ui.maxContentLength }}
-            - name: UI_MAX_CONTENT_LENGTH
-              value: {{ .Values.settings.ui.maxContentLength | quote }}
-            {{- end }}
-            {{- if .Values.settings.ui.maxRequests }}
-            - name: UI_MAX_REQUESTS
-              value: {{ .Values.settings.ui.maxRequests | quote }}
-            {{- end }}
-            {{- if .Values.settings.ui.sessionLifetimeHours }}
-            - name: SESSION_LIFETIME_HOURS
-              value: {{ .Values.settings.ui.sessionLifetimeHours | quote }}
-            {{- end }}
-            {{- if .Values.settings.ui.sessionAbsoluteHours }}
-            - name: SESSION_ABSOLUTE_HOURS
-              value: {{ .Values.settings.ui.sessionAbsoluteHours | quote }}
-            {{- end }}
-            {{- if .Values.settings.ui.sessionRollingHours }}
-            - name: SESSION_ROLLING_HOURS
-              value: {{ .Values.settings.ui.sessionRollingHours | quote }}
-            {{- end }}
-            {{- if .Values.settings.ui.allowedHosts }}
-            - name: UI_ALLOWED_HOSTS
-              value: {{ .Values.settings.ui.allowedHosts | quote }}
-            {{- end }}
-            {{- if .Values.ui.extraEnvs }}
-              {{- toYaml .Values.ui.extraEnvs | nindent 12 }}
-            {{- end }}
+            {{- include "bunkerweb.mergeEnv" (dict "chart" (include "bunkerweb.ui.env" .) "extra" .Values.ui.extraEnvs) | nindent 12 }}
       {{- if .Values.ui.logs.enabled }}
           volumeMounts:
             - name: bunkerweb-logs
@@ -172,3 +97,80 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end }}
+
+{{/* Chart-generated ui container env, merged with extraEnvs by bunkerweb.mergeEnv. */}}
+{{- define "bunkerweb.ui.env" -}}
+- name: DATABASE_URI
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: database-uri
+  {{- else }}
+  value: "{{ include "bunkerweb.databaseUri" . }}"
+  {{- end }}
+- name: ADMIN_USERNAME
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: admin-username
+  {{- else }}
+  value: "{{ .Values.settings.ui.adminUsername }}"
+  {{- end }}
+- name: ADMIN_PASSWORD
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: admin-password
+  {{- else }}
+  value: "{{ .Values.settings.ui.adminPassword }}"
+  {{- end }}
+- name: TOTP_SECRETS
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: totp-secrets
+  {{- else }}
+  value: "{{ .Values.settings.ui.totpSecrets }}"
+  {{- end }}
+- name: FLASK_SECRET
+  {{- if not (empty .Values.settings.existingSecret) }}
+  valueFrom:
+    secretKeyRef:
+      name: "{{ .Values.settings.existingSecret }}"
+      key: flask-secret
+  {{- else }}
+  value: "{{ .Values.settings.ui.flaskSecret }}"
+  {{- end }}
+{{- include "bunkerweb.apiTokenEnv" (dict "root" .) | nindent 0 }}
+{{- include "bunkerweb.logEnvs" . | nindent 0 }}
+- name: OVERRIDE_ADMIN_CREDS
+  value: "{{ .Values.settings.ui.overrideAdminCreds }}"
+{{- if .Values.settings.ui.maxContentLength }}
+- name: UI_MAX_CONTENT_LENGTH
+  value: {{ .Values.settings.ui.maxContentLength | quote }}
+{{- end }}
+{{- if .Values.settings.ui.maxRequests }}
+- name: UI_MAX_REQUESTS
+  value: {{ .Values.settings.ui.maxRequests | quote }}
+{{- end }}
+{{- if .Values.settings.ui.sessionLifetimeHours }}
+- name: SESSION_LIFETIME_HOURS
+  value: {{ .Values.settings.ui.sessionLifetimeHours | quote }}
+{{- end }}
+{{- if .Values.settings.ui.sessionAbsoluteHours }}
+- name: SESSION_ABSOLUTE_HOURS
+  value: {{ .Values.settings.ui.sessionAbsoluteHours | quote }}
+{{- end }}
+{{- if .Values.settings.ui.sessionRollingHours }}
+- name: SESSION_ROLLING_HOURS
+  value: {{ .Values.settings.ui.sessionRollingHours | quote }}
+{{- end }}
+{{- if .Values.settings.ui.allowedHosts }}
+- name: UI_ALLOWED_HOSTS
+  value: {{ .Values.settings.ui.allowedHosts | quote }}
+{{- end }}
+{{- end -}}

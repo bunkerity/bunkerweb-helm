@@ -182,6 +182,239 @@ contains() {
     [[ $(echo "$1" | grep -cF -- "$2" || true) -gt 0 ]]
 }
 
+# Extract only the named container's env from a rendered workload.
+container_env() {
+    source_block "$1" | awk -v container="$2" '
+        /^        - name:/ { selected = ($3 == container); env = 0 }
+        selected && /^          env:/ { env = 1; next }
+        env && /^          [^ ]/ { env = 0 }
+        env { print }
+    '
+}
+
+# Require one literal env entry with the expected value, in the selected container.
+assert_env_value() {
+    local env=$1 name=$2 value=$3
+    if ! awk -v name="$name" -v value="\"$value\"" '
+        $1 == "-" && $2 == "name:" && $3 == name {
+            count++; getline; sub(/^ +value: /, ""); if ($0 == value) matched++
+        }
+        END { exit !(count == 1 && matched == 1) }
+    ' <<< "$env"; then
+        log_error "    ✗ $name missing, duplicated, or incorrect (expected: $value)"
+        return 1
+    fi
+}
+
+# Print "<document> <container> <name>" for each env name rendered more than once
+# in one container's env list of $output. Names legitimately repeat across containers.
+duplicate_env_names() {
+    awk '
+        /^---/ { src = ""; container = ""; env = 0; next }
+        /^# Source:/ { src = $3; next }
+        /^        - name:/ { container = $3; env = 0; next }
+        /^          env:/ { env = 1; next }
+        env && /^          [^ ]/ { env = 0 }
+        env && /^            - name:/ { if (seen[src SUBSEP container SUBSEP $3]++) print src " " container " " $3 }
+    ' <<< "$output"
+}
+
+# Print the value of env entry $2 in the env list $1 ("<valueFrom>" for a valueFrom
+# entry, quotes stripped). Fails unless the name appears exactly once.
+env_entry() {
+    awk -v name="$2" '
+        $1 == "-" && $2 == "name:" && $3 == name {
+            n++; getline
+            if ($1 == "valueFrom:") v = "<valueFrom>"
+            else { sub(/^ +value: /, ""); gsub(/^"|"$/, ""); v = $0 }
+        }
+        END { if (n != 1) exit 1; print v }
+    ' <<< "$1"
+}
+
+# Require env entry $3 of container $2 in rendered workload $1 to appear once with value $4.
+assert_env_entry() {
+    local env got
+    env=$(container_env "$1" "$2")
+    if ! got=$(env_entry "$env" "$3") || [[ "$got" != "$4" ]]; then
+        log_error "    ✗ $2 env $3 missing, duplicated, or not '$4' (got: ${got:-none})"
+        return 1
+    fi
+}
+
+# extraEnvs never duplicate a chart-generated env name (issue #147) and win over it.
+test_extra_envs_dedupe() {
+    log_info "Testing extraEnvs dedupe (issue #147) and PDB fields..."
+    local output kind dups env last
+    local wa="$TEMP_DIR/wa142.yaml" every="$TEMP_DIR/extra-envs-everywhere.yaml"
+
+    # The workaround posted on issue #142: extraEnvs naming chart-generated log envs.
+    cat > "$wa" <<'EOF'
+ui:
+  logs:
+    enabled: true
+scheduler:
+  extraEnvs:
+    - name: ACCESS_LOG_1
+      value: "syslog:server=ui-bunkerweb.bunkerweb.svc.cluster.local:514,tag=bunkerweb_access"
+    - name: ERROR_LOG_1
+      value: "syslog:server=ui-bunkerweb.bunkerweb.svc.cluster.local:514,tag=bunkerweb"
+bunkerweb:
+  extraEnvs:
+    - name: LOG_TYPES
+      value: "stderr syslog"
+    - name: LOG_SYSLOG_ADDRESS
+      value: "ui-bunkerweb.bunkerweb.svc.cluster.local:514"
+EOF
+    for kind in Deployment DaemonSet StatefulSet; do
+        log_info "  Testing #142 workaround values on $kind"
+        if ! render -f "$wa" --set bunkerweb.kind="$kind" --set controller.enabled=true --set api.enabled=true; then
+            log_error "    ✗ Failed to render the #142 workaround values"
+            echo "$output"
+            return 1
+        fi
+        dups=$(duplicate_env_names)
+        if [[ -n "$dups" ]]; then
+            log_error "    ✗ Duplicate env names with the #142 workaround: $dups"
+            return 1
+        fi
+        assert_env_entry "bunkerweb-${kind,,}.yaml" bunkerweb LOG_TYPES "stderr syslog" \
+            && assert_env_entry "bunkerweb-${kind,,}.yaml" bunkerweb LOG_SYSLOG_ADDRESS "ui-bunkerweb.bunkerweb.svc.cluster.local:514" \
+            && assert_env_entry scheduler-deployment.yaml bunkerweb-scheduler ACCESS_LOG_1 "syslog:server=ui-bunkerweb.bunkerweb.svc.cluster.local:514,tag=bunkerweb_access" \
+            && assert_env_entry scheduler-deployment.yaml bunkerweb-scheduler ERROR_LOG_1 "syslog:server=ui-bunkerweb.bunkerweb.svc.cluster.local:514,tag=bunkerweb" \
+            || return 1
+    done
+    log_success "    ✓ #142 workaround renders unique env names with the user's values"
+
+    # Every template that renders extraEnvs: override a chart-generated name, set a
+    # valueFrom override, repeat a name inside extraEnvs, and add an extra-only name.
+    cat > "$every" <<'EOF'
+api:
+  extraEnvs:
+    - {name: API_ROOT_PATH, value: user-api}
+controller:
+  extraEnvs:
+    - {name: KUBERNETES_MODE, value: user-controller}
+    - {name: CTRL_ONLY, value: kept}
+grafana:
+  enabled: true
+  extraEnvs:
+    - {name: GF_SECURITY_ADMIN_USER, value: user-grafana}
+    - {name: GF_DUP, value: first}
+    - {name: GF_DUP, value: last}
+mariadb:
+  extraEnvs:
+    - {name: MARIADB_RANDOM_ROOT_PASSWORD, value: user-mariadb}
+redis:
+  extraEnvs:
+    - name: REDIS_PASSWORD
+      valueFrom: {secretKeyRef: {name: user-secret, key: pw}}
+scheduler:
+  extraEnvs:
+    - {name: SERVER_NAME, value: user.example.com}
+    - {name: BUNKERWEB_INSTANCES, value: user-instances}
+ui:
+  extraEnvs:
+    - {name: OVERRIDE_ADMIN_CREDS, value: user-ui}
+bunkerweb:
+  extraEnvs:
+    - {name: DNS_RESOLVERS, value: user-bunkerweb}
+EOF
+    for kind in Deployment DaemonSet StatefulSet; do
+        log_info "  Testing extraEnvs on every component ($kind)"
+        if ! render -f "$every" --set bunkerweb.kind="$kind" --set controller.enabled=true --set api.enabled=true; then
+            log_error "    ✗ Failed to render extraEnvs on every component"
+            echo "$output"
+            return 1
+        fi
+        dups=$(duplicate_env_names)
+        if [[ -n "$dups" ]]; then
+            log_error "    ✗ Duplicate env names with extraEnvs overrides: $dups"
+            return 1
+        fi
+        assert_env_entry api-deployment.yaml bunkerweb-api API_ROOT_PATH user-api \
+            && assert_env_entry controller-deployment.yaml bunkerweb-controller KUBERNETES_MODE user-controller \
+            && assert_env_entry controller-deployment.yaml bunkerweb-controller CTRL_ONLY kept \
+            && assert_env_entry grafana-deployment.yaml grafana GF_SECURITY_ADMIN_USER user-grafana \
+            && assert_env_entry grafana-deployment.yaml grafana GF_DUP last \
+            && assert_env_entry mariadb-deployment.yaml mariadb MARIADB_RANDOM_ROOT_PASSWORD user-mariadb \
+            && assert_env_entry redis-deployment.yaml redis REDIS_PASSWORD "<valueFrom>" \
+            && assert_env_entry scheduler-deployment.yaml bunkerweb-scheduler SERVER_NAME user.example.com \
+            && assert_env_entry scheduler-deployment.yaml bunkerweb-scheduler BUNKERWEB_INSTANCES user-instances \
+            && assert_env_entry ui-deployment.yaml bunkerweb-ui OVERRIDE_ADMIN_CREDS user-ui \
+            && assert_env_entry "bunkerweb-${kind,,}.yaml" bunkerweb DNS_RESOLVERS user-bunkerweb \
+            || return 1
+        # extraEnvs entries stay after the chart's own entries
+        env=$(container_env grafana-deployment.yaml grafana)
+        last=$(awk '$1 == "-" && $2 == "name:" {n = $3} END {print n}' <<< "$env")
+        if [[ "$last" != GF_DUP ]]; then
+            log_error "    ✗ Grafana extraEnvs must render after the chart's env (last entry: $last)"
+            return 1
+        fi
+    done
+    log_success "    ✓ extraEnvs win, repeat-last, keep valueFrom, and render after chart env on every component"
+
+    log_info "  Testing scheduler BUNKERWEB_INSTANCES default without extraEnvs"
+    if ! render || ! assert_env_entry scheduler-deployment.yaml bunkerweb-scheduler BUNKERWEB_INSTANCES ""; then
+        log_error "    ✗ BUNKERWEB_INSTANCES must render once with the chart default"
+        return 1
+    fi
+    log_success "    ✓ BUNKERWEB_INSTANCES chart default preserved"
+
+    log_info "  Testing extraEnvs that is not a list fails with a clear message"
+    if render --set-json 'scheduler.extraEnvs={"name":"X","value":"y"}' \
+        || ! contains "$output" "extraEnvs must be a list"; then
+        log_error "    ✗ extraEnvs given as a map must fail with the 'extraEnvs must be a list' message"
+        return 1
+    fi
+    log_success "    ✓ non-list extraEnvs is rejected with a clear message"
+
+    log_info "  Testing PodDisruptionBudget renders one of minAvailable / maxUnavailable"
+    if ! render --set bunkerweb.replicas=2 --set bunkerweb.pdb.minAvailable=1 --set bunkerweb.pdb.maxUnavailable=1; then
+        log_error "    ✗ Failed to render the PodDisruptionBudget"
+        return 1
+    fi
+    local pdb
+    pdb=$(source_block bunkerweb-poddisruptionbudget.yaml)
+    if ! contains "$pdb" "minAvailable: 1" || contains "$pdb" "maxUnavailable"; then
+        log_error "    ✗ PDB with minAvailable set must not render maxUnavailable"
+        return 1
+    fi
+    render --set bunkerweb.replicas=2
+    pdb=$(source_block bunkerweb-poddisruptionbudget.yaml)
+    if ! contains "$pdb" "maxUnavailable: 1" || contains "$pdb" "minAvailable"; then
+        log_error "    ✗ Default PDB must render only maxUnavailable: 1"
+        return 1
+    fi
+    # Zero is a real budget: only null and "" count as unset.
+    local case_args want_field want_value other
+    for case_args in \
+        "minAvailable|0|--set bunkerweb.pdb.minAvailable=0" \
+        "minAvailable|0|--set-string bunkerweb.pdb.minAvailable=0 --set bunkerweb.pdb.maxUnavailable=2" \
+        "minAvailable|50%|--set-string bunkerweb.pdb.minAvailable=50%" \
+        "maxUnavailable|0|--set bunkerweb.pdb.maxUnavailable=0" \
+        "maxUnavailable|0|--set-string bunkerweb.pdb.maxUnavailable=0" \
+        "maxUnavailable|1|--set-string bunkerweb.pdb.maxUnavailable=" \
+        "maxUnavailable|25%|--set-string bunkerweb.pdb.maxUnavailable=25%"; do
+        IFS='|' read -r want_field want_value case_args <<< "$case_args"
+        other=minAvailable; [[ $want_field == minAvailable ]] && other=maxUnavailable
+        # shellcheck disable=SC2086  # the case's --set flags are meant to split
+        if ! render --set bunkerweb.replicas=2 $case_args; then
+            log_error "    ✗ Failed to render PDB case: $case_args"
+            return 1
+        fi
+        pdb=$(source_block bunkerweb-poddisruptionbudget.yaml)
+        if ! contains "$pdb" "  $want_field: $want_value" || contains "$pdb" "$other"; then
+            log_error "    ✗ PDB case '$case_args' must render only '$want_field: $want_value'"
+            echo "$pdb"
+            return 1
+        fi
+    done
+    log_success "    ✓ PDB renders minAvailable alone, maxUnavailable by default, and keeps a zero budget"
+
+    log_success "extraEnvs dedupe tests completed"
+}
+
 # Test specific BunkerWeb configurations
 test_bunkerweb_specific() {
     log_info "Testing BunkerWeb-specific configurations..."
@@ -469,34 +702,96 @@ test_bunkerweb_specific() {
         return 1
     fi
 
-    # Test syslogAddress helper
-    log_info "  Testing syslogAddress helper with default value"
-    if render --set ui.logs.enabled=true; then
-        # Use grep -c instead of grep -q to avoid SIGPIPE with pipefail
-        if contains "$output" "ui-test-bunkerweb"; then
-            log_success "    ✓ syslogAddress fallback to service works"
-        else
-            log_warning "    ⚠ syslogAddress fallback may not be working as expected"
-        fi
-    else
-        log_error "    ✗ Failed to generate templates with UI logs"
+    # Issue #142: inspect actual container env, not matching strings elsewhere in the chart.
+    local logging_mode address component env duplicates
+    local logging_args=()
+    for kind in Deployment DaemonSet StatefulSet; do
+        for logging_mode in disabled default custom; do
+            logging_args=(--set ui.logs.enabled=false)
+            address="ui-test-bunkerweb.default.svc.cluster.local:514"
+            if [[ "$logging_mode" != disabled ]]; then
+                logging_args=(--set ui.logs.enabled=true --set ui.logs.syslogAddress=)
+                if [[ "$logging_mode" == custom ]]; then
+                    address="custom-syslog.example.com:1514"
+                    logging_args+=(--set "ui.logs.syslogAddress=$address")
+                fi
+            fi
+            log_info "  Testing $kind logging: $logging_mode"
+            if ! render --set bunkerweb.kind="$kind" --set scheduler.enabled=true \
+                --set controller.enabled=true --set ui.enabled=true --set api.enabled=true \
+                "${logging_args[@]}"; then
+                log_error "    ✗ Failed to render $kind logging: $logging_mode"
+                echo "$output"
+                return 1
+            fi
+            for component in bunkerweb scheduler controller ui api; do
+                doc_name="$component-deployment.yaml"
+                local container="bunkerweb-$component"
+                if [[ "$component" == bunkerweb ]]; then
+                    doc_name="bunkerweb-${kind,,}.yaml"
+                    container=bunkerweb
+                fi
+                env=$(container_env "$doc_name" "$container")
+                if [[ -z "$env" ]]; then
+                    log_error "    ✗ $doc_name: $container env missing"
+                    return 1
+                fi
+                duplicates=$(awk '$1 == "-" && $2 == "name:" {print $3}' <<< "$env" | sort | uniq -d)
+                if [[ -n "$duplicates" ]]; then
+                    log_error "    ✗ $container has duplicate env names: $duplicates"
+                    return 1
+                fi
+                if [[ "$logging_mode" == disabled ]]; then
+                    if contains "$env" 'name: LOG_TYPES' || contains "$env" 'name: LOG_SYSLOG_ADDRESS' \
+                        || contains "$env" 'name: ACCESS_LOG_1' || contains "$env" 'name: ERROR_LOG_1'; then
+                        log_error "    ✗ $container has automatic syslog env with logging disabled"
+                        return 1
+                    fi
+                else
+                    log_info "    Checking $container logging env"
+                    assert_env_value "$env" LOG_TYPES "stderr syslog" || return 1
+                    assert_env_value "$env" LOG_SYSLOG_ADDRESS "$address" || return 1
+                    if [[ "$component" == bunkerweb || "$component" == scheduler ]]; then
+                        assert_env_value "$env" ACCESS_LOG_1 "syslog:server=$address,tag=bunkerweb_access" || return 1
+                        assert_env_value "$env" ERROR_LOG_1 "syslog:server=$address,tag=bunkerweb" || return 1
+                    fi
+                fi
+            done
+            log_success "    ✓ $kind logging: $logging_mode env values and unique names"
+        done
+    done
+    log_info "  Testing scheduler extraEnvs override NGINX log destinations"
+    if ! render --set ui.logs.enabled=true --set scheduler.enabled=true \
+        --set-json 'scheduler.extraEnvs=[{"name":"ACCESS_LOG_1","value":"/dev/stdout"},{"name":"ERROR_LOG_1","value":"stderr"}]'; then
+        log_error "    ✗ Failed to render scheduler NGINX log overrides"
+        echo "$output"
         return 1
     fi
-
-    log_info "  Testing syslogAddress helper with custom value"
-    if render \
-        --set ui.logs.enabled=true \
-        --set "ui.logs.syslogAddress=custom-syslog.example.com:514"; then
-        if contains "$output" "custom-syslog.example.com:514"; then
-            log_success "    ✓ Custom syslogAddress works"
-        else
-            log_error "    ✗ Custom syslogAddress not applied correctly"
+    env=$(container_env scheduler-deployment.yaml bunkerweb-scheduler)
+    local log_name log_value
+    for log_name in ACCESS_LOG_1 ERROR_LOG_1; do
+        log_value=/dev/stdout
+        if [[ "$log_name" == ERROR_LOG_1 ]]; then
+            log_value=stderr
+        fi
+        if ! awk -v name="$log_name" -v value="$log_value" '
+            $1 == "-" && $2 == "name:" && $3 == name {
+                getline; sub(/^ +value: /, ""); last = $0; found = 1
+            }
+            END { exit !(found && (last == value || last == "\"" value "\"")) }
+        ' <<< "$env"; then
+            log_error "    ✗ Scheduler $log_name override must appear last (expected: $log_value)"
             return 1
         fi
-    else
-        log_error "    ✗ Failed to generate templates with custom syslog address"
+    done
+    log_success "    ✓ Scheduler extraEnvs override both NGINX log destinations"
+
+    if ! render --set ui.logs.enabled=true --set scheduler.enabled=false \
+        || [[ -n "$(source_block scheduler-deployment.yaml)" ]]; then
+        log_error "    ✗ UI logging must not enable the disabled scheduler"
         return 1
     fi
+    log_success "    ✓ UI logging preserves scheduler.enabled=false"
 
     # Test DaemonSet rollout controls
     log_info "  Testing DaemonSet rollout controls (defaults)"
@@ -621,6 +916,7 @@ main() {
     run_helm_lint
     test_template_generation
     test_bunkerweb_specific
+    test_extra_envs_dedupe
 
     echo
     echo "========================================"
