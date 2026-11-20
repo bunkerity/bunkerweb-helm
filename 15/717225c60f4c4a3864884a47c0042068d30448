@@ -1,0 +1,28 @@
+charts/bunkerweb/Chart.yaml
+  s_b832e370e8b229::t_729304e9ca241a 18
+docs/values.md
+  s_b832e370e8b229::t_4f09752b101119 75
+CHANGELOG.md
+  s_b832e370e8b229::t_e1800a2414bf17 14-16
+  s_b832e370e8b229::t_3793b5d48965bb 22
+AGENTS.md
+  s_b832e370e8b229::t_34d9ec7214c89a 55
+  s_b832e370e8b229::t_e1a883b6824b3a 7
+  s_b832e370e8b229::t_2cdf2b278c3ec9 68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "15717225c60f4c4a3864884a47c0042068d30448",
+  "prompts": {},
+  "sessions": {
+    "s_b832e370e8b229": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "41f80b30-c1ac-45fb-987e-6fd2336e0f48",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    }
+  }
+}
