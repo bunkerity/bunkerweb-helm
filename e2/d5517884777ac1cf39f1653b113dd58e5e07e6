@@ -1,0 +1,58 @@
+charts/bunkerweb/templates/_helpers.tpl
+  s_2eb3ce3a9c92da::t_2642cd73162049 821
+  s_2eb3ce3a9c92da::t_b16ef66023e5eb 483
+  s_2eb3ce3a9c92da::t_61186b0fcf161d 799-800
+  s_2eb3ce3a9c92da::t_d9ddcc399b168a 596-600
+  s_2eb3ce3a9c92da::t_2a6d0c5aed0aa1 717
+  s_2eb3ce3a9c92da::t_5139d6920b8698 495
+  s_2eb3ce3a9c92da::t_9db0693567b589 533
+  s_2eb3ce3a9c92da::t_971930f0bb87ed 526
+AGENTS.md
+  s_2eb3ce3a9c92da::t_f4f01a9ff621f1 7
+  s_2eb3ce3a9c92da::t_a49021cb47fd9a 68
+  s_2eb3ce3a9c92da::t_ab8a3df518775e 55
+docs/values.md
+  s_2eb3ce3a9c92da::t_0ccd1b7a5bd886 76,146,202,256,288,290,302-305,315,318,357,427,520,545,693
+charts/bunkerweb/Chart.yaml
+  s_2eb3ce3a9c92da::t_7d61d93c3417b5 18,24
+charts/bunkerweb/values.yaml
+  s_2eb3ce3a9c92da::t_858105a4ace49b 1273-1276
+  s_2eb3ce3a9c92da::t_036c78159c745d 843-845
+  s_2eb3ce3a9c92da::t_7b5a3966a55cdf 1461-1462
+  s_2eb3ce3a9c92da::t_0d28bcd91437ab 866-868
+  s_2eb3ce3a9c92da::t_95720370794dec 1419-1424
+  s_2eb3ce3a9c92da::t_5417e6590d331d 1047-1054
+  s_2eb3ce3a9c92da::t_a0f60d83030f98 939-940
+  s_2eb3ce3a9c92da::t_7d598a46a0fe24 925-926
+  s_2eb3ce3a9c92da::t_7d61d93c3417b5 476,702,1557,1660,1791
+CHANGELOG.md
+  s_fce7656eca3a40::t_afe69205cd9416 22
+  s_2eb3ce3a9c92da::t_74580d790730a3 14-17,19-20,24
+  s_fce7656eca3a40::t_a2dcfbadfd8c18 18
+  s_fce7656eca3a40::t_156e1c9504d59f 23
+  s_fce7656eca3a40::t_572235c1d0375a 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e2d5517884777ac1cf39f1653b113dd58e5e07e6",
+  "prompts": {},
+  "sessions": {
+    "s_2eb3ce3a9c92da": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "60580cc2-11ad-4a27-b3e4-a099f0ec0fed",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    },
+    "s_fce7656eca3a40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4c5d23e4-3cd9-40ab-9c14-a271f8745d6e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "TheophileDiot <tdiot@bunkerity.com>"
+    }
+  }
+}
