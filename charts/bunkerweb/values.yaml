@@ -448,6 +448,23 @@ bunkerweb:
       # same node ports, so surge-based zero-downtime rollouts need hostPorts off
       maxUnavailable: 1
 
+  # Rollout strategy (Deployment kind only, ignored by DaemonSet & StatefulSet)
+  # An empty map keeps the Kubernetes defaults (RollingUpdate, 25% maxSurge, 25% maxUnavailable)
+  # type: "RollingUpdate" or "Recreate" (stops all pods before starting new ones)
+  # rollingUpdate is only rendered when type is RollingUpdate, ignored with Recreate
+  # Example, surge one pod and never drop below the desired replicas:
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     # Integer or percentage of extra pods allowed above the desired count
+  #     maxSurge: 1
+  #     # Integer or percentage of pods allowed unavailable during a rollout
+  #     maxUnavailable: 0
+  # Example, replace every pod at once (brief downtime):
+  # strategy:
+  #   type: Recreate
+  strategy: {}
+
   # Seconds a freshly started pod must stay ready before the DaemonSet rollout
   # moves on to the next node (DaemonSet kind only)
   # Raise it to let traffic settle before more capacity is drained

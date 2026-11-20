@@ -12,6 +12,15 @@ spec:
     matchLabels:
       {{- include "bunkerweb.selectorLabels" . | nindent 6 }}
       bunkerweb.io/component: "bunkerweb"
+  {{- with .Values.bunkerweb.strategy }}
+  {{- $strategyType := .type | default "RollingUpdate" }}
+  strategy:
+    type: {{ $strategyType }}
+    {{- if and (eq $strategyType "RollingUpdate") .rollingUpdate }}
+    rollingUpdate:
+      {{- toYaml .rollingUpdate | nindent 6 }}
+    {{- end }}
+  {{- end }}
   template:
     metadata:
       annotations:
